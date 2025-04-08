@@ -1,0 +1,78 @@
+/* Dark Theme styles for iMessage - using body class selector */
+
+/* These styles are only applied when body has the 'dark-mode' class */
+body.dark-mode {
+    background: #000000;
+}
+
+body.dark-mode .chat-container {
+    background: #1C1C1E;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode header {
+    background: #000000;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+body.dark-mode h1 {
+    color: white;
+}
+
+body.dark-mode select {
+    background-color: rgba(44, 44, 46, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+/* Message styles */
+body.dark-mode .bot-message {
+    background: #2C2C2E;
+    color: white;
+}
+
+body.dark-mode .user-message {
+    background: #0A84FF;
+}
+
+body.dark-mode #chat-window {
+    background: #1C1C1E;
+}
+
+/* Input area styles */
+body.dark-mode .input-area {
+    background: rgba(28, 28, 30, 0.95);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .input-container {
+    background: rgba(44, 44, 46, 0.9);
+}
+
+body.dark-mode #user-input {
+    color: white;
+}
+
+body.dark-mode #user-input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+/* Feedback buttons */
+body.dark-mode .feedback-icon {
+    filter: invert(1);
+}
+
+body.dark-mode .feedback-button {
+    background-color: rgba(70, 70, 75, 0.8);
+}
+
+body.dark-mode .feedback-button:hover {
+    background-color: rgba(100, 100, 105, 0.8);
+}
+
+/* Working indicator */
+body.dark-mode .working-indicator {
+    color: rgba(255, 255, 255, 0.6);
+}

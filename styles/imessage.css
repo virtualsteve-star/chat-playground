@@ -29,7 +29,7 @@ body {
 
 header {
     padding: 10px 16px;
-    background: rgba(255, 255, 255, 0.9);
+    background: #e4e4e9; /* Slightly darker gray background */
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     text-align: center;
 }
