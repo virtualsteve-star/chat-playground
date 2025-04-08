@@ -1,0 +1,224 @@
+/* Classic Terminal Green Screen Style */
+:root {
+    --terminal-green: #33ff33;
+    --terminal-bg: #000000;
+    --terminal-font: 'Courier', 'Courier New', monospace;
+    --glow-color: rgba(51, 255, 51, 0.4);
+}
+
+body {
+    background-color: var(--terminal-bg);
+    color: var(--terminal-green);
+    font-family: var(--terminal-font);
+    margin: 0;
+    padding: 20px;
+    line-height: 1.2;
+    text-shadow: 0 0 5px var(--glow-color);
+}
+
+/* CRT scan line effect */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.15),
+        rgba(0, 0, 0, 0.15) 1px,
+        transparent 1px,
+        transparent 2px
+    );
+    pointer-events: none;
+    z-index: 999;
+}
+
+/* Screen flicker animation */
+@keyframes flicker {
+    0% { opacity: 0.97; }
+    5% { opacity: 0.95; }
+    10% { opacity: 0.9; }
+    15% { opacity: 0.95; }
+    20% { opacity: 0.98; }
+    25% { opacity: 0.95; }
+    30% { opacity: 0.9; }
+    35% { opacity: 0.95; }
+    40% { opacity: 0.98; }
+    45% { opacity: 0.95; }
+    50% { opacity: 0.9; }
+    55% { opacity: 0.95; }
+    60% { opacity: 0.98; }
+    65% { opacity: 0.95; }
+    70% { opacity: 0.9; }
+    75% { opacity: 0.95; }
+    80% { opacity: 0.98; }
+    85% { opacity: 0.95; }
+    90% { opacity: 0.9; }
+    95% { opacity: 0.95; }
+    100% { opacity: 0.98; }
+}
+
+.chat-container {
+    animation: flicker 10s infinite;
+    background: none;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    max-width: 100%;
+}
+
+header {
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--terminal-green);
+}
+
+h1 {
+    font-size: 24px;
+    margin: 0 0 20px 0;
+    font-family: var(--terminal-font);
+}
+
+.controls {
+    display: flex;
+    gap: 10px;
+}
+
+select {
+    background: var(--terminal-bg);
+    color: var(--terminal-green);
+    border: 1px solid var(--terminal-green);
+    font-family: var(--terminal-font);
+    padding: 5px;
+    cursor: pointer;
+}
+
+select:focus {
+    outline: none;
+    box-shadow: 0 0 5px var(--glow-color);
+}
+
+/* Hide modern interface when in terminal mode */
+.green-screen .modern-interface {
+    display: none;
+}
+
+/* Show terminal interface when in terminal mode */
+.green-screen .terminal-interface {
+    display: block !important;
+}
+
+.terminal-window {
+    font-family: var(--terminal-font);
+    padding: 10px;
+    white-space: pre-wrap;
+    min-height: calc(100vh - 150px);
+    overflow-y: auto;
+}
+
+.terminal-line {
+    margin: 0;
+    padding: 0;
+    min-height: 1.2em;
+    width: 100%;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.user-command {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.system-response {
+    margin: 0;
+    padding: 0;
+    color: var(--terminal-green);
+    width: 100%;
+}
+
+/* Terminal prompt styling */
+.terminal-prompt {
+    display: block;
+    padding: 0;
+    font-family: var(--terminal-font);
+    width: 100%;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.prompt {
+    color: var(--terminal-green);
+}
+
+.input {
+    background: transparent;
+    color: var(--terminal-green);
+    border: none;
+    font-family: var(--terminal-font);
+    font-size: inherit;
+    padding: 0;
+    margin: 0;
+    outline: none;
+    min-width: 1ch;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+/* Blinking cursor */
+@keyframes blink-caret {
+    from, to { border-right-color: transparent }
+    50% { border-right-color: var(--terminal-green); }
+}
+
+.input {
+    border-right: 0.5em solid var(--terminal-green);
+    animation: blink-caret 1s infinite;
+}
+
+/* Remove the separate cursor element */
+.cursor {
+    display: none;
+}
+
+/* Working indicator */
+.working-indicator {
+    display: none;
+    color: var(--terminal-green);
+}
+
+.working-indicator.visible {
+    display: block;
+    animation: blink 1s infinite;
+}
+
+/* Hide scrollbars but keep functionality */
+::-webkit-scrollbar {
+    width: 8px;
+    background: var(--terminal-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--terminal-green);
+}
+
+/* Feedback buttons */
+.feedback-buttons {
+    margin-top: 5px;
+}
+
+.feedback-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--terminal-green);
+    font-family: var(--terminal-font);
+    padding: 2px 5px;
+}
+
+.feedback-button:hover {
+    text-shadow: 0 0 10px var(--glow-color);
+} 
