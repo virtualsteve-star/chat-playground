@@ -1,4 +1,54 @@
-# ELIZA Psychotherapist Personality
+# Eliza Psychoanalyst Personality
+# This personality simulates a psychoanalyst named Eliza using the classic ELIZA model
+
+# Introduction
+HELLO_MESSAGE=Hello! I'm Eliza, your psychoanalyst bot. How can I help you today?
+
+# Response patterns
+PATTERN=I need (.*);I understand you need {1}. Why do you need that?
+PATTERN=I want (.*);What would it mean to you if you got {1}?
+PATTERN=I am (.*);How long have you been {1}?
+PATTERN=I'm (.*);Tell me more about being {1}.
+PATTERN=Are you (.*);Does it matter to you whether I am {1}?
+PATTERN=What (.*);Why do you ask what {1}?
+PATTERN=How (.*);What answer would be most helpful to you?
+PATTERN=When (.*);How would knowing when {1} help you?
+PATTERN=Why (.*);What do you think might be the reason?
+PATTERN=Where (.*);How would knowing where {1} help you?
+PATTERN=Who (.*);Who do you think {1}?
+PATTERN=(.*) because (.*);Is that the real reason? Tell me more.
+PATTERN=(.*) sorry (.*);There's no need to apologize. Let's explore why you feel that way.
+PATTERN=Hello(.*);Hello! I'm Eliza, your psychoanalyst bot. How can I help you today?
+PATTERN=Hi(.*);Hello! I'm Eliza, your psychoanalyst bot. How can I help you today?
+PATTERN=Yes(.*);You seem quite certain. Tell me more.
+PATTERN=No(.*);Why not?
+PATTERN=(.*) maybe (.*);You don't seem certain. What makes you unsure?
+PATTERN=(.*) always (.*);Can you think of a specific example?
+PATTERN=(.*) never (.*);Never is a strong word. Are you sure?
+PATTERN=(.*) everyone (.*);Really, everyone? Can you think of exceptions?
+PATTERN=(.*) nobody (.*);Are you sure nobody {1}?
+PATTERN=(.*) someone (.*);Can you be more specific about who?
+PATTERN=(.*) mother(.*);Tell me more about your family.
+PATTERN=(.*) father(.*);How do you feel about your father?
+PATTERN=(.*) child(.*);Did you have similar experiences as a child?
+PATTERN=(.*) computer(.*);Do computers worry you? Why?
+PATTERN=(.*) dream(.*);What does this dream suggest to you?
+PATTERN=I feel (.*);Let's explore why you feel {1}.
+PATTERN=I believe (.*);Why do you believe {1}?
+PATTERN=I think (.*);Why do you think {1}?
+PATTERN=I remember (.*);What other memories do you have about {1}?
+PATTERN=(.*)\?;Why do you ask that?
+
+# Default responses for when no pattern matches
+DEFAULT=Tell me more about that.
+DEFAULT=How does that make you feel?
+DEFAULT=Please go on.
+DEFAULT=I see. And how do you feel about that?
+DEFAULT=That's interesting. Can you elaborate?
+DEFAULT=What does that suggest to you?
+DEFAULT=How does that relate to your feelings?
+DEFAULT=Let's explore that further.
+DEFAULT=I understand. Please continue.
 
 [greetings]
 Hello, I'm here to listen.

@@ -47,11 +47,12 @@ function initializeApp() {
     }
 }
 
-// Handle personality change
+// Handle personality change - REVERTED to clear history and view
 function handlePersonalityChange(event) {
     const personalityName = event.target.value;
     if (!personalityName) return;
-    
+
+    console.log(`[${Date.now()}] Personality Change: Starting for '${personalityName}'`);
     try {
         // Load configuration files
         const personalitiesConfig = window.ChatUtils.loadProperties('config/personalities.properties');
@@ -69,81 +70,52 @@ function handlePersonalityChange(event) {
             throw new Error(`Invalid configuration for personality "${personalityName}"`);
         }
         
-        // Clear the chat window and message history
-        const chatWindow = document.getElementById('chat-window');
-        chatWindow.innerHTML = '';
-        messageHistory = [];
-        
+        // Determine current mode BEFORE changing history
+        const isTerminalMode = document.body.classList.contains('green-screen');
+
         // Create and initialize the appropriate model
-        if (modelName === 'Eliza') {
-            currentModel = new window.ElizaModel();
+        if (modelName === 'SimpleBot' || modelName === 'ChatGPT 4o-mini') {
+            // Create the appropriate model instance
+            currentModel = modelName === 'SimpleBot' ? new window.SimpleBotModel() : new window.OpenAIModel();
+            
             currentModel.initialize(resourcePath).then(() => {
+                console.log(`[${Date.now()}] Personality Change: Model initialized for '${personalityName}'`);
                 currentPersonality = personalityName;
-                
-                // Add a welcome message
-                const greeting = `Hello! I'm your ${personalityName}. How can I help you today?`;
-                if (document.body.classList.contains('green-screen')) {
+
+                // Construct the greeting message
+                const personalityNameOnly = personalityName.split(' (')[0];
+                const role = personalityName.match(/\((.*?)\)/)[1].toLowerCase();
+                const modelInfo = modelName === 'SimpleBot' ? 'built with SimpleBot' : `based on ${modelName}`;
+                const greeting = `Hello! I'm ${personalityNameOnly}, your ${role} bot ${modelInfo}. How can I help you today?`;
+
+                // Clear message history and start fresh with ONLY the greeting
+                console.log(`[${Date.now()}] Personality Change: Clearing history and adding greeting.`);
+                messageHistory = [{ role: 'assistant', content: greeting }];
+
+                // Clear the appropriate view and add the greeting
+                if (isTerminalMode) {
+                    console.log(`[${Date.now()}] Personality Change: Clearing terminal and adding greeting.`);
                     const terminalWindow = document.getElementById('terminal-window');
-                    terminalWindow.innerHTML = '';
-                    appendToTerminal(greeting, 'system-response');
-                    
-                    // Re-add the prompt
-                    const promptElement = document.createElement('div');
-                    promptElement.className = 'terminal-prompt';
-                    promptElement.innerHTML = '<span class="prompt">> </span><span id="terminal-input" class="input" contenteditable="true" spellcheck="false"></span>';
-                    terminalWindow.appendChild(promptElement);
-                    
-                    // Ensure terminal input is focused
-                    setTimeout(() => {
-                        const terminalInput = document.getElementById('terminal-input');
-                        if (terminalInput) {
-                            terminalInput.focus();
-                        }
-                    }, 100);
+                    if (terminalWindow) {
+                        terminalWindow.innerHTML = ''; // Clear
+                        appendToTerminal(greeting, 'system-response'); // Add greeting
+                        // Add the prompt structure (since view is cleared)
+                        const newInput = addTerminalPrompt(terminalWindow);
+                        if (newInput) setTimeout(() => newInput.focus(), 0); // Focus
+                    } else {
+                        console.error('Terminal window not found during personality change');
+                    }
                 } else {
-                    window.ChatUtils.addMessageToChat(greeting, false);
-                    messageHistory.push({ role: 'assistant', content: greeting });
-                    const userInput = document.getElementById('user-input');
-                    if (userInput) userInput.focus();
+                    console.log(`[${Date.now()}] Personality Change: Clearing chat window and adding greeting.`);
+                    const chatWindow = document.getElementById('chat-window');
+                    if (chatWindow) {
+                        chatWindow.innerHTML = ''; // Clear
+                        window.ChatUtils.addMessageToChat(greeting, false); // Add greeting
+                        const userInput = document.getElementById('user-input');
+                        if (userInput) userInput.focus(); // Focus non-terminal input
+                     }
                 }
-                
-                console.log(`Switched to personality: ${personalityName}`);
-            }).catch(error => {
-                console.error('Error initializing model:', error);
-                alert(`Failed to initialize model for "${personalityName}". Please check the console for details.`);
-            });
-        } else if (modelName === 'ChatGPT 4o-mini') {
-            currentModel = new window.OpenAIModel();
-            currentModel.initialize(resourcePath).then(() => {
-                currentPersonality = personalityName;
-                
-                // Add a welcome message
-                const greeting = `Hello! I'm your ${personalityName}. How can I help you today?`;
-                if (document.body.classList.contains('green-screen')) {
-                    const terminalWindow = document.getElementById('terminal-window');
-                    terminalWindow.innerHTML = '';
-                    appendToTerminal(greeting, 'system-response');
-                    
-                    // Re-add the prompt
-                    const promptElement = document.createElement('div');
-                    promptElement.className = 'terminal-prompt';
-                    promptElement.innerHTML = '<span class="prompt">> </span><span id="terminal-input" class="input" contenteditable="true" spellcheck="false"></span>';
-                    terminalWindow.appendChild(promptElement);
-                    
-                    // Ensure terminal input is focused
-                    setTimeout(() => {
-                        const terminalInput = document.getElementById('terminal-input');
-                        if (terminalInput) {
-                            terminalInput.focus();
-                        }
-                    }, 100);
-                } else {
-                    window.ChatUtils.addMessageToChat(greeting, false);
-                    messageHistory.push({ role: 'assistant', content: greeting });
-                    const userInput = document.getElementById('user-input');
-                    if (userInput) userInput.focus();
-                }
-                
+
                 console.log(`Switched to personality: ${personalityName}`);
             }).catch(error => {
                 console.error('Error initializing model:', error);
@@ -158,30 +130,46 @@ function handlePersonalityChange(event) {
     }
 }
 
-// Handle style change
+// Handle style change - REVERTED to preserve history and manage UI visibility
 function handleStyleChange(event) {
     const styleName = event.target.value;
+    const oldStyle = document.body.classList.contains('green-screen') ? 'green-screen' : 
+                     (document.getElementById('style-sheet').href.includes('imessage') ? 'imessage' : 'vanilla');
+                     
+    if (styleName === oldStyle) return;
+
+    console.log(`[${Date.now()}] handleStyleChange: START - From '${oldStyle}' to '${styleName}'`);
     window.ChatUtils.changeStyle(styleName);
-    
-    // Toggle terminal mode
-    document.body.classList.remove('green-screen');
+
+    const terminalWindow = document.getElementById('terminal-window');
+    const chatWindow = document.getElementById('chat-window');
+    const modernInterface = document.querySelector('.modern-interface');
+    const terminalInterface = document.querySelector('.terminal-interface');
+
+    // --- UI Visibility Control ---
     if (styleName === 'green-screen') {
-        document.body.classList.add('green-screen');
-        
-        // Transfer existing conversation to terminal format
-        const terminalWindow = document.getElementById('terminal-window');
-        
-        // Clear any existing content in terminal window
-        terminalWindow.innerHTML = '';
-        
-        // Add initial greeting if this is the first time
-        if (messageHistory.length === 0 && currentPersonality) {
-            const greeting = `Hello! I'm your ${currentPersonality}. How can I help you today?`;
-            appendToTerminal(greeting, 'system-response');
-            messageHistory.push({ role: 'assistant', content: greeting });
-        }
-        
-        // Transfer each message from the chat history
+        if (modernInterface) modernInterface.style.display = 'none';
+        if (terminalInterface) terminalInterface.style.display = ''; // Use default (likely block)
+        document.body.classList.add('green-screen'); 
+    } else {
+        if (modernInterface) modernInterface.style.display = ''; // Use default
+        if (terminalInterface) terminalInterface.style.display = 'none';
+        document.body.classList.remove('green-screen');
+    }
+    // --- End UI Visibility --- 
+
+    // Remove old listeners if switching away from terminal
+    if (oldStyle === 'green-screen' && styleName !== 'green-screen') {
+        console.log(`[${Date.now()}] Style Change: Removing terminal listeners.`);
+        terminalWindow.removeEventListener('keydown', handleTerminalKeyDown);
+        terminalWindow.removeEventListener('click', handleTerminalClick);
+    }
+    
+    // Setup based on NEW style
+    if (styleName === 'green-screen') {
+        console.log(`[${Date.now()}] Style Change: Switched TO green-screen. Redrawing history.`);
+        // Redraw history into terminal
+        terminalWindow.innerHTML = ''; // Clear terminal
         messageHistory.forEach(msg => {
             if (msg.role === 'user') {
                 appendToTerminal(`> ${msg.content}`, 'user-command');
@@ -189,143 +177,241 @@ function handleStyleChange(event) {
                 appendToTerminal(msg.content, 'system-response');
             }
         });
-        
-        // Add the prompt at the end
-        const promptElement = document.createElement('div');
-        promptElement.className = 'terminal-prompt';
-        promptElement.innerHTML = '<span class="prompt">> </span><span id="terminal-input" class="input" contenteditable="true" spellcheck="false"></span>';
-        terminalWindow.appendChild(promptElement);
-        
-        // Set up terminal input handling and ensure focus
-        setupTerminalInput();
-        
-        // Ensure terminal input is focused
-        setTimeout(() => {
-            const terminalInput = document.getElementById('terminal-input');
-            if (terminalInput) {
-                terminalInput.focus();
-            }
-        }, 100);
-        
-        // Ensure we're scrolled to the bottom
-        terminalWindow.scrollTop = terminalWindow.scrollHeight;
-    } else {
-        // Transfer terminal messages back to chat format if switching away from terminal
-        const terminalWindow = document.getElementById('terminal-window');
-        const chatWindow = document.getElementById('chat-window');
-        
-        // Clear chat window
-        chatWindow.innerHTML = '';
-        
-        // Add initial greeting if this is the first time
-        if (messageHistory.length === 0 && currentPersonality) {
-            const greeting = `Hello! I'm your ${currentPersonality}. How can I help you today?`;
-            window.ChatUtils.addMessageToChat(greeting, false);
-            messageHistory.push({ role: 'assistant', content: greeting });
+        const newInput = addTerminalPrompt(terminalWindow); // Add ONE prompt
+
+        // Add listeners if we just entered terminal mode
+        if (oldStyle !== 'green-screen') {
+             console.log(`[${Date.now()}] Style Change: Adding terminal listeners.`);
+             terminalWindow.addEventListener('keydown', handleTerminalKeyDown);
+             terminalWindow.addEventListener('click', handleTerminalClick);
         }
         
-        // Transfer all messages from history
+        // Set focus immediately
+        if (newInput) {
+             console.log(`[${Date.now()}] Style Change: Focusing terminal input immediately.`);
+             try {
+                newInput.focus();
+             } catch (focusError) {
+                console.error(`[${Date.now()}] Error during immediate focus in handleStyleChange:`, focusError);
+             }
+        }
+         // Scroll after redraw (keep timeout for scroll)
+         setTimeout(() => terminalWindow.scrollTop = terminalWindow.scrollHeight, 0);
+
+    } else { // Switched FROM green-screen or between non-terminal styles
+        console.log(`[${Date.now()}] Style Change: Switched to non-terminal. Redrawing history.`);
+        // Redraw history into chat window
+        chatWindow.innerHTML = ''; // Clear chat
         messageHistory.forEach(msg => {
             window.ChatUtils.addMessageToChat(msg.content, msg.role === 'user');
         });
         
-        // Focus the regular input after a short delay to ensure DOM is ready
+        // Focus regular input
         setTimeout(() => {
             const userInput = document.getElementById('user-input');
-            if (userInput) {
-                userInput.focus();
-            }
+            if (userInput) userInput.focus();
         }, 100);
+        // Scroll after redraw
+        setTimeout(() => chatWindow.scrollTop = chatWindow.scrollHeight, 0);
+    }
+    console.log(`[${Date.now()}] handleStyleChange: END - From '${oldStyle}' to '${styleName}'`);
+}
+
+// Delegated Keydown Handler for Terminal
+function handleTerminalKeyDown(event) {
+    if (event.key === 'Enter' && event.target.id === 'terminal-input') {
+        console.log(`[${Date.now()}] Delegated Enter pressed on:`, event.target);
+        event.preventDefault();
+        const currentInput = event.target;
+        const command = currentInput.textContent.trim();
+        if (!command) return;
+
+        // Process the command, passing the element to modify later
+        processTerminalCommand(currentInput, command);
     }
 }
 
-// Terminal-specific functions
-function setupTerminalInput() {
-    const terminalInput = document.getElementById('terminal-input');
-    const terminalWindow = document.getElementById('terminal-window');
+// Delegated Click Handler for Terminal
+function handleTerminalClick(event) {
     const controls = document.querySelector('.controls');
+    // Don't handle clicks on the input itself or the controls
+    if (!controls.contains(event.target)) {
+        const currentInput = document.getElementById('terminal-input');
+        // Let the browser handle focus, just ensure the input gets it if clicking elsewhere
+        if (currentInput && !currentInput.contains(event.target)) {
+            // Use a minimal timeout to avoid conflicts
+            setTimeout(() => currentInput.focus(), 0);
+        }
+    }
+}
+
+// Adds the terminal prompt structure
+function addTerminalPrompt(passedTerminalWindow) {
+    console.log(`[${Date.now()}] Adding new prompt structure`);
+    const newPromptDiv = document.createElement('div');
+    newPromptDiv.className = 'terminal-prompt';
+    const promptSymbolSpan = document.createElement('span');
+    promptSymbolSpan.className = 'prompt';
+    promptSymbolSpan.textContent = '> ';
+    const newInputSpan = document.createElement('span');
+    newInputSpan.id = 'terminal-input';
+    newInputSpan.className = 'input';
+    newInputSpan.contentEditable = 'true';
+    newInputSpan.spellcheck = false;
     
-    // Focus the input initially
-    terminalInput.focus();
+    newPromptDiv.appendChild(promptSymbolSpan);
+    newPromptDiv.appendChild(newInputSpan);
+
+    const targetWindow = document.getElementById('terminal-window');
+    if (targetWindow) {
+        console.log(`[${Date.now()}] DEBUG: Explicitly fetched target for appendChild:`, targetWindow);
+        targetWindow.appendChild(newPromptDiv);
+    } else {
+        console.error("!!! Critical Error: #terminal-window not found in addTerminalPrompt !!!");
+    }
+
+    console.log(`[${Date.now()}] DEBUG: Inside addTerminalPrompt, originally passed variable was:`, passedTerminalWindow);
+
+    console.log(`[${Date.now()}] New prompt added:`, { newPromptDiv, newInputSpan });
+    return newInputSpan; // Return the new input span for focusing
+}
+
+// Core logic for processing a command
+async function processTerminalCommand(inputElementToProcess, command) {
+    const terminalWindow = document.getElementById('terminal-window');
+    if (!terminalWindow) return; // Should not happen in terminal mode
     
-    // Handle terminal input
-    terminalInput.addEventListener('keydown', async function(event) {
-        if (event.key === 'Enter') {
-            event.preventDefault();
-            
-            const command = terminalInput.textContent.trim();
-            if (!command) return;
-            
-            // Clear input
-            terminalInput.textContent = '';
-            
-            // Add command to terminal and message history
-            appendToTerminal(`> ${command}`, 'user-command');
-            messageHistory.push({ role: 'user', content: command });
-            
-            // Show working indicator
-            window.ChatUtils.toggleWorkingIndicator(true);
-            
+    // Add to message history FIRST (before any awaits)
+    messageHistory.push({ role: 'user', content: command });
+    
+    // Show working indicator
+    window.ChatUtils.toggleWorkingIndicator(true);
+    
+    let responseReceived = false;
+    
+    try {
+        if (!currentModel) throw new Error('No model selected');
+        const response = await currentModel.generateResponse(command, { messages: messageHistory });
+        
+        // Handle streaming response
+        if (response && typeof response[Symbol.asyncIterator] === 'function') {
+            let fullResponse = '';
+            let responseElement = null;
+            console.log(`[${Date.now()}] Stream: Starting`);
             try {
-                // Generate response
-                const response = await currentModel.generateResponse(command, { messages: messageHistory });
-                
-                // Handle streaming response
-                if (response && typeof response[Symbol.asyncIterator] === 'function') {
-                    let fullResponse = '';
-                    let responseElement = null;
-                    
-                    for await (const chunk of response) {
-                        if (chunk) {
-                            if (!responseElement) {
-                                responseElement = document.createElement('div');
-                                responseElement.className = 'terminal-line system-response';
-                                terminalWindow.appendChild(responseElement);
-                            }
-                            fullResponse += chunk;
-                            responseElement.textContent = fullResponse;
-                            terminalWindow.scrollTop = terminalWindow.scrollHeight;
+                let chunkCount = 0;
+                for await (const chunk of response) {
+                    chunkCount++;
+                    console.log(`[${Date.now()}] Stream: Received chunk ${chunkCount}`);
+                    if (chunk) {
+                        if (!responseElement) {
+                            console.log(`[${Date.now()}] Stream: Creating responseElement`);
+                            responseElement = document.createElement('div');
+                            responseElement.className = 'terminal-line system-response';
+                            terminalWindow.appendChild(responseElement);
                         }
+                        fullResponse += chunk;
+                        console.log(`[${Date.now()}] Stream: Before textContent update (len: ${fullResponse.length})`);
+                        responseElement.textContent = fullResponse;
                     }
+                }
+                console.log(`[${Date.now()}] Stream: Finished loop`);
+                if (fullResponse) {
+                    responseReceived = true;
                     messageHistory.push({ role: 'assistant', content: fullResponse });
-                } else {
-                    // Handle non-streaming response
-                    appendToTerminal(response, 'system-response');
-                    messageHistory.push({ role: 'assistant', content: response });
                 }
-            } catch (error) {
-                console.error('Error generating response:', error);
-                appendToTerminal('Error: Command processing failed. Please try again.', 'system-response');
-            } finally {
-                // Hide working indicator
-                window.ChatUtils.toggleWorkingIndicator(false);
-                // Move prompt to end
-                const promptElement = document.querySelector('.terminal-prompt');
-                if (promptElement) {
-                    terminalWindow.appendChild(promptElement);
+                // Scroll only ONCE after the entire stream is processed
+                if (responseElement) { // Check if element was actually created
+                     console.log(`[${Date.now()}] Stream: Scrolling after loop finished`);
+                     terminalWindow.scrollTop = terminalWindow.scrollHeight;
                 }
-                terminalWindow.scrollTop = terminalWindow.scrollHeight;
-                terminalInput.focus();
+            } catch (streamError) {
+                 console.error(`[${Date.now()}] Stream: Error during streaming`, streamError);
+                throw streamError; // Rethrow to be caught by outer catch
             }
+             console.log(`[${Date.now()}] Stream: Exiting`);
+        } else if (response) {
+            // Handle non-streaming response
+            appendToTerminal(response, 'system-response');
+            messageHistory.push({ role: 'assistant', content: response });
+            responseReceived = true;
+        } else {
+            // Allow empty responses, just don't set responseReceived = true
+            console.log('Model returned an empty response.');
+            // throw new Error('No response received from model'); // Don't throw error for empty response
         }
-    });
-    
-    // Only refocus input when clicking in the terminal window, not the controls
-    document.addEventListener('click', function(event) {
-        // Don't refocus if clicking on or inside the controls section
-        if (!controls.contains(event.target)) {
-            terminalInput.focus();
-        }
-    });
-    
-    // Handle focus on dropdowns
-    const dropdowns = document.querySelectorAll('select');
-    dropdowns.forEach(dropdown => {
-        dropdown.addEventListener('change', function(event) {
-            // After selection, return focus to terminal input
-            setTimeout(() => terminalInput.focus(), 100);
+    } catch (error) {
+        console.error('Error generating response:', error);
+        appendToTerminal(`Error: ${error.message || 'Command processing failed. Please try again.'}`, 'system-response');
+        responseReceived = true; 
+    } finally {
+        console.log(`[${Date.now()}] Entering finally block`);
+        window.ChatUtils.toggleWorkingIndicator(false);
+
+        // NOW modify the processed input element
+        const currentPromptDiv = inputElementToProcess.closest('.terminal-prompt, .terminal-line'); // Find parent
+        console.log(`[${Date.now()}] Before modifying processed input:`, { 
+            inputElementToProcess,
+            foundParent: currentPromptDiv,
+            parentClassBefore: currentPromptDiv ? currentPromptDiv.className : 'N/A' 
         });
-    });
+        inputElementToProcess.removeAttribute('id'); // ID should already be gone if re-entered, but be sure
+        inputElementToProcess.contentEditable = 'false'; // Ensure it's non-editable
+        inputElementToProcess.classList.remove('input'); // Remove the class that causes blinking
+        inputElementToProcess.textContent = command; // Set final text (WITHOUT prepending '> ')
+        if (currentPromptDiv) {
+            currentPromptDiv.className = 'terminal-line user-command'; // Final class
+        } else {
+            console.warn(`[${Date.now()}] Could not find parent div for processed input:`, inputElementToProcess);
+        }
+        console.log(`[${Date.now()}] After modifying processed input:`, { 
+            inputElementToProcess,
+            modifiedParent: currentPromptDiv,
+            parentClassAfter: currentPromptDiv ? currentPromptDiv.className : 'N/A'
+        });
+
+        // If we didn't get any response (and didn't show an error), show a message
+        if (!responseReceived) {
+            // Don't show error for intentionally empty responses
+            // appendToTerminal('Info: No response generated.', 'system-response');
+        }
+        
+        // Add a brand new prompt structure using the helper
+        console.log(`[${Date.now()}] DEBUG: Before calling addTerminalPrompt, terminalWindow is:`, terminalWindow);
+        const newInputSpan = addTerminalPrompt(terminalWindow);
+        
+        // Focus and scroll immediately (removed setTimeout wrappers)
+        try {
+            console.log(`[${Date.now()}] Attempting immediate focus`, { newInputSpan });
+            newInputSpan.focus();
+            console.log(`[${Date.now()}] Immediate focus called`);
+
+            // Log state just before next repaint
+            requestAnimationFrame(() => {
+                console.log(`[${Date.now()}] RAF: Logging state before repaint`);
+                console.log(`[${Date.now()}] RAF: Active Element:`, document.activeElement);
+                console.log(`[${Date.now()}] RAF: Scroll State:`, { 
+                    scrollTop: terminalWindow.scrollTop,
+                    scrollHeight: terminalWindow.scrollHeight,
+                    clientHeight: terminalWindow.clientHeight 
+                });
+                console.log(`[${Date.now()}] RAF: terminalWindow.innerHTML:
+--- START ---`, terminalWindow.innerHTML, `--- END ---`);
+                if (terminalWindow.parentElement) {
+                    console.log(`[${Date.now()}] RAF: terminalWindow.parentElement.innerHTML:
+--- START ---`, terminalWindow.parentElement.innerHTML, `--- END ---`);
+                } else {
+                    console.log(`[${Date.now()}] RAF: terminalWindow has no parentElement`);
+                }
+            });
+
+            // Attempt immediate scroll (which logs show often fails)
+            terminalWindow.scrollTop = terminalWindow.scrollHeight;
+
+        } catch (focusError) {
+            console.error(`[${Date.now()}] Error during immediate focus:`, focusError);
+        }
+    }
 }
 
 function appendToTerminal(text, className) {

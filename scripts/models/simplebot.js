@@ -1,13 +1,17 @@
 /**
- * ELIZA Model Implementation
- * A simple rule-based chatbot inspired by the original ELIZA program
+ * SimpleBotModel - A simple, local chatbot model for no-cost testing
+ * Based on pattern matching and templated responses
  */
 
-class ElizaModel {
+class SimpleBotModel {
     constructor() {
-        this.initialized = false;
-        this.script = null;
+        this.patterns = [];
+        this.greetings = [];
+        this.farewells = [];
+        this.defaultResponses = [];
+        this.helloMessage = '';
         this.memory = [];
+        this.initialized = false;
     }
 
     async initialize(scriptPath) {
@@ -21,7 +25,7 @@ class ElizaModel {
             this.initialized = true;
             return true;
         } catch (error) {
-            console.error('Error initializing ELIZA:', error);
+            console.error('Error initializing SimpleBot:', error);
             return false;
         }
     }
@@ -110,7 +114,7 @@ class ElizaModel {
 
     async generateResponse(userMessage, context = {}) {
         if (!this.initialized) {
-            return "ELIZA is not properly initialized. Please load a script first.";
+            return "SimpleBot is not properly initialized. Please load a script first.";
         }
 
         // Check for greetings
@@ -135,5 +139,5 @@ class ElizaModel {
     }
 }
 
-// Create and export the ELIZA model instance
-window.ElizaModel = ElizaModel; 
+// Make the model available globally
+window.SimpleBotModel = SimpleBotModel; 
