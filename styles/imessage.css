@@ -174,29 +174,59 @@ select {
 }
 
 /* Message feedback controls */
+.message-entry {
+    margin-bottom: 10px; /* Space between entries */
+    padding-left: 10px; /* Align entry */
+}
+
 .message-feedback {
-    display: none;
-    margin: 2px 0 0 4px;
-    opacity: 0;
-    transition: opacity 0.2s ease;
+    display: none; /* Hidden by default */
+    margin-top: 5px; /* Space above icons */
+    margin-left: 50px; /* Indent icons under bot bubble */
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
 }
 
 .message-feedback.visible {
-    display: flex;
-    gap: 4px;
+    display: flex; /* Change from block to flex */
+    gap: 8px; /* Add gap for spacing between buttons */
+}
+
+.bot-entry:hover .message-feedback {
     opacity: 1;
 }
 
+.feedback-icon {
+    width: 18px;
+    height: 18px;
+    vertical-align: middle;
+}
+
+/* Adjust indentation for user messages if needed, though feedback only shows for bots */
+.user-entry .message-feedback {
+    /* margin-left: 15px; */ /* Example if needed */
+}
+
+/* Style the feedback button wrapper */
 .feedback-button {
-    padding: 2px 4px;
-    font-size: 11px;
-    color: #8e8e93;
+    background-color: rgba(0, 0, 0, 0.05); /* Very light gray, similar to iMessage UI elements */
+    border: none;
+    padding: 5px 7px;
+    border-radius: 15px; /* More rounded */
     cursor: pointer;
-    border-radius: 4px;
+    line-height: 0;
+    transition: background-color 0.15s ease;
+    margin: 0 2px; /* Add small horizontal margin between buttons */
 }
 
 .feedback-button:hover {
-    background: rgba(0, 0, 0, 0.05);
+    background-color: rgba(0, 0, 0, 0.1); /* Slightly darker on hover */
+}
+
+/* Style the button's active state for feedback */
+.feedback-button:active {
+    background-color: rgba(0, 0, 0, 0.15); /* Darker background when pressed */
+    transform: scale(0.95); /* Slightly shrink button */
 }
 
 /* Working indicator */

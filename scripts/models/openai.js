@@ -74,7 +74,7 @@ class OpenAIModel {
                     messages: messages,
                     stream: true,
                     temperature: 0.7,
-                    max_tokens: 500
+                    max_tokens: 1000 // Increased max tokens
                 }),
                 signal
             });
@@ -87,11 +87,11 @@ class OpenAIModel {
             // Create a ReadableStream from the response
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
+            let buffer = '';
 
             // Return a stream-like interface
             return {
                 [Symbol.asyncIterator]() {
-                    let lastChunkEndsWithSpace = false;
                     return {
                         async next() {
                             try {
@@ -101,29 +101,39 @@ class OpenAIModel {
                                     return { done: true };
                                 }
                                 
-                                // Decode the chunk
-                                const chunk = decoder.decode(value);
-                                const lines = chunk.split('\n');
+                                // Decode the chunk and add to buffer
+                                buffer += decoder.decode(value, { stream: true });
+                                const lines = buffer.split('\n');
+                                
+                                // Keep the last potentially incomplete line in the buffer
+                                buffer = lines.pop() || '';
+                                
                                 let text = '';
                                 
                                 for (const line of lines) {
-                                    if (line.trim() === '') continue;
-                                    if (line.trim() === 'data: [DONE]') return { done: true };
+                                    const trimmedLine = line.trim();
+                                    if (trimmedLine === '') continue;
+                                    if (trimmedLine === 'data: [DONE]') return { done: true };
                                     
-                                    if (line.startsWith('data: ')) {
+                                    if (trimmedLine.startsWith('data: ')) {
                                         try {
-                                            const data = JSON.parse(line.slice(6));
-                                            const content = data.choices[0]?.delta?.content || '';
+                                            const jsonStr = trimmedLine.slice(6);
+                                            const data = JSON.parse(jsonStr);
+                                            
+                                            // Check if this is a completion signal
+                                            if (data.choices && data.choices[0] && data.choices[0].finish_reason) {
+                                                // If we've reached the end, return any text accumulated and 
+                                                // let the next call close the stream
+                                                return text ? { value: text, done: false } : { done: true };
+                                            }
+                                            
+                                            // Extract content from the delta
+                                            const content = data.choices?.[0]?.delta?.content || '';
                                             if (content) {
-                                                // Add space if needed between chunks
-                                                if (!lastChunkEndsWithSpace && text && !text.endsWith(' ') && !content.startsWith(' ')) {
-                                                    text += ' ';
-                                                }
                                                 text += content;
-                                                lastChunkEndsWithSpace = content.endsWith(' ');
                                             }
                                         } catch (e) {
-                                            // Silently continue on parse errors
+                                            console.error('Error parsing chunk:', e, trimmedLine);
                                             continue;
                                         }
                                     }
@@ -155,6 +165,4 @@ class OpenAIModel {
 }
 
 // Create and export the OpenAI model instance
-window.OpenAIModel = OpenAIModel; 
-window.OpenAIModel = OpenAIModel; 
 window.OpenAIModel = OpenAIModel; 

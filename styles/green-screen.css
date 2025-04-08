@@ -221,4 +221,14 @@ select:focus {
 
 .feedback-button:hover {
     text-shadow: 0 0 10px var(--glow-color);
+}
+
+/* Hide graphical feedback buttons in terminal mode */
+.message-feedback {
+    display: none !important;
+}
+
+/* Also ensure the icons themselves are hidden */
+.feedback-icon {
+    display: none !important;
 } 

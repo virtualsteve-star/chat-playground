@@ -38,79 +38,86 @@ const getApiKey = (key) => {
     }
 };
 
-// Add feedback controls to messages
-function addFeedbackControls(messageElement, isLatest) {
-    const feedbackDiv = document.createElement('div');
-    feedbackDiv.className = 'message-feedback' + (isLatest ? ' visible' : '');
-    
-    const thumbsUp = document.createElement('span');
-    thumbsUp.innerHTML = '👍';
-    thumbsUp.className = 'feedback-button thumbs-up';
-    thumbsUp.title = 'Helpful';
-    
-    const thumbsDown = document.createElement('span');
-    thumbsDown.innerHTML = '👎';
-    thumbsDown.className = 'feedback-button thumbs-down';
-    thumbsDown.title = 'Not helpful';
-    
-    feedbackDiv.appendChild(thumbsUp);
-    feedbackDiv.appendChild(thumbsDown);
-    messageElement.appendChild(feedbackDiv);
-}
-
-// Create a message element
+// Create message elements (bubble and optional feedback controls)
 function createMessageElement(text, isUser) {
-    const messageElement = document.createElement('div');
-    messageElement.className = isUser ? 'user-message' : 'bot-message';
-    messageElement.textContent = text;
-    
-    // Only add feedback controls to bot messages
+    const messageBubble = document.createElement('div');
+    messageBubble.className = isUser ? 'user-message' : 'bot-message';
+    messageBubble.textContent = text; // Set text content for the bubble
+
+    let feedbackContainer = null;
+
+    // Only create feedback controls for bot messages
     if (!isUser) {
-        const feedbackDiv = document.createElement('div');
-        feedbackDiv.className = 'message-feedback';
-        
-        const thumbsUp = document.createElement('span');
-        thumbsUp.innerHTML = '👍';
-        thumbsUp.className = 'feedback-button thumbs-up';
-        thumbsUp.title = 'Helpful';
-        
-        const thumbsDown = document.createElement('span');
-        thumbsDown.innerHTML = '👎';
-        thumbsDown.className = 'feedback-button thumbs-down';
-        thumbsDown.title = 'Not helpful';
-        
-        feedbackDiv.appendChild(thumbsUp);
-        feedbackDiv.appendChild(thumbsDown);
-        messageElement.appendChild(feedbackDiv);
+        feedbackContainer = document.createElement('div');
+        feedbackContainer.className = 'message-feedback';
+
+        // Thumbs Up
+        const btnThumbsUp = document.createElement('button');
+        btnThumbsUp.type = 'button'; // Good practice for buttons
+        btnThumbsUp.className = 'feedback-button thumbs-up-button';
+        btnThumbsUp.title = 'Like Response';
+        const imgThumbsUp = document.createElement('img');
+        imgThumbsUp.src = 'assets/graphics/thumbs-up.png';
+        imgThumbsUp.alt = 'Helpful';
+        imgThumbsUp.className = 'feedback-icon thumbs-up-icon';
+        btnThumbsUp.appendChild(imgThumbsUp); // Icon inside button
+
+        // Thumbs Down
+        const btnThumbsDown = document.createElement('button');
+        btnThumbsDown.type = 'button';
+        btnThumbsDown.className = 'feedback-button thumbs-down-button';
+        btnThumbsDown.title = 'Dislike Response';
+        const imgThumbsDown = document.createElement('img');
+        imgThumbsDown.src = 'assets/graphics/thumbs-down.png';
+        imgThumbsDown.alt = 'Not helpful';
+        imgThumbsDown.className = 'feedback-icon thumbs-down-icon';
+        btnThumbsDown.appendChild(imgThumbsDown); // Icon inside button
+
+        feedbackContainer.appendChild(btnThumbsUp); // Add button to container
+        feedbackContainer.appendChild(btnThumbsDown); // Add button to container
     }
-    
-    return messageElement;
+
+    // Return an object containing the elements
+    return { bubble: messageBubble, feedback: feedbackContainer };
 }
 
 // Add a message to the chat
 function addMessageToChat(text, isUser) {
     const chatWindow = document.getElementById('chat-window');
-    
-    // Hide feedback controls on all bot messages first
-    const botMessages = chatWindow.getElementsByClassName('bot-message');
-    Array.from(botMessages).forEach(msg => {
-        const feedbackDiv = msg.querySelector('.message-feedback');
+    if (!chatWindow) {
+        console.error("Chat window not found!");
+        return;
+    }
+
+    // Hide feedback controls on all previous bot message entries first
+    const messageEntries = chatWindow.getElementsByClassName('message-entry bot-entry');
+    Array.from(messageEntries).forEach(entry => {
+        const feedbackDiv = entry.querySelector('.message-feedback');
         if (feedbackDiv) {
             feedbackDiv.classList.remove('visible');
         }
     });
-    
-    const messageElement = createMessageElement(text, isUser);
-    chatWindow.appendChild(messageElement);
-    
-    // If this is a bot message, make its feedback controls visible
-    if (!isUser) {
-        const feedbackDiv = messageElement.querySelector('.message-feedback');
-        if (feedbackDiv) {
-            feedbackDiv.classList.add('visible');
-        }
+
+    // Create the elements for this message
+    const elements = createMessageElement(text, isUser);
+
+    // Create a wrapper div for the whole entry
+    const messageEntry = document.createElement('div');
+    messageEntry.className = `message-entry ${isUser ? 'user-entry' : 'bot-entry'}`;
+
+    // Add the message bubble
+    messageEntry.appendChild(elements.bubble);
+
+    // Add the feedback controls div if it exists (for bot messages)
+    if (elements.feedback) {
+        messageEntry.appendChild(elements.feedback);
+        // Make the feedback for this new bot message visible
+        elements.feedback.classList.add('visible');
     }
-    
+
+    // Add the complete entry to the chat window
+    chatWindow.appendChild(messageEntry);
+
     chatWindow.scrollTop = chatWindow.scrollHeight;
 }
 

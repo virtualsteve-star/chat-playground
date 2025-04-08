@@ -262,15 +262,14 @@ function addTerminalPrompt(passedTerminalWindow) {
     newPromptDiv.appendChild(promptSymbolSpan);
     newPromptDiv.appendChild(newInputSpan);
 
+    // Get the target window directly to avoid issues
     const targetWindow = document.getElementById('terminal-window');
     if (targetWindow) {
-        console.log(`[${Date.now()}] DEBUG: Explicitly fetched target for appendChild:`, targetWindow);
         targetWindow.appendChild(newPromptDiv);
     } else {
+        // Fallback or error if #terminal-window isn't found (shouldn't happen here)
         console.error("!!! Critical Error: #terminal-window not found in addTerminalPrompt !!!");
     }
-
-    console.log(`[${Date.now()}] DEBUG: Inside addTerminalPrompt, originally passed variable was:`, passedTerminalWindow);
 
     console.log(`[${Date.now()}] New prompt added:`, { newPromptDiv, newInputSpan });
     return newInputSpan; // Return the new input span for focusing
@@ -299,10 +298,10 @@ async function processTerminalCommand(inputElementToProcess, command) {
             let responseElement = null;
             console.log(`[${Date.now()}] Stream: Starting`);
             try {
-                let chunkCount = 0;
+                let lastUpdateTime = Date.now();
+                let responseComplete = false;
+                
                 for await (const chunk of response) {
-                    chunkCount++;
-                    console.log(`[${Date.now()}] Stream: Received chunk ${chunkCount}`);
                     if (chunk) {
                         if (!responseElement) {
                             console.log(`[${Date.now()}] Stream: Creating responseElement`);
@@ -313,23 +312,29 @@ async function processTerminalCommand(inputElementToProcess, command) {
                         fullResponse += chunk;
                         console.log(`[${Date.now()}] Stream: Before textContent update (len: ${fullResponse.length})`);
                         responseElement.textContent = fullResponse;
+                        lastUpdateTime = Date.now();
                     }
                 }
+                
+                // We've completed the stream loop normally
+                responseComplete = true;
+                
+                // Ensure any pending content is fully rendered
+                if (responseElement) {
+                    responseElement.textContent = fullResponse;
+                    terminalWindow.scrollTop = terminalWindow.scrollHeight;
+                }
+                
                 console.log(`[${Date.now()}] Stream: Finished loop`);
                 if (fullResponse) {
                     responseReceived = true;
                     messageHistory.push({ role: 'assistant', content: fullResponse });
                 }
-                // Scroll only ONCE after the entire stream is processed
-                if (responseElement) { // Check if element was actually created
-                     console.log(`[${Date.now()}] Stream: Scrolling after loop finished`);
-                     terminalWindow.scrollTop = terminalWindow.scrollHeight;
-                }
             } catch (streamError) {
-                 console.error(`[${Date.now()}] Stream: Error during streaming`, streamError);
+                console.error(`[${Date.now()}] Stream: Error during streaming`, streamError);
                 throw streamError; // Rethrow to be caught by outer catch
             }
-             console.log(`[${Date.now()}] Stream: Exiting`);
+            console.log(`[${Date.now()}] Stream: Exiting`);
         } else if (response) {
             // Handle non-streaming response
             appendToTerminal(response, 'system-response');
@@ -377,35 +382,13 @@ async function processTerminalCommand(inputElementToProcess, command) {
         }
         
         // Add a brand new prompt structure using the helper
-        console.log(`[${Date.now()}] DEBUG: Before calling addTerminalPrompt, terminalWindow is:`, terminalWindow);
         const newInputSpan = addTerminalPrompt(terminalWindow);
         
-        // Focus and scroll immediately (removed setTimeout wrappers)
+        // Focus and scroll immediately
         try {
-            console.log(`[${Date.now()}] Attempting immediate focus`, { newInputSpan });
             newInputSpan.focus();
-            console.log(`[${Date.now()}] Immediate focus called`);
-
-            // Log state just before next repaint
-            requestAnimationFrame(() => {
-                console.log(`[${Date.now()}] RAF: Logging state before repaint`);
-                console.log(`[${Date.now()}] RAF: Active Element:`, document.activeElement);
-                console.log(`[${Date.now()}] RAF: Scroll State:`, { 
-                    scrollTop: terminalWindow.scrollTop,
-                    scrollHeight: terminalWindow.scrollHeight,
-                    clientHeight: terminalWindow.clientHeight 
-                });
-                console.log(`[${Date.now()}] RAF: terminalWindow.innerHTML:
---- START ---`, terminalWindow.innerHTML, `--- END ---`);
-                if (terminalWindow.parentElement) {
-                    console.log(`[${Date.now()}] RAF: terminalWindow.parentElement.innerHTML:
---- START ---`, terminalWindow.parentElement.innerHTML, `--- END ---`);
-                } else {
-                    console.log(`[${Date.now()}] RAF: terminalWindow has no parentElement`);
-                }
-            });
-
-            // Attempt immediate scroll (which logs show often fails)
+            
+            // Scroll to bottom
             terminalWindow.scrollTop = terminalWindow.scrollHeight;
 
         } catch (focusError) {
@@ -471,21 +454,57 @@ async function handleSendMessage() {
         // Handle streaming response
         if (response && typeof response[Symbol.asyncIterator] === 'function') {
             let fullResponse = '';
-            const messageElement = window.ChatUtils.createMessageElement('', false);
-            document.getElementById('chat-window').appendChild(messageElement);
+            const messageElements = window.ChatUtils.createMessageElement('', false);
+            const messageElement = messageElements.bubble; // Extract the bubble element
+            
+            // Hide feedback controls on all previous bot message entries first
+            const chatWindow = document.getElementById('chat-window');
+            const messageEntries = chatWindow.getElementsByClassName('message-entry bot-entry');
+            Array.from(messageEntries).forEach(entry => {
+                const feedbackDiv = entry.querySelector('.message-feedback');
+                if (feedbackDiv) {
+                    feedbackDiv.classList.remove('visible');
+                }
+            });
+            
+            // Create wrapper div for the message entry
+            const messageEntry = document.createElement('div');
+            messageEntry.className = 'message-entry bot-entry';
+            messageEntry.appendChild(messageElement);
+            
+            // If feedback exists, add it to the entry too
+            if (messageElements.feedback) {
+                messageEntry.appendChild(messageElements.feedback);
+                messageElements.feedback.classList.add('visible');
+            }
+            
+            // Add the complete entry to the chat window
+            document.getElementById('chat-window').appendChild(messageEntry);
             
             try {
+                let lastUpdateTime = Date.now();
+                let responseComplete = false;
+                
                 for await (const chunk of response) {
                     if (chunk) {
                         fullResponse += chunk;
                         messageElement.textContent = fullResponse;
                         document.getElementById('chat-window').scrollTop = document.getElementById('chat-window').scrollHeight;
+                        lastUpdateTime = Date.now();
                     }
                 }
+                
+                // We've completed the stream loop normally
+                responseComplete = true;
+                
+                // Ensure any pending content is fully rendered
+                messageElement.textContent = fullResponse;
+                document.getElementById('chat-window').scrollTop = document.getElementById('chat-window').scrollHeight;
+                
             } catch (streamError) {
                 console.error('Error in stream:', streamError);
                 if (!fullResponse) {
-                    messageElement.remove();
+                    messageEntry.remove();
                     throw streamError;
                 }
             }
