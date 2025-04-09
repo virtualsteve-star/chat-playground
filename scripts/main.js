@@ -21,7 +21,27 @@ function initializeApp() {
         for (const [name, config] of Object.entries(personalitiesConfig)) {
             const option = document.createElement('option');
             option.value = name;
-            option.textContent = name;
+            
+            // Parse configuration to get model name
+            const [modelName, resourcePath] = config.split(',').map(part => part.trim());
+            
+            // Extract the name and role from the full name
+            // Example: "Eliza (Psychoanalyst)" -> name="Eliza", role="Psychoanalyst"
+            const nameParts = name.split(' (');
+            const displayName = nameParts[0];
+            const role = nameParts.length > 1 ? nameParts[1].replace(')', '') : '';
+            
+            // Create a shorter model name for display
+            let displayModelName = modelName;
+            if (modelName === 'SimpleBot') {
+                displayModelName = 'SimpleBot';
+            } else if (modelName === 'ChatGPT 4o-mini') {
+                displayModelName = 'GPT';
+            }
+            
+            // Format: "Name (Role, Model)" - exactly matching the examples
+            option.textContent = `${displayName} (${role}, ${displayModelName})`;
+            
             personalitySelector.appendChild(option);
         }
         
@@ -133,8 +153,24 @@ function handlePersonalityChange(event) {
 // Handle style change - REVERTED to preserve history and manage UI visibility
 function handleStyleChange(event) {
     const styleName = event.target.value;
-    const oldStyle = document.body.classList.contains('green-screen') ? 'green-screen' : 
-                     (document.getElementById('style-sheet').href.includes('imessage') ? 'imessage' : 'vanilla');
+    
+    // More reliable style detection
+    let oldStyle = 'vanilla'; // default
+    if (document.body.classList.contains('green-screen')) {
+        oldStyle = 'green-screen';
+    } else if (document.body.classList.contains('dark-mode')) {
+        oldStyle = 'imessage-dark';
+    } else {
+        // Check all stylesheets to determine current style
+        document.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
+            if (!link.disabled) {
+                if (link.href.includes('imessage-dark')) oldStyle = 'imessage-dark';
+                else if (link.href.includes('imessage')) oldStyle = 'imessage';
+                else if (link.href.includes('green-screen')) oldStyle = 'green-screen';
+                else if (link.href.includes('vanilla')) oldStyle = 'vanilla';
+            }
+        });
+    }
                      
     if (styleName === oldStyle) return;
 
@@ -198,7 +234,7 @@ function handleStyleChange(event) {
          // Scroll after redraw (keep timeout for scroll)
          setTimeout(() => terminalWindow.scrollTop = terminalWindow.scrollHeight, 0);
 
-    } else { // Switched FROM green-screen or between non-terminal styles
+    } else { // Switched to any non-terminal style
         console.log(`[${Date.now()}] Style Change: Switched to non-terminal. Redrawing history.`);
         // Redraw history into chat window
         chatWindow.innerHTML = ''; // Clear chat
@@ -206,11 +242,17 @@ function handleStyleChange(event) {
             window.ChatUtils.addMessageToChat(msg.content, msg.role === 'user');
         });
         
-        // Focus regular input
+        // Focus regular input with a slight delay to ensure DOM is ready
         setTimeout(() => {
             const userInput = document.getElementById('user-input');
-            if (userInput) userInput.focus();
+            if (userInput) {
+                userInput.focus();
+                // Ensure the input is visible and interactive
+                userInput.style.opacity = '1';
+                userInput.style.pointerEvents = 'auto';
+            }
         }, 100);
+        
         // Scroll after redraw
         setTimeout(() => chatWindow.scrollTop = chatWindow.scrollHeight, 0);
     }
