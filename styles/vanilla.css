@@ -74,6 +74,10 @@ select:hover {
     border-radius: 8px;
     max-width: 80%;
     position: relative;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    word-break: normal;
+    line-height: 1.5;
 }
 
 .user-message {

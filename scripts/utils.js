@@ -42,7 +42,16 @@ const getApiKey = (key) => {
 function createMessageElement(text, isUser) {
     const messageBubble = document.createElement('div');
     messageBubble.className = isUser ? 'user-message' : 'bot-message';
-    messageBubble.textContent = text; // Set text content for the bubble
+    
+    // Process text to properly handle line breaks
+    // First escape HTML to prevent XSS, then convert newlines to <br>
+    const processedText = text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\n/g, '<br>');
+    
+    messageBubble.innerHTML = processedText;
 
     let feedbackContainer = null;
 
