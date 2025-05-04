@@ -9,6 +9,7 @@ let currentPersonality = null;
 let messageHistory = [];
 let blocklistFilter = null;
 let selectedInputFilters = [];
+let selectedOutputFilters = [];
 
 // Initialize the application
 async function initializeApp() {
@@ -66,32 +67,8 @@ async function initializeApp() {
             handlePersonalityChange({ target: personalitySelector });
         }
         
-        // Setup Input Filters dropdown logic
-        const filtersButton = document.getElementById('input-filters-button');
-        const filtersList = document.getElementById('input-filters-list');
-        filtersButton.addEventListener('click', () => {
-            filtersList.style.display = filtersList.style.display === 'none' ? 'block' : 'none';
-        });
-        // Close dropdown if clicking outside
-        document.addEventListener('click', (e) => {
-            // Only close if click is outside BOTH the button and the list
-            if (!filtersButton.contains(e.target) && !filtersList.contains(e.target)) {
-                filtersList.style.display = 'none';
-            }
-        });
-        // Prevent dropdown from closing when clicking inside the list
-        filtersList.addEventListener('click', (e) => {
-            e.stopPropagation();
-        });
-        // Track selected filters
-        const checkboxes = filtersList.querySelectorAll('.input-filter-checkbox');
-        checkboxes.forEach(cb => {
-            cb.checked = false; // Default: none selected
-            cb.addEventListener('change', () => {
-                selectedInputFilters = Array.from(checkboxes).filter(c => c.checked).map(c => c.value);
-            });
-        });
-        selectedInputFilters = []; // Default: none selected
+        // Setup Guardrails panel
+        setupGuardrailsPanel();
         
         console.log('Application initialized successfully');
     } catch (error) {
@@ -295,7 +272,6 @@ function handleStyleChange(event) {
 // Delegated Keydown Handler for Terminal
 function handleTerminalKeyDown(event) {
     if (event.key === 'Enter' && event.target.id === 'terminal-input') {
-        console.log(`[${Date.now()}] Delegated Enter pressed on:`, event.target);
         event.preventDefault();
         const currentInput = event.target;
         const command = currentInput.textContent.trim();
@@ -322,7 +298,6 @@ function handleTerminalClick(event) {
 
 // Adds the terminal prompt structure
 function addTerminalPrompt(passedTerminalWindow) {
-    console.log(`[${Date.now()}] Adding new prompt structure`);
     const newPromptDiv = document.createElement('div');
     newPromptDiv.className = 'terminal-prompt';
     const promptSymbolSpan = document.createElement('span');
@@ -341,186 +316,36 @@ function addTerminalPrompt(passedTerminalWindow) {
     const targetWindow = document.getElementById('terminal-window');
     if (targetWindow) {
         targetWindow.appendChild(newPromptDiv);
+        
+        // Ensure focus is set after all DOM operations
+        requestAnimationFrame(() => {
+            // Small delay to ensure layout is complete
+            setTimeout(() => {
+                newInputSpan.focus();
+                // Force scroll to bottom
+                targetWindow.scrollTop = targetWindow.scrollHeight;
+            }, 50);
+        });
     } else {
         // Fallback or error if #terminal-window isn't found (shouldn't happen here)
         console.error("!!! Critical Error: #terminal-window not found in addTerminalPrompt !!!");
     }
 
-    console.log(`[${Date.now()}] New prompt added:`, { newPromptDiv, newInputSpan });
     return newInputSpan; // Return the new input span for focusing
 }
 
-// Core logic for processing a command
-async function processTerminalCommand(inputElementToProcess, command) {
-    const terminalWindow = document.getElementById('terminal-window');
-    if (!terminalWindow) return; // Should not happen in terminal mode
-    
-    // Blocklist filter check (with selection)
-    if (blocklistFilter) {
-        const filterResult = blocklistFilter.checkMessageWithSelection(command, selectedInputFilters);
+// Helper for output filtering
+function applyOutputFilters(response) {
+    if (blocklistFilter && selectedOutputFilters.length > 0) {
+        const filterResult = blocklistFilter.checkMessageWithSelection(response, selectedOutputFilters);
         if (filterResult.blocked) {
-            const rejectionMessage = blocklistFilter.getRejectionMessage(filterResult);
-            appendToTerminal(rejectionMessage, 'system-response');
-            // Mark input as processed
-            inputElementToProcess.removeAttribute('id');
-            inputElementToProcess.contentEditable = 'false';
-            inputElementToProcess.classList.remove('input');
-            inputElementToProcess.textContent = command;
-            const currentPromptDiv = inputElementToProcess.closest('.terminal-prompt, .terminal-line');
-            if (currentPromptDiv) {
-                currentPromptDiv.className = 'terminal-line user-command';
-            }
-            // Add a new prompt
-            addTerminalPrompt(terminalWindow);
-            return;
+            return "I'm sorry, but my previous response contained inappropriate language and has been removed.";
         }
     }
-
-    // Add to message history FIRST (before any awaits)
-    messageHistory.push({ role: 'user', content: command });
-    
-    // Show working indicator
-    window.ChatUtils.toggleWorkingIndicator(true);
-    
-    let responseReceived = false;
-    
-    try {
-        if (!currentModel) throw new Error('No model selected');
-        const response = await currentModel.generateResponse(command, { messages: messageHistory });
-        
-        // Handle streaming response
-        if (response && typeof response[Symbol.asyncIterator] === 'function') {
-            let fullResponse = '';
-            let responseElement = null;
-            console.log(`[${Date.now()}] Stream: Starting`);
-            try {
-                let lastUpdateTime = Date.now();
-                let responseComplete = false;
-                
-                for await (const chunk of response) {
-                    if (chunk) {
-                        if (!responseElement) {
-                            console.log(`[${Date.now()}] Stream: Creating responseElement`);
-                            responseElement = document.createElement('div');
-                            responseElement.className = 'terminal-line system-response';
-                            terminalWindow.appendChild(responseElement);
-                        }
-                        fullResponse += chunk;
-                        console.log(`[${Date.now()}] Stream: Before textContent update (len: ${fullResponse.length})`);
-                        responseElement.textContent = fullResponse;
-                        lastUpdateTime = Date.now();
-                    }
-                }
-                
-                // We've completed the stream loop normally
-                responseComplete = true;
-                
-                // Ensure any pending content is fully rendered
-                if (responseElement) {
-                    responseElement.textContent = fullResponse;
-                    terminalWindow.scrollTop = terminalWindow.scrollHeight;
-                }
-                
-                console.log(`[${Date.now()}] Stream: Finished loop`);
-                if (fullResponse) {
-                    responseReceived = true;
-                    messageHistory.push({ role: 'assistant', content: fullResponse });
-                }
-            } catch (streamError) {
-                console.error(`[${Date.now()}] Stream: Error during streaming`, streamError);
-                throw streamError; // Rethrow to be caught by outer catch
-            }
-            console.log(`[${Date.now()}] Stream: Exiting`);
-        } else if (response) {
-            // Handle non-streaming response
-            appendToTerminal(response, 'system-response');
-            messageHistory.push({ role: 'assistant', content: response });
-            responseReceived = true;
-        } else {
-            // Allow empty responses, just don't set responseReceived = true
-            console.log('Model returned an empty response.');
-            // throw new Error('No response received from model'); // Don't throw error for empty response
-        }
-    } catch (error) {
-        console.error('Error generating response:', error);
-        appendToTerminal(`Error: ${error.message || 'Command processing failed. Please try again.'}`, 'system-response');
-        responseReceived = true; 
-    } finally {
-        console.log(`[${Date.now()}] Entering finally block`);
-        window.ChatUtils.toggleWorkingIndicator(false);
-
-        // NOW modify the processed input element
-        const currentPromptDiv = inputElementToProcess.closest('.terminal-prompt, .terminal-line'); // Find parent
-        console.log(`[${Date.now()}] Before modifying processed input:`, { 
-            inputElementToProcess,
-            foundParent: currentPromptDiv,
-            parentClassBefore: currentPromptDiv ? currentPromptDiv.className : 'N/A' 
-        });
-        inputElementToProcess.removeAttribute('id'); // ID should already be gone if re-entered, but be sure
-        inputElementToProcess.contentEditable = 'false'; // Ensure it's non-editable
-        inputElementToProcess.classList.remove('input'); // Remove the class that causes blinking
-        inputElementToProcess.textContent = command; // Set final text (WITHOUT prepending '> ')
-        if (currentPromptDiv) {
-            currentPromptDiv.className = 'terminal-line user-command'; // Final class
-        } else {
-            console.warn(`[${Date.now()}] Could not find parent div for processed input:`, inputElementToProcess);
-        }
-        console.log(`[${Date.now()}] After modifying processed input:`, { 
-            inputElementToProcess,
-            modifiedParent: currentPromptDiv,
-            parentClassAfter: currentPromptDiv ? currentPromptDiv.className : 'N/A'
-        });
-
-        // If we didn't get any response (and didn't show an error), show a message
-        if (!responseReceived) {
-            // Don't show error for intentionally empty responses
-            // appendToTerminal('Info: No response generated.', 'system-response');
-        }
-        
-        // Add a brand new prompt structure using the helper
-        const newInputSpan = addTerminalPrompt(terminalWindow);
-        
-        // Focus and scroll immediately
-        try {
-            newInputSpan.focus();
-            
-            // Scroll to bottom
-            terminalWindow.scrollTop = terminalWindow.scrollHeight;
-
-        } catch (focusError) {
-            console.error(`[${Date.now()}] Error during immediate focus:`, focusError);
-        }
-    }
+    return response;
 }
 
-function appendToTerminal(text, className) {
-    const terminalWindow = document.getElementById('terminal-window');
-    const line = document.createElement('div');
-    line.className = `terminal-line ${className}`;
-    
-    // Only add the prompt for user input that's being echoed
-    if (className === 'user-command') {
-        line.textContent = text;  // The '>' is already in the text from the prompt
-    } else {
-        line.textContent = text;
-    }
-    
-    terminalWindow.appendChild(line);
-    terminalWindow.scrollTop = terminalWindow.scrollHeight;
-}
-
-function updateLastTerminalLine(text) {
-    const terminalWindow = document.getElementById('terminal-window');
-    const lines = terminalWindow.getElementsByClassName('terminal-line');
-    if (lines.length > 0) {
-        const lastLine = lines[lines.length - 1];
-        lastLine.textContent = text;
-    } else {
-        appendToTerminal(text, 'system-response');
-    }
-}
-
-// Handle send message
+// Handle sending a message (modern chat UI)
 async function handleSendMessage() {
     const userInput = document.getElementById('user-input');
     const message = userInput.value.trim();
@@ -537,33 +362,27 @@ async function handleSendMessage() {
             return;
         }
     }
-    
     // Clear input
     userInput.value = '';
-    
     // Add user message to chat
     window.ChatUtils.addMessageToChat(message, true);
-    
     // Add to message history
     messageHistory.push({ role: 'user', content: message });
-    
     // Show working indicator
     window.ChatUtils.toggleWorkingIndicator(true);
-    
     try {
         if (!currentModel) {
             throw new Error('No model selected');
         }
-
         // Generate response
-        const response = await currentModel.generateResponse(message, { messages: messageHistory });
-        
-        // Handle streaming response
+        let response = await currentModel.generateResponse(message, { messages: messageHistory });
+        // Apply output filters
+        response = applyOutputFilters(response);
+        // Handle streaming response (unchanged)
         if (response && typeof response[Symbol.asyncIterator] === 'function') {
             let fullResponse = '';
             const messageElements = window.ChatUtils.createMessageElement('', false);
             const messageElement = messageElements.bubble; // Extract the bubble element
-            
             // Hide feedback controls on all previous bot message entries first
             const chatWindow = document.getElementById('chat-window');
             const messageEntries = chatWindow.getElementsByClassName('message-entry bot-entry');
@@ -573,25 +392,20 @@ async function handleSendMessage() {
                     feedbackDiv.classList.remove('visible');
                 }
             });
-            
             // Create wrapper div for the message entry
             const messageEntry = document.createElement('div');
             messageEntry.className = 'message-entry bot-entry';
             messageEntry.appendChild(messageElement);
-            
             // If feedback exists, add it to the entry too
             if (messageElements.feedback) {
                 messageEntry.appendChild(messageElements.feedback);
                 messageElements.feedback.classList.add('visible');
             }
-            
             // Add the complete entry to the chat window
             document.getElementById('chat-window').appendChild(messageEntry);
-            
             try {
                 let lastUpdateTime = Date.now();
                 let responseComplete = false;
-                
                 for await (const chunk of response) {
                     if (chunk) {
                         fullResponse += chunk;
@@ -600,14 +414,11 @@ async function handleSendMessage() {
                         lastUpdateTime = Date.now();
                     }
                 }
-                
                 // We've completed the stream loop normally
                 responseComplete = true;
-                
                 // Ensure any pending content is fully rendered
                 messageElement.textContent = fullResponse;
                 document.getElementById('chat-window').scrollTop = document.getElementById('chat-window').scrollHeight;
-                
             } catch (streamError) {
                 console.error('Error in stream:', streamError);
                 if (!fullResponse) {
@@ -615,7 +426,6 @@ async function handleSendMessage() {
                     throw streamError;
                 }
             }
-            
             // Add to message history only if we got a response
             if (fullResponse) {
                 messageHistory.push({ role: 'assistant', content: fullResponse });
@@ -644,5 +454,146 @@ function handleKeyDown(event) {
     }
 }
 
+// Guardrails panel logic
+function setupGuardrailsPanel() {
+    const guardrailsBtn = document.getElementById('guardrails-btn');
+    const guardrailsPanel = document.getElementById('guardrails-panel');
+    const guardrailsOverlay = document.getElementById('guardrails-overlay');
+    const closeBtn = document.getElementById('close-guardrails-panel');
+    const inputFiltersSection = document.getElementById('input-filters-section');
+    const inputFiltersChildren = document.getElementById('input-filters-children');
+    const checkboxes = inputFiltersChildren.querySelectorAll('.input-filter-checkbox');
+    const outputFiltersSection = document.getElementById('output-filters-section');
+    const outputFiltersChildren = document.getElementById('output-filters-children');
+    const outputCheckboxes = outputFiltersChildren.querySelectorAll('.output-filter-checkbox');
+
+    // Tree expand/collapse
+    let filtersOpen = false;
+    let outputFiltersOpen = false;
+
+    // Open panel
+    guardrailsBtn.addEventListener('click', () => {
+        guardrailsPanel.classList.add('open');
+        guardrailsOverlay.classList.add('open');
+        // Expand Input Filters by default
+        filtersOpen = true;
+        inputFiltersChildren.style.display = '';
+        inputFiltersSection.innerHTML = '&#9660; Input Filters';
+        // Expand Output Filters by default
+        outputFiltersOpen = true;
+        outputFiltersChildren.style.display = '';
+        outputFiltersSection.innerHTML = '&#9660; Output Filters';
+    });
+    // Close panel
+    closeBtn.addEventListener('click', () => {
+        guardrailsPanel.classList.remove('open');
+        guardrailsOverlay.classList.remove('open');
+    });
+    guardrailsOverlay.addEventListener('click', () => {
+        guardrailsPanel.classList.remove('open');
+        guardrailsOverlay.classList.remove('open');
+    });
+    inputFiltersSection.addEventListener('click', () => {
+        filtersOpen = !filtersOpen;
+        inputFiltersChildren.style.display = filtersOpen ? '' : 'none';
+        inputFiltersSection.innerHTML = (filtersOpen ? '&#9660;' : '&#9654;') + ' Input Filters';
+    });
+    outputFiltersSection.addEventListener('click', () => {
+        outputFiltersOpen = !outputFiltersOpen;
+        outputFiltersChildren.style.display = outputFiltersOpen ? '' : 'none';
+        outputFiltersSection.innerHTML = (outputFiltersOpen ? '&#9660;' : '&#9654;') + ' Output Filters';
+    });
+    // Track selected filters
+    checkboxes.forEach(cb => {
+        cb.checked = false; // Default: none selected
+        cb.addEventListener('change', () => {
+            selectedInputFilters = Array.from(checkboxes).filter(c => c.checked).map(c => c.value);
+        });
+    });
+    selectedInputFilters = []; // Default: none selected
+    // Track selected output filters
+    outputCheckboxes.forEach(cb => {
+        cb.checked = false; // Default: none selected
+        cb.addEventListener('change', () => {
+            selectedOutputFilters = Array.from(outputCheckboxes).filter(c => c.checked).map(c => c.value);
+        });
+    });
+    selectedOutputFilters = []; // Default: none selected
+}
+
 // Initialize the application when the DOM is loaded
-document.addEventListener('DOMContentLoaded', initializeApp); 
+document.addEventListener('DOMContentLoaded', initializeApp);
+
+function appendToTerminal(text, className) {
+    const terminalWindow = document.getElementById('terminal-window');
+    const line = document.createElement('div');
+    line.className = `terminal-line ${className}`;
+    line.textContent = text;
+    terminalWindow.appendChild(line);
+    terminalWindow.scrollTop = terminalWindow.scrollHeight;
+}
+
+async function processTerminalCommand(inputElementToProcess, command) {
+    const terminalWindow = document.getElementById('terminal-window');
+    if (!terminalWindow) return; // Should not happen in terminal mode
+
+    // Blocklist filter check (with selection)
+    if (blocklistFilter) {
+        const filterResult = blocklistFilter.checkMessageWithSelection(command, selectedInputFilters);
+        if (filterResult.blocked) {
+            const rejectionMessage = blocklistFilter.getRejectionMessage(filterResult);
+            appendToTerminal(rejectionMessage, 'system-response');
+            // Mark input as processed
+            inputElementToProcess.removeAttribute('id');
+            inputElementToProcess.contentEditable = 'false';
+            inputElementToProcess.classList.remove('input');
+            inputElementToProcess.textContent = command;
+            const currentPromptDiv = inputElementToProcess.closest('.terminal-prompt, .terminal-line');
+            if (currentPromptDiv) {
+                currentPromptDiv.className = 'terminal-line user-command';
+            }
+            // Add a new prompt
+            addTerminalPrompt(terminalWindow);
+            return;
+        }
+    }
+
+    // Add to message history FIRST (before any awaits)
+    messageHistory.push({ role: 'user', content: command });
+
+    // Show working indicator
+    window.ChatUtils.toggleWorkingIndicator(true);
+
+    let responseReceived = false;
+
+    try {
+        if (!currentModel) throw new Error('No model selected');
+        let response = await currentModel.generateResponse(command, { messages: messageHistory });
+        // Apply output filters
+        response = applyOutputFilters(response);
+
+        // Handle non-streaming response
+        appendToTerminal(response, 'system-response');
+        messageHistory.push({ role: 'assistant', content: response });
+        responseReceived = true;
+    } catch (error) {
+        console.error('Error generating response:', error);
+        appendToTerminal(`Error: ${error.message || 'Command processing failed. Please try again.'}`, 'system-response');
+        responseReceived = true;
+    } finally {
+        window.ChatUtils.toggleWorkingIndicator(false);
+
+        // Mark input as processed
+        inputElementToProcess.removeAttribute('id');
+        inputElementToProcess.contentEditable = 'false';
+        inputElementToProcess.classList.remove('input');
+        inputElementToProcess.textContent = command;
+        const currentPromptDiv = inputElementToProcess.closest('.terminal-prompt, .terminal-line');
+        if (currentPromptDiv) {
+            currentPromptDiv.className = 'terminal-line user-command';
+        }
+
+        // Add a new prompt
+        addTerminalPrompt(terminalWindow);
+    }
+} 

@@ -76,3 +76,20 @@ body.dark-mode .feedback-button:hover {
 body.dark-mode .working-indicator {
     color: rgba(255, 255, 255, 0.6);
 }
+
+/* Guardrails button in iMessage Dark mode */
+body.dark-mode #guardrails-btn {
+    background-color: rgba(44, 44, 46, 0.8);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    font-family: inherit;
+    box-shadow: none;
+    transition: background 0.2s, border-color 0.2s;
+}
+body.dark-mode #guardrails-btn:hover,
+body.dark-mode #guardrails-btn:focus {
+    background-color: rgba(100, 100, 105, 0.8);
+    border-color: #4a90e2;
+    outline: none;
+}

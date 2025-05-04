@@ -55,6 +55,95 @@
         #input-filters-list input[type="checkbox"] {
             margin-right: 6px;
         }
+        #guardrails-panel {
+            position: fixed;
+            top: 0;
+            right: -340px;
+            width: 320px;
+            height: 100%;
+            background: #fff;
+            box-shadow: -2px 0 8px rgba(0,0,0,0.12);
+            z-index: 2000;
+            transition: right 0.3s cubic-bezier(.4,0,.2,1);
+            padding: 24px 20px 20px 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        #guardrails-panel.open {
+            right: 0;
+        }
+        #guardrails-panel .close-btn {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #888;
+        }
+        .guardrails-tree,
+        .guardrails-tree .tree-section,
+        .guardrails-tree .tree-children,
+        .guardrails-tree label {
+            text-align: left !important;
+            font-weight: normal;
+        }
+        .guardrails-tree .tree-section {
+            font-weight: bold;
+            margin-bottom: 8px;
+            cursor: pointer;
+            user-select: none;
+            text-align: left;
+        }
+        .guardrails-tree .tree-children {
+            margin-left: 18px;
+            margin-bottom: 12px;
+            text-align: left;
+        }
+        .guardrails-tree label {
+            display: block;
+            margin-bottom: 6px;
+            color: #333;
+            cursor: pointer;
+            text-align: left;
+        }
+        #guardrails-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.15);
+            z-index: 1999;
+        }
+        #guardrails-overlay.open {
+            display: block;
+        }
+        #guardrails-btn {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: white;
+            font-size: 0.9rem;
+            cursor: pointer;
+            color: #333;
+            min-width: 120px;
+            font-family: inherit;
+            transition: background 0.2s, border 0.2s;
+            box-sizing: border-box;
+            margin-left: 8px;
+        }
+        #guardrails-btn:hover, #guardrails-btn:focus {
+            background-color: #e0e0e0;
+            border-color: #4a90e2;
+            outline: none;
+        }
+        /* Guardrails panel section headers in vanilla mode */
+        body:not(.green-screen):not(.dark-mode) .guardrails-tree .tree-section {
+            color: #222;
+            font-size: 1.08em;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -71,14 +160,24 @@
                     <option value="imessage">iMessage</option>
                     <option value="imessage-dark">iMessage (Dark)</option>
                 </select>
-                <div class="dropdown-multiselect" id="input-filters-dropdown" style="position: relative; display: inline-block;">
-                    <button type="button" id="input-filters-button">Input Filters ▼</button>
-                    <div id="input-filters-list" style="display: none; position: absolute; z-index: 1000;">
+                <button id="guardrails-btn" type="button">Guardrails</button>
+            </div>
+            <div id="guardrails-overlay"></div>
+            <aside id="guardrails-panel">
+                <button class="close-btn" id="close-guardrails-panel" title="Close">&times;</button>
+                <div class="guardrails-tree">
+                    <div class="tree-section" id="input-filters-section">&#9654; Input Filters</div>
+                    <div class="tree-children" id="input-filters-children" style="display:none;">
                         <label><input type="checkbox" class="input-filter-checkbox" value="sex"> Sex Blocklist</label>
                         <label><input type="checkbox" class="input-filter-checkbox" value="violence"> Violence Blocklist</label>
                     </div>
+                    <div class="tree-section" id="output-filters-section">&#9654; Output Filters</div>
+                    <div class="tree-children" id="output-filters-children" style="display:none;">
+                        <label><input type="checkbox" class="output-filter-checkbox" value="sex"> Sex Blocklist</label>
+                        <label><input type="checkbox" class="output-filter-checkbox" value="violence"> Violence Blocklist</label>
+                    </div>
                 </div>
-            </div>
+            </aside>
         </header>
         
         <!-- Modern chat interface -->

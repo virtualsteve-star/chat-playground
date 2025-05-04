@@ -231,4 +231,23 @@ select:focus {
 /* Also ensure the icons themselves are hidden */
 .feedback-icon {
     display: none !important;
+}
+
+/* Guardrails button in green-screen mode */
+.green-screen #guardrails-btn {
+    background: var(--terminal-bg, #000);
+    color: var(--terminal-green, #00FF00);
+    border: 1px solid var(--terminal-green, #00FF00);
+    font-family: var(--terminal-font, 'Fira Mono', 'Consolas', 'Menlo', monospace);
+    border-radius: 2px;
+    box-shadow: none;
+    transition: box-shadow 0.2s, border-color 0.2s;
+}
+.green-screen #guardrails-btn:hover,
+.green-screen #guardrails-btn:focus {
+    background: var(--terminal-bg, #000);
+    color: var(--terminal-green, #00FF00);
+    border-color: var(--terminal-green, #00FF00);
+    box-shadow: 0 0 8px 2px var(--terminal-green, #00FF00);
+    outline: none;
 } 
