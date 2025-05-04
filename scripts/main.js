@@ -7,10 +7,15 @@
 let currentModel = null;
 let currentPersonality = null;
 let messageHistory = [];
+let blocklistFilter = null;
 
 // Initialize the application
-function initializeApp() {
+async function initializeApp() {
     try {
+        // Initialize blocklist filter
+        blocklistFilter = new window.BlocklistFilter();
+        await blocklistFilter.initialize();
+        
         // Load configuration files
         const modelsConfig = window.ChatUtils.loadProperties('config/models.properties');
         const stylesConfig = window.ChatUtils.loadProperties('config/styles.properties');
@@ -322,6 +327,27 @@ async function processTerminalCommand(inputElementToProcess, command) {
     const terminalWindow = document.getElementById('terminal-window');
     if (!terminalWindow) return; // Should not happen in terminal mode
     
+    // Blocklist filter check
+    if (blocklistFilter) {
+        const filterResult = blocklistFilter.checkMessage(command);
+        if (filterResult.blocked) {
+            const rejectionMessage = blocklistFilter.getRejectionMessage(filterResult);
+            appendToTerminal(rejectionMessage, 'system-response');
+            // Mark input as processed
+            inputElementToProcess.removeAttribute('id');
+            inputElementToProcess.contentEditable = 'false';
+            inputElementToProcess.classList.remove('input');
+            inputElementToProcess.textContent = command;
+            const currentPromptDiv = inputElementToProcess.closest('.terminal-prompt, .terminal-line');
+            if (currentPromptDiv) {
+                currentPromptDiv.className = 'terminal-line user-command';
+            }
+            // Add a new prompt
+            addTerminalPrompt(terminalWindow);
+            return;
+        }
+    }
+
     // Add to message history FIRST (before any awaits)
     messageHistory.push({ role: 'user', content: command });
     
@@ -472,6 +498,17 @@ async function handleSendMessage() {
     const message = userInput.value.trim();
     
     if (!message) return;
+
+    // Blocklist filter check
+    if (blocklistFilter) {
+        const filterResult = blocklistFilter.checkMessage(message);
+        if (filterResult.blocked) {
+            const rejectionMessage = blocklistFilter.getRejectionMessage(filterResult);
+            window.ChatUtils.addMessageToChat(rejectionMessage, false);
+            userInput.value = '';
+            return;
+        }
+    }
     
     // Clear input
     userInput.value = '';

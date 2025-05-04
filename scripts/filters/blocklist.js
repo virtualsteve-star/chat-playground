@@ -1,0 +1,76 @@
+/**
+ * Blocklist Filter Implementation
+ * Processes messages against configured blocklists
+ */
+
+class BlocklistFilter {
+    constructor() {
+        this.blocklists = {
+            sex: [],
+            violence: []
+        };
+        this.initialized = false;
+    }
+
+    async initialize() {
+        try {
+            // Load blocklists
+            const sexResponse = await fetch('filters/sex_blocklist.txt');
+            const violenceResponse = await fetch('filters/violence_blocklist.txt');
+            
+            const sexText = await sexResponse.text();
+            const violenceText = await violenceResponse.text();
+            
+            // Parse blocklists, skipping comments and empty lines
+            this.blocklists.sex = sexText.split('\n')
+                .filter(line => line.trim() && !line.startsWith('#'))
+                .map(term => term.toLowerCase().trim());
+            
+            this.blocklists.violence = violenceText.split('\n')
+                .filter(line => line.trim() && !line.startsWith('#'))
+                .map(term => term.toLowerCase().trim());
+            
+            this.initialized = true;
+            console.log('Blocklist filter initialized successfully');
+        } catch (error) {
+            console.error('Error initializing blocklist filter:', error);
+            throw error;
+        }
+    }
+
+    checkMessage(message) {
+        if (!this.initialized) {
+            throw new Error('Blocklist filter not initialized');
+        }
+
+        const lowerMessage = message.toLowerCase();
+        
+        // Check each blocklist
+        for (const [listName, terms] of Object.entries(this.blocklists)) {
+            for (const term of terms) {
+                if (lowerMessage.includes(term)) {
+                    return {
+                        blocked: true,
+                        list: listName,
+                        term: term
+                    };
+                }
+            }
+        }
+        
+        return { blocked: false };
+    }
+
+    getRejectionMessage(blockedResult) {
+        const listNames = {
+            sex: 'sexual content',
+            violence: 'violent content'
+        };
+        
+        return `I'm sorry, but I cannot process requests containing ${listNames[blockedResult.list]}. ` +
+               `This is to ensure a safe and appropriate environment for all users.`;
+    }
+}
+
+// Export the filter
+window.BlocklistFilter = BlocklistFilter; 
