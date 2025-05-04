@@ -10,6 +10,7 @@ let messageHistory = [];
 let blocklistFilter = null;
 let selectedInputFilters = [];
 let selectedOutputFilters = [];
+let openAIModerationApiKey = null;
 
 // Initialize the application
 async function initializeApp() {
@@ -78,7 +79,7 @@ async function initializeApp() {
 }
 
 // Handle personality change - REVERTED to clear history and view
-function handlePersonalityChange(event) {
+async function handlePersonalityChange(event) {
     const personalityName = event.target.value;
     if (!personalityName) return;
 
@@ -103,57 +104,75 @@ function handlePersonalityChange(event) {
         // Determine current mode BEFORE changing history
         const isTerminalMode = document.body.classList.contains('green-screen');
 
-        // Create and initialize the appropriate model
-        if (modelName === 'SimpleBot' || modelName === 'ChatGPT 4o-mini') {
-            // Create the appropriate model instance
-            currentModel = modelName === 'SimpleBot' ? new window.SimpleBotModel() : new window.OpenAIModel();
-            
-            currentModel.initialize(resourcePath).then(() => {
-                console.log(`[${Date.now()}] Personality Change: Model initialized for '${personalityName}'`);
-                currentPersonality = personalityName;
-
-                // Construct the greeting message
-                const personalityNameOnly = personalityName.split(' (')[0];
-                const role = personalityName.match(/\((.*?)\)/)[1].toLowerCase();
-                const modelInfo = modelName === 'SimpleBot' ? 'built with SimpleBot' : `based on ${modelName}`;
-                const greeting = `Hello! I'm ${personalityNameOnly}, your ${role} bot ${modelInfo}. How can I help you today?`;
-
-                // Clear message history and start fresh with ONLY the greeting
-                console.log(`[${Date.now()}] Personality Change: Clearing history and adding greeting.`);
-                messageHistory = [{ role: 'assistant', content: greeting }];
-
-                // Clear the appropriate view and add the greeting
-                if (isTerminalMode) {
-                    console.log(`[${Date.now()}] Personality Change: Clearing terminal and adding greeting.`);
-                    const terminalWindow = document.getElementById('terminal-window');
-                    if (terminalWindow) {
-                        terminalWindow.innerHTML = ''; // Clear
-                        appendToTerminal(greeting, 'system-response'); // Add greeting
-                        // Add the prompt structure (since view is cleared)
-                        const newInput = addTerminalPrompt(terminalWindow);
-                        if (newInput) setTimeout(() => newInput.focus(), 0); // Focus
-                    } else {
-                        console.error('Terminal window not found during personality change');
-                    }
-                } else {
-                    console.log(`[${Date.now()}] Personality Change: Clearing chat window and adding greeting.`);
-                    const chatWindow = document.getElementById('chat-window');
-                    if (chatWindow) {
-                        chatWindow.innerHTML = ''; // Clear
-                        window.ChatUtils.addMessageToChat(greeting, false); // Add greeting
-                        const userInput = document.getElementById('user-input');
-                        if (userInput) userInput.focus(); // Focus non-terminal input
-                     }
-                }
-
-                console.log(`Switched to personality: ${personalityName}`);
-            }).catch(error => {
-                console.error('Error initializing model:', error);
-                alert(`Failed to initialize model for "${personalityName}". Please check the console for details.`);
-            });
+        // --- NEW: Check for OpenAI key immediately if GPT model selected ---
+        const isGPT = (modelName === 'ChatGPT 4o-mini');
+        if (isGPT) {
+            const key = await window.ChatUtils.getValidOpenAIKey();
+            if (!key) {
+                alert('A valid OpenAI API key is required to use this personality.');
+                // Optionally, reset selector or block further actions
+                return;
+            }
+            // Proceed with model initialization
+            await doModelInit();
         } else {
-            throw new Error(`Unsupported model: ${modelName}`);
+            // Proceed with model initialization for non-GPT models
+            await doModelInit();
         }
+
+        // --- Model initialization logic extracted for reuse ---
+        async function doModelInit() {
+            if (modelName === 'SimpleBot' || modelName === 'ChatGPT 4o-mini') {
+                // Create the appropriate model instance
+                currentModel = modelName === 'SimpleBot' ? new window.SimpleBotModel() : new window.OpenAIModel();
+                currentModel.initialize(resourcePath).then(() => {
+                    console.log(`[${Date.now()}] Personality Change: Model initialized for '${personalityName}'`);
+                    currentPersonality = personalityName;
+
+                    // Construct the greeting message
+                    const personalityNameOnly = personalityName.split(' (')[0];
+                    const role = personalityName.match(/\((.*?)\)/)[1].toLowerCase();
+                    const modelInfo = modelName === 'SimpleBot' ? 'built with SimpleBot' : `based on ${modelName}`;
+                    const greeting = `Hello! I'm ${personalityNameOnly}, your ${role} bot ${modelInfo}. How can I help you today?`;
+
+                    // Clear message history and start fresh with ONLY the greeting
+                    console.log(`[${Date.now()}] Personality Change: Clearing history and adding greeting.`);
+                    messageHistory = [{ role: 'assistant', content: greeting }];
+
+                    // Clear the appropriate view and add the greeting
+                    if (isTerminalMode) {
+                        console.log(`[${Date.now()}] Personality Change: Clearing terminal and adding greeting.`);
+                        const terminalWindow = document.getElementById('terminal-window');
+                        if (terminalWindow) {
+                            terminalWindow.innerHTML = ''; // Clear
+                            appendToTerminal(greeting, 'system-response'); // Add greeting
+                            // Add the prompt structure (since view is cleared)
+                            const newInput = addTerminalPrompt(terminalWindow);
+                            if (newInput) setTimeout(() => newInput.focus(), 0); // Focus
+                        } else {
+                            console.error('Terminal window not found during personality change');
+                        }
+                    } else {
+                        console.log(`[${Date.now()}] Personality Change: Clearing chat window and adding greeting.`);
+                        const chatWindow = document.getElementById('chat-window');
+                        if (chatWindow) {
+                            chatWindow.innerHTML = ''; // Clear
+                            window.ChatUtils.addMessageToChat(greeting, false); // Add greeting
+                            const userInput = document.getElementById('user-input');
+                            if (userInput) userInput.focus(); // Focus non-terminal input
+                        }
+                    }
+
+                    console.log(`Switched to personality: ${personalityName}`);
+                }).catch(error => {
+                    console.error('Error initializing model:', error);
+                    alert(`Failed to initialize model for "${personalityName}". Please check the console for details.`);
+                });
+            } else {
+                throw new Error(`Unsupported model: ${modelName}`);
+            }
+        }
+        // --- End model init logic ---
     } catch (error) {
         console.error('Error changing personality:', error);
         alert(`Failed to load personality "${personalityName}". Please check the console for details.`);
@@ -345,12 +364,81 @@ function applyOutputFilters(response) {
     return response;
 }
 
+// Prompt for OpenAI API key if needed
+async function ensureOpenAIApiKey() {
+    // Centralized: always get a valid key from ChatUtils
+    const key = await window.ChatUtils.getValidOpenAIKey();
+    return key;
+}
+
+// Call OpenAI Moderation API
+async function checkOpenAIModeration(message, checkSex, checkViolence) {
+    const apiKey = await ensureOpenAIApiKey();
+    if (!apiKey) {
+        return { blocked: true, reason: 'no_api_key' };
+    }
+    try {
+        const response = await fetch('https://api.openai.com/v1/moderations', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({ input: message })
+        });
+        if (!response.ok) throw new Error('API error');
+        const data = await response.json();
+        if (!data.results || !data.results[0]) return { blocked: false };
+        const result = data.results[0];
+        let sexProb = result.category_scores.sexual || 0;
+        let violenceProb = result.category_scores.violence || 0;
+        let sexFlag = result.categories.sexual;
+        let violenceFlag = result.categories.violence;
+        if (checkSex && sexFlag) {
+            return { blocked: true, reason: 'openai_sex', probability: sexProb };
+        }
+        if (checkViolence && violenceFlag) {
+            return { blocked: true, reason: 'openai_violence', probability: violenceProb };
+        }
+        return { blocked: false };
+    } catch (e) {
+        return { blocked: true, reason: 'api_error' };
+    }
+}
+
+// Helper for OpenAI Moderation rejection message
+function getOpenAIModerationRejection(reason, probability) {
+    const cat = reason === 'openai_sex' ? 'sexual content' : 'violent content';
+    const percent = probability ? Math.round(probability * 100) : '?';
+    return `Sorry, I can't discuss that topic (OpenAI flagged as ${cat} with ${percent}% probability).`;
+}
+
 // Handle sending a message (modern chat UI)
 async function handleSendMessage() {
     const userInput = document.getElementById('user-input');
     const message = userInput.value.trim();
     
     if (!message) return;
+
+    // OpenAI Moderation filter check (with selection)
+    if (selectedInputFilters.includes('openai_sex') || selectedInputFilters.includes('openai_violence')) {
+        const checkSex = selectedInputFilters.includes('openai_sex');
+        const checkViolence = selectedInputFilters.includes('openai_violence');
+        const modResult = await checkOpenAIModeration(message, checkSex, checkViolence);
+        if (modResult.blocked) {
+            let rejectionMessage = '';
+            if (modResult.reason === 'no_api_key') {
+                rejectionMessage = 'OpenAI API key is required for this filter.';
+            } else if (modResult.reason === 'api_error') {
+                rejectionMessage = 'Error contacting OpenAI Moderation API.';
+            } else {
+                rejectionMessage = getOpenAIModerationRejection(modResult.reason, modResult.probability);
+            }
+            window.ChatUtils.addMessageToChat(rejectionMessage, false);
+            userInput.value = '';
+            return;
+        }
+    }
 
     // Blocklist filter check (with selection)
     if (blocklistFilter) {
@@ -536,6 +624,36 @@ function appendToTerminal(text, className) {
 async function processTerminalCommand(inputElementToProcess, command) {
     const terminalWindow = document.getElementById('terminal-window');
     if (!terminalWindow) return; // Should not happen in terminal mode
+
+    // OpenAI Moderation filter check (with selection)
+    if (selectedInputFilters.includes('openai_sex') || selectedInputFilters.includes('openai_violence')) {
+        const checkSex = selectedInputFilters.includes('openai_sex');
+        const checkViolence = selectedInputFilters.includes('openai_violence');
+        const modResult = await checkOpenAIModeration(command, checkSex, checkViolence);
+        if (modResult.blocked) {
+            let rejectionMessage = '';
+            if (modResult.reason === 'no_api_key') {
+                rejectionMessage = 'OpenAI API key is required for this filter.';
+            } else if (modResult.reason === 'api_error') {
+                rejectionMessage = 'Error contacting OpenAI Moderation API.';
+            } else {
+                rejectionMessage = getOpenAIModerationRejection(modResult.reason, modResult.probability);
+            }
+            appendToTerminal(rejectionMessage, 'system-response');
+            // Mark input as processed
+            inputElementToProcess.removeAttribute('id');
+            inputElementToProcess.contentEditable = 'false';
+            inputElementToProcess.classList.remove('input');
+            inputElementToProcess.textContent = command;
+            const currentPromptDiv = inputElementToProcess.closest('.terminal-prompt, .terminal-line');
+            if (currentPromptDiv) {
+                currentPromptDiv.className = 'terminal-line user-command';
+            }
+            // Add a new prompt
+            addTerminalPrompt(terminalWindow);
+            return;
+        }
+    }
 
     // Blocklist filter check (with selection)
     if (blocklistFilter) {

@@ -3,6 +3,35 @@
  * Connects to OpenAI's API for chat completions
  */
 
+// --- OpenAI API Key Utilities ---
+function sanitizeOpenAIKey(key) {
+    if (!key) return '';
+    // Remove all whitespace, newlines, and trim
+    return key.replace(/\s+/g, '').trim();
+}
+
+function validateOpenAIKeyFormat(key) {
+    // Must start with sk- and be a reasonable length (48+ chars)
+    return typeof key === 'string' && key.startsWith('sk-') && key.length >= 48 && key.length < 200;
+}
+
+async function testOpenAIKey(key) {
+    try {
+        const response = await fetch('https://api.openai.com/v1/models', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${key}`
+            }
+        });
+        if (response.status === 401) return false; // Unauthorized
+        if (!response.ok) return false;
+        return true;
+    } catch (e) {
+        return false;
+    }
+}
+// --- End OpenAI API Key Utilities ---
+
 class OpenAIModel {
     constructor() {
         this.apiKey = null;
@@ -14,30 +43,23 @@ class OpenAIModel {
 
     async initialize(systemPromptPath) {
         try {
-            // Get API key from localStorage
-            this.apiKey = window.ChatUtils.getApiKey('openai_api_key');
-            
+            // Centralized: always get a valid key from ChatUtils
+            this.apiKey = await window.ChatUtils.getValidOpenAIKey();
             if (!this.apiKey) {
-                // Prompt user for API key
-                const apiKey = prompt('Please enter your OpenAI API key:');
-                if (apiKey) {
-                    this.apiKey = apiKey;
-                    window.ChatUtils.saveApiKey('openai_api_key', apiKey);
-                } else {
-                    throw new Error('API key is required');
-                }
+                this.initialized = false;
+                throw new Error('API key is required');
             }
-            
             // Load system prompt
             const response = await fetch(systemPromptPath);
             if (!response.ok) {
+                this.initialized = false;
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             this.systemPrompt = await response.text();
-            
             this.initialized = true;
             return true;
         } catch (error) {
+            this.initialized = false;
             console.error('Error initializing OpenAI model:', error);
             return false;
         }
@@ -45,12 +67,22 @@ class OpenAIModel {
 
     async generateResponse(userMessage, context = {}) {
         if (!this.initialized) {
+            console.error('[OpenAIModel] Not initialized');
             return "OpenAI model is not properly initialized. Please load a system prompt first.";
         }
-
-        if (!this.apiKey) {
-            return "OpenAI API key is not set. Please provide your API key.";
+        // If the key is missing or invalid, clear it and return error
+        if (!this.apiKey || typeof this.apiKey !== 'string' || !this.apiKey.trim()) {
+            window.localStorage.removeItem('openai');
+            console.error('[OpenAIModel] API key is not set or is invalid:', this.apiKey);
+            return "OpenAI API key is not set or is invalid. Please provide your API key.";
         }
+
+        // Debug output
+        console.log('[OpenAIModel] generateResponse called');
+        console.log('  this.apiKey:', this.apiKey);
+        console.log('  this.initialized:', this.initialized);
+        console.log('  window.ChatUtils.getApiKey("openai"):', window.ChatUtils.getApiKey ? window.ChatUtils.getApiKey('openai') : undefined);
+        console.log('  localStorage["openai"]:', window.localStorage.getItem('openai'));
 
         // Create a new AbortController for this request
         this.controller = new AbortController();
@@ -63,12 +95,16 @@ class OpenAIModel {
                 { role: 'user', content: userMessage }
             ];
 
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${this.apiKey}`
+            };
+            console.log('  fetch URL:', 'https://api.openai.com/v1/chat/completions');
+            console.log('  fetch headers:', headers);
+
             const response = await fetch('https://api.openai.com/v1/chat/completions', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${this.apiKey}`
-                },
+                headers: headers,
                 body: JSON.stringify({
                     model: this.model,
                     messages: messages,
