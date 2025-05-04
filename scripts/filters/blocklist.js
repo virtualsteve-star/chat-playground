@@ -70,6 +70,29 @@ class BlocklistFilter {
         return `I'm sorry, but I cannot process requests containing ${listNames[blockedResult.list]}. ` +
                `This is to ensure a safe and appropriate environment for all users.`;
     }
+
+    checkMessageWithSelection(message, selectedFilters) {
+        if (!this.initialized) {
+            throw new Error('Blocklist filter not initialized');
+        }
+        if (!selectedFilters || selectedFilters.length === 0) {
+            return { blocked: false };
+        }
+        const lowerMessage = message.toLowerCase();
+        for (const listName of selectedFilters) {
+            const terms = this.blocklists[listName] || [];
+            for (const term of terms) {
+                if (lowerMessage.includes(term)) {
+                    return {
+                        blocked: true,
+                        list: listName,
+                        term: term
+                    };
+                }
+            }
+        }
+        return { blocked: false };
+    }
 }
 
 // Export the filter

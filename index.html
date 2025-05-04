@@ -8,6 +8,54 @@
     <link rel="stylesheet" href="styles/green-screen.css" disabled>
     <link rel="stylesheet" href="styles/imessage.css" disabled>
     <link rel="stylesheet" href="styles/imessage-dark.css">
+    <style>
+        /* Style the Input Filters button to look like a select */
+        #input-filters-button {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: white;
+            font-size: 0.9rem;
+            cursor: pointer;
+            color: #333;
+            min-width: 120px;
+            font-family: inherit;
+            transition: background 0.2s, border 0.2s;
+            box-sizing: border-box;
+        }
+        #input-filters-button:hover, #input-filters-button:focus {
+            background-color: #e0e0e0;
+            border-color: #4a90e2;
+            outline: none;
+        }
+        #input-filters-list {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            min-width: 180px;
+            padding: 8px;
+            color: #333;
+            font-size: 0.9rem;
+            font-family: inherit;
+            margin-top: 2px;
+        }
+        #input-filters-list label {
+            display: block;
+            margin-bottom: 4px;
+            color: #333;
+            cursor: pointer;
+            padding: 2px 0 2px 2px;
+            border-radius: 2px;
+            transition: background 0.15s;
+        }
+        #input-filters-list label:hover {
+            background: #f5f5f5;
+        }
+        #input-filters-list input[type="checkbox"] {
+            margin-right: 6px;
+        }
+    </style>
 </head>
 <body>
     <div class="chat-container">
@@ -23,6 +71,13 @@
                     <option value="imessage">iMessage</option>
                     <option value="imessage-dark">iMessage (Dark)</option>
                 </select>
+                <div class="dropdown-multiselect" id="input-filters-dropdown" style="position: relative; display: inline-block;">
+                    <button type="button" id="input-filters-button">Input Filters ▼</button>
+                    <div id="input-filters-list" style="display: none; position: absolute; z-index: 1000;">
+                        <label><input type="checkbox" class="input-filter-checkbox" value="sex"> Sex Blocklist</label>
+                        <label><input type="checkbox" class="input-filter-checkbox" value="violence"> Violence Blocklist</label>
+                    </div>
+                </div>
             </div>
         </header>
         

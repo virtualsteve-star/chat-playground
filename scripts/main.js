@@ -8,6 +8,7 @@ let currentModel = null;
 let currentPersonality = null;
 let messageHistory = [];
 let blocklistFilter = null;
+let selectedInputFilters = [];
 
 // Initialize the application
 async function initializeApp() {
@@ -64,6 +65,33 @@ async function initializeApp() {
             personalitySelector.selectedIndex = 0;
             handlePersonalityChange({ target: personalitySelector });
         }
+        
+        // Setup Input Filters dropdown logic
+        const filtersButton = document.getElementById('input-filters-button');
+        const filtersList = document.getElementById('input-filters-list');
+        filtersButton.addEventListener('click', () => {
+            filtersList.style.display = filtersList.style.display === 'none' ? 'block' : 'none';
+        });
+        // Close dropdown if clicking outside
+        document.addEventListener('click', (e) => {
+            // Only close if click is outside BOTH the button and the list
+            if (!filtersButton.contains(e.target) && !filtersList.contains(e.target)) {
+                filtersList.style.display = 'none';
+            }
+        });
+        // Prevent dropdown from closing when clicking inside the list
+        filtersList.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+        // Track selected filters
+        const checkboxes = filtersList.querySelectorAll('.input-filter-checkbox');
+        checkboxes.forEach(cb => {
+            cb.checked = false; // Default: none selected
+            cb.addEventListener('change', () => {
+                selectedInputFilters = Array.from(checkboxes).filter(c => c.checked).map(c => c.value);
+            });
+        });
+        selectedInputFilters = []; // Default: none selected
         
         console.log('Application initialized successfully');
     } catch (error) {
@@ -327,9 +355,9 @@ async function processTerminalCommand(inputElementToProcess, command) {
     const terminalWindow = document.getElementById('terminal-window');
     if (!terminalWindow) return; // Should not happen in terminal mode
     
-    // Blocklist filter check
+    // Blocklist filter check (with selection)
     if (blocklistFilter) {
-        const filterResult = blocklistFilter.checkMessage(command);
+        const filterResult = blocklistFilter.checkMessageWithSelection(command, selectedInputFilters);
         if (filterResult.blocked) {
             const rejectionMessage = blocklistFilter.getRejectionMessage(filterResult);
             appendToTerminal(rejectionMessage, 'system-response');
@@ -499,9 +527,9 @@ async function handleSendMessage() {
     
     if (!message) return;
 
-    // Blocklist filter check
+    // Blocklist filter check (with selection)
     if (blocklistFilter) {
-        const filterResult = blocklistFilter.checkMessage(message);
+        const filterResult = blocklistFilter.checkMessageWithSelection(message, selectedInputFilters);
         if (filterResult.blocked) {
             const rejectionMessage = blocklistFilter.getRejectionMessage(filterResult);
             window.ChatUtils.addMessageToChat(rejectionMessage, false);

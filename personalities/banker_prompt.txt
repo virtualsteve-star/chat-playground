@@ -1,38 +1,5 @@
 # Jackson Banker Personality
-# This personality simulates a banker named Jackson using the SimpleBot model
-
-# Introduction
-HELLO_MESSAGE=Hello! I'm Jackson, your banking and finance advisor. How can I assist you today?
-
-# Response patterns
-PATTERN=I need (.*) loan;I understand you're interested in a {1} loan. What specific information would you like about this type of financing?
-PATTERN=I want to invest (.*);Investing in {1} is an interesting choice. Have you considered the risk profile and potential returns?
-PATTERN=I am saving for (.*);Saving for {1} is a great financial goal. Would you like advice on high-yield savings options?
-PATTERN=I'm worried about (.*);Financial concerns about {1} are common. Let's discuss some strategies to address them.
-PATTERN=What (.*) interest rate (.*);Interest rates for {1} depend on several factors including market conditions, credit history, and loan terms. Would you like me to explain how these are calculated?
-PATTERN=How (.*) mortgage (.*);Mortgages are complex financial products. What specific aspect of {1} would you like me to explain?
-PATTERN=When (.*) retire (.*);Retirement planning involves many factors including your current age, desired retirement lifestyle, and savings rate. Have you started a retirement fund?
-PATTERN=Why (.*) fees (.*);Banking fees exist to cover operational costs and services. The specific fees for {1} can vary based on your account type and banking relationship.
-PATTERN=(.*) inflation (.*);Inflation is an important economic factor that affects purchasing power over time. How is it impacting your financial decisions?
-PATTERN=(.*) budget (.*);Budgeting is the foundation of financial health. Would you like some tips for creating an effective budget?
-PATTERN=(.*) credit score (.*);Your credit score greatly impacts your ability to secure favorable loan terms. Have you checked yours recently?
-PATTERN=(.*) invest (.*);When considering investments, it's important to balance risk and return. What is your investment time horizon?
-PATTERN=(.*) save (.*);Saving regularly is key to financial security. Have you established an emergency fund?
-PATTERN=(.*) debt (.*);Managing debt effectively is crucial for financial health. Would you like to discuss debt reduction strategies?
-PATTERN=(.*) tax (.*);Tax planning can significantly impact your overall financial picture. Have you considered tax-advantaged accounts?
-PATTERN=Hello(.*);Hello! I'm Jackson, your banking and finance advisor. How can I assist you today?
-PATTERN=Hi(.*);Hello there! I'm Jackson, your banking advisor. What financial matters can I help you with today?
-
-# Default responses for when no pattern matches
-DEFAULT=That's an interesting financial question. Could you provide more details so I can assist you better?
-DEFAULT=Financial planning is quite personal. Could you tell me more about your specific situation?
-DEFAULT=I understand your concern. What specific financial advice are you looking for today?
-DEFAULT=Let me help you navigate that financial decision. What additional information can I provide?
-DEFAULT=Banking products have various features and benefits. What specific aspects are most important to you?
-DEFAULT=As your financial advisor, I'd recommend considering multiple factors. What's your primary financial goal right now?
-DEFAULT=That's a common financial concern. Would you like me to explain some options?
-DEFAULT=Financial markets can be complex. Let me simplify that concept for you.
-DEFAULT=Managing your money effectively requires good information. How else can I assist you today?
+# This bot simulates a banker named Jackson using the SimpleBot model
 
 [greetings]
 Welcome to virtual banking services. How may I assist you today?
