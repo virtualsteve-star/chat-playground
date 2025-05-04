@@ -353,12 +353,81 @@ function addTerminalPrompt(passedTerminalWindow) {
     return newInputSpan; // Return the new input span for focusing
 }
 
-// Helper for output filtering
-function applyOutputFilters(response) {
+// Call OpenAI Moderation API for output filtering
+async function checkOpenAIModerationOutput(message, checkSex, checkViolence) {
+    const apiKey = await window.ChatUtils.getValidOpenAIKey();
+    if (!apiKey) {
+        return { blocked: true, reason: 'no_api_key' };
+    }
+    try {
+        const response = await fetch('https://api.openai.com/v1/moderations', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({ input: message })
+        });
+        if (!response.ok) throw new Error('API error');
+        const data = await response.json();
+        // --- DEBUG OUTPUT ---
+        console.log('[OpenAI Moderation Output] message:', message);
+        console.log('[OpenAI Moderation Output] API response:', data);
+        if (data.results && data.results[0]) {
+            const result = data.results[0];
+            console.log('[OpenAI Moderation Output] violence:', result.categories.violence, 'score:', result.category_scores.violence);
+            console.log('[OpenAI Moderation Output] sexual:', result.categories.sexual, 'score:', result.category_scores.sexual);
+        }
+        // --- END DEBUG OUTPUT ---
+        if (!data.results || !data.results[0]) return { blocked: false };
+        const result = data.results[0];
+        let sexProb = result.category_scores.sexual || 0;
+        let violenceProb = result.category_scores.violence || 0;
+        let sexFlag = result.categories.sexual || (sexProb > 0.3);
+        let violenceFlag = result.categories.violence || (violenceProb > 0.3);
+        if (checkSex && sexFlag) {
+            return { blocked: true, reason: 'openai_sex', probability: sexProb };
+        }
+        if (checkViolence && violenceFlag) {
+            return { blocked: true, reason: 'openai_violence', probability: violenceProb };
+        }
+        return { blocked: false };
+    } catch (e) {
+        return { blocked: true, reason: 'api_error' };
+    }
+}
+
+// Helper for OpenAI Moderation rejection message (output)
+function getOpenAIModerationOutputRejection(reason, probability) {
+    const cat = reason === 'openai_sex' ? 'sexual content' : 'violent content';
+    const percent = probability ? Math.round(probability * 100) : '?';
+    return `I'm sorry, but my previous response contained inappropriate language and has been removed (OpenAI flagged as ${cat} with ${percent}% probability).`;
+}
+
+// Helper for output filtering (now async)
+async function applyOutputFilters(response) {
+    // Blocklist output filters
     if (blocklistFilter && selectedOutputFilters.length > 0) {
-        const filterResult = blocklistFilter.checkMessageWithSelection(response, selectedOutputFilters);
+        const filterResult = blocklistFilter.checkMessageWithSelection(response, selectedOutputFilters.filter(f => f === 'sex' || f === 'violence'));
         if (filterResult.blocked) {
             return "I'm sorry, but my previous response contained inappropriate language and has been removed.";
+        }
+    }
+    // OpenAI Moderation output filters
+    if (selectedOutputFilters.includes('openai_sex') || selectedOutputFilters.includes('openai_violence')) {
+        const checkSex = selectedOutputFilters.includes('openai_sex');
+        const checkViolence = selectedOutputFilters.includes('openai_violence');
+        const modResult = await checkOpenAIModerationOutput(response, checkSex, checkViolence);
+        if (modResult.blocked) {
+            let rejectionMessage = '';
+            if (modResult.reason === 'no_api_key') {
+                rejectionMessage = 'OpenAI API key is required for this output filter.';
+            } else if (modResult.reason === 'api_error') {
+                rejectionMessage = 'Error contacting OpenAI Moderation API.';
+            } else {
+                rejectionMessage = getOpenAIModerationOutputRejection(modResult.reason, modResult.probability);
+            }
+            return rejectionMessage;
         }
     }
     return response;
@@ -392,8 +461,8 @@ async function checkOpenAIModeration(message, checkSex, checkViolence) {
         const result = data.results[0];
         let sexProb = result.category_scores.sexual || 0;
         let violenceProb = result.category_scores.violence || 0;
-        let sexFlag = result.categories.sexual;
-        let violenceFlag = result.categories.violence;
+        let sexFlag = result.categories.sexual || (sexProb > 0.3);
+        let violenceFlag = result.categories.violence || (violenceProb > 0.3);
         if (checkSex && sexFlag) {
             return { blocked: true, reason: 'openai_sex', probability: sexProb };
         }
@@ -464,8 +533,8 @@ async function handleSendMessage() {
         }
         // Generate response
         let response = await currentModel.generateResponse(message, { messages: messageHistory });
-        // Apply output filters
-        response = applyOutputFilters(response);
+        // Apply output filters (now async)
+        response = await applyOutputFilters(response);
         // Handle streaming response (unchanged)
         if (response && typeof response[Symbol.asyncIterator] === 'function') {
             let fullResponse = '';
@@ -687,8 +756,8 @@ async function processTerminalCommand(inputElementToProcess, command) {
     try {
         if (!currentModel) throw new Error('No model selected');
         let response = await currentModel.generateResponse(command, { messages: messageHistory });
-        // Apply output filters
-        response = applyOutputFilters(response);
+        // Apply output filters (now async)
+        response = await applyOutputFilters(response);
 
         // Handle non-streaming response
         appendToTerminal(response, 'system-response');
