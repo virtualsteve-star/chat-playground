@@ -1,0 +1,45 @@
+# Cursor Configuration for Steve's Chat Playground
+
+# Core Principles
+- This project must remain a simple, zero-dependency web application
+- All code must run directly in the browser without any build steps
+- No external package managers (npm, yarn, etc.) should be used
+- No build tools (webpack, rollup, etc.) should be added
+- No transpilation or compilation steps should be required
+
+# File Structure Rules
+- Keep all files in their current directories
+- No new top-level directories should be added
+- All assets must be self-contained in the project
+
+# Dependencies
+- Only use vanilla JavaScript (ES6+)
+- Only use standard web APIs
+- No external libraries or frameworks
+- No package.json or similar dependency files
+- No node_modules directory
+
+# GitHub Pages Requirements
+- All code must work directly on GitHub Pages
+- No GitHub Actions or build steps
+- No server-side processing
+- No database requirements
+- No API keys in the repository
+
+# Development Rules
+- All development should be possible with just a text editor
+- Testing should be possible by opening index.html in a browser
+- No special development environment setup should be required
+- No special IDE configurations needed
+
+# Deployment Rules
+- Deployment should be as simple as pushing to GitHub
+- No build or compilation steps before deployment
+- No special deployment tools or processes
+- No CI/CD pipeline requirements
+
+# Performance Rules
+- Keep file sizes small
+- Minimize HTTP requests
+- No large external resources
+- No heavy client-side processing 
