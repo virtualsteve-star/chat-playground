@@ -346,6 +346,44 @@ function addTerminalPrompt(passedTerminalWindow) {
     return newInputSpan; // Return the new input span for focusing
 }
 
+// Process a command entered in terminal mode
+async function processTerminalCommand(inputElement, command) {
+    // Mark the input as processed
+    inputElement.removeAttribute('id');
+    inputElement.contentEditable = 'false';
+    inputElement.classList.remove('input');
+    inputElement.textContent = command;
+    const currentPromptDiv = inputElement.closest('.terminal-prompt, .terminal-line');
+    if (currentPromptDiv) {
+        currentPromptDiv.className = 'terminal-line user-command';
+    }
+
+    messageHistory.push({ role: 'user', content: command });
+
+    if (!currentModel) {
+        appendToTerminal('No model selected.', 'system-response');
+        addTerminalPrompt();
+        return;
+    }
+
+    window.ChatUtils.toggleWorkingIndicator(true);
+
+    try {
+        let response = await currentModel.generateResponse(command, { messages: messageHistory });
+        if (typeof applyOutputFilters === 'function') {
+            response = await applyOutputFilters(response);
+        }
+        appendToTerminal(response, 'system-response');
+        messageHistory.push({ role: 'assistant', content: response });
+    } catch (error) {
+        appendToTerminal(`Error: ${error.message || 'Command processing failed. Please try again.'}`, 'system-response');
+    } finally {
+        window.ChatUtils.toggleWorkingIndicator(false);
+        // Add a new prompt for the next command
+        addTerminalPrompt();
+    }
+}
+
 // Call OpenAI Moderation API for output filtering
 async function checkOpenAIModerationOutput(message, checkSex, checkViolence) {
     const apiKey = await ensureOpenAIApiKey();
