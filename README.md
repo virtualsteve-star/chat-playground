@@ -2,6 +2,8 @@
 
 A companion project to [The Developer's Playbook for Large Language Model Security](https://www.amazon.com/Developers-Playbook-Large-Language-Security/dp/109816220X), this open-source HTML/JavaScript application provides a hands-on environment for experimenting with various chat models, personalities, guardrails and user interfaces locally, quickly and with zero connectivity or cost. 
 
+**▶️ [Watch the Demo Video](https://youtu.be/3lPvKyifFMI)**
+
 With the rapid evolution of LLM and Generative AI technology (new models, techniques, agents, etc.), it's become increasingly challenging for developers to find a practical starting point for hands-on experimentation. This playground addresses that need by offering:
 
 - **Multiple Models**: From simple local pattern-matching to OpenAI's powerful models
@@ -265,11 +267,12 @@ You can add new blocklist-based guardrails to filter additional types of content
 
 ## OpenAI API Key Management
 
-The chat playground requires an OpenAI API key to use the ChatGPT 4o-mini model and advanced content moderation features. Here's how the API key is handled:
+The chat playground requires an OpenAI API key to use the GPT-based, advanced personalities and advanced content moderation features. Here's how the API key is handled:
 
 - **When You Need It:**
-  - You'll be prompted to enter your API key when you first select a personality that uses the ChatGPT 4o-mini model
+  - You'll be prompted to enter your API key when you first select a personality that uses an Open AI GPT model
   - The key is also required for OpenAI-powered content moderation filters
+  - You can use SimpleBot and Blocklist guardrails without Open AI keys
 
 - **Storage & Security:**
   - The API key is stored **only on your local machine** in the browser's localStorage
