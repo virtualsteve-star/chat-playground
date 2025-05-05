@@ -41,10 +41,10 @@ class OpenAIModel {
         this.controller = null;
     }
 
-    async initialize(systemPromptPath) {
+    async initialize(systemPromptPath, apiKey = null) {
         try {
-            // Centralized: always get a valid key from ChatUtils
-            this.apiKey = await window.ChatUtils.getValidOpenAIKey();
+            // Use provided key if available, otherwise get from localStorage
+            this.apiKey = apiKey || (window.ChatUtils.getApiKey ? window.ChatUtils.getApiKey('openai') : null);
             if (!this.apiKey) {
                 this.initialized = false;
                 throw new Error('API key is required');
@@ -70,19 +70,14 @@ class OpenAIModel {
             console.error('[OpenAIModel] Not initialized');
             return "OpenAI model is not properly initialized. Please load a system prompt first.";
         }
-        // If the key is missing or invalid, clear it and return error
+        // If the key is missing or invalid, try to get it from localStorage
         if (!this.apiKey || typeof this.apiKey !== 'string' || !this.apiKey.trim()) {
-            window.localStorage.removeItem('openai');
-            console.error('[OpenAIModel] API key is not set or is invalid:', this.apiKey);
-            return "OpenAI API key is not set or is invalid. Please provide your API key.";
+            this.apiKey = window.ChatUtils.getApiKey ? window.ChatUtils.getApiKey('openai') : null;
+            if (!this.apiKey) {
+                console.error('[OpenAIModel] API key is not set or is invalid');
+                return "OpenAI API key is not set or is invalid. Please provide your API key.";
+            }
         }
-
-        // Debug output
-        console.log('[OpenAIModel] generateResponse called');
-        console.log('  this.apiKey:', this.apiKey);
-        console.log('  this.initialized:', this.initialized);
-        console.log('  window.ChatUtils.getApiKey("openai"):', window.ChatUtils.getApiKey ? window.ChatUtils.getApiKey('openai') : undefined);
-        console.log('  localStorage["openai"]:', window.localStorage.getItem('openai'));
 
         // Create a new AbortController for this request
         this.controller = new AbortController();
@@ -99,8 +94,6 @@ class OpenAIModel {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${this.apiKey}`
             };
-            console.log('  fetch URL:', 'https://api.openai.com/v1/chat/completions');
-            console.log('  fetch headers:', headers);
 
             const response = await fetch('https://api.openai.com/v1/chat/completions', {
                 method: 'POST',

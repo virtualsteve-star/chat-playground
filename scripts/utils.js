@@ -17,8 +17,12 @@ const decrypt = (encryptedText) => {
 // Save API key to localStorage
 const saveApiKey = (key, value) => {
     try {
-        const encryptedValue = encrypt(value);
-        localStorage.setItem(key, encryptedValue);
+        if (value === null) {
+            localStorage.removeItem(key);
+        } else {
+            const encryptedValue = encrypt(value);
+            localStorage.setItem(key, encryptedValue);
+        }
         return true;
     } catch (error) {
         console.error('Error saving API key:', error);
@@ -209,7 +213,7 @@ const loadProperties = (filePath) => {
     }
 };
 
-// --- Centralized OpenAI API Key Logic ---
+// Centralized OpenAI API Key Logic
 function sanitizeOpenAIKey(key) {
     if (!key) return '';
     // Remove all whitespace, newlines, and trim
@@ -237,9 +241,6 @@ async function testOpenAIKey(key) {
     }
 }
 
-let _openAICachedKey = null;
-// --- End Centralized OpenAI API Key Logic ---
-
 // Export utility functions
 window.ChatUtils = {
     encrypt,
@@ -255,40 +256,34 @@ window.ChatUtils = {
 
 // Attach getValidOpenAIKey ONLY after window.ChatUtils is defined
 window.ChatUtils.getValidOpenAIKey = async function() {
-    // Try cache first
-    if (_openAICachedKey && validateOpenAIKeyFormat(_openAICachedKey)) {
-        return _openAICachedKey;
+    // Check if we have a cached key
+    if (window.ChatUtils._openAICachedKey) {
+        return window.ChatUtils._openAICachedKey;
     }
-    // Try localStorage
-    let key = window.ChatUtils.getApiKey ? window.ChatUtils.getApiKey('openai') : null;
-    key = sanitizeOpenAIKey(key);
-    while (true) {
-        if (!validateOpenAIKeyFormat(key)) {
-            window.localStorage.removeItem('openai');
-            const apiKey = prompt('Please enter your OpenAI API key:');
-            if (apiKey) {
-                key = sanitizeOpenAIKey(apiKey);
-                if (!validateOpenAIKeyFormat(key)) {
-                    alert('That does not look like a valid OpenAI API key. Please try again.');
-                    key = null;
-                    continue;
-                }
-                window.ChatUtils.saveApiKey('openai', key);
-            } else {
-                key = null;
-                break;
-            }
-        }
-        // Live test the key
-        const valid = await testOpenAIKey(key);
-        if (!valid) {
-            window.localStorage.removeItem('openai');
-            alert('The OpenAI API key you entered is invalid, expired, or revoked. Please enter a working key.');
-            key = null;
-            continue;
-        }
-        break;
+
+    // Try to get the key from localStorage
+    const key = window.ChatUtils.getApiKey ? window.ChatUtils.getApiKey('openai') : null;
+    if (key) {
+        // Cache the key
+        window.ChatUtils._openAICachedKey = key;
+        return key;
     }
-    _openAICachedKey = key;
-    return key;
+
+    // If no key found, prompt for one
+    const newKey = prompt('Please enter your OpenAI API key:');
+    if (newKey) {
+        // Sanitize and validate the key
+        const sanitizedKey = newKey.trim();
+        if (sanitizedKey.startsWith('sk-') && sanitizedKey.length > 20) {
+            // Store in localStorage
+            localStorage.setItem('openai', sanitizedKey);
+            // Cache the key
+            window.ChatUtils._openAICachedKey = sanitizedKey;
+            return sanitizedKey;
+        } else {
+            alert('Invalid API key format. Please enter a valid OpenAI API key.');
+            return null;
+        }
+    }
+    return null;
 }; 

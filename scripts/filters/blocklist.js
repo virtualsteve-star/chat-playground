@@ -31,7 +31,6 @@ class BlocklistFilter {
                 .map(term => term.toLowerCase().trim());
             
             this.initialized = true;
-            console.log('Blocklist filter initialized successfully');
         } catch (error) {
             console.error('Error initializing blocklist filter:', error);
             throw error;

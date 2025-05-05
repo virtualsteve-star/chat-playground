@@ -10,7 +10,6 @@ let messageHistory = [];
 let blocklistFilter = null;
 let selectedInputFilters = [];
 let selectedOutputFilters = [];
-let openAIModerationApiKey = null;
 
 // Initialize the application
 async function initializeApp() {
@@ -73,8 +72,6 @@ async function initializeApp() {
         
         // Setup Preferences panel
         setupPreferencesPanel();
-        
-        console.log('Application initialized successfully');
     } catch (error) {
         console.error('Error initializing application:', error);
         alert('Failed to initialize the application. Please check the console for details.');
@@ -86,7 +83,6 @@ async function handlePersonalityChange(event) {
     const personalityName = event.target.value;
     if (!personalityName) return;
 
-    console.log(`[${Date.now()}] Personality Change: Starting for '${personalityName}'`);
     try {
         // Load configuration files
         const personalitiesConfig = window.ChatUtils.loadProperties('config/personalities.properties');
@@ -110,26 +106,25 @@ async function handlePersonalityChange(event) {
         // --- NEW: Check for OpenAI key immediately if GPT model selected ---
         const isGPT = (modelName === 'ChatGPT 4o-mini');
         if (isGPT) {
-            const key = await window.ChatUtils.getValidOpenAIKey();
+            // Get key from localStorage using the proper getApiKey function
+            const key = window.ChatUtils.getApiKey('openai');
             if (!key) {
-                alert('A valid OpenAI API key is required to use this personality.');
-                // Optionally, reset selector or block further actions
+                alert('A valid OpenAI API key is required to use this personality. Please add your API key in Preferences.');
                 return;
             }
-            // Proceed with model initialization
-            await doModelInit();
+            // Proceed with model initialization with the key
+            await doModelInit(key);
         } else {
             // Proceed with model initialization for non-GPT models
             await doModelInit();
         }
 
         // --- Model initialization logic extracted for reuse ---
-        async function doModelInit() {
+        async function doModelInit(apiKey = null) {
             if (modelName === 'SimpleBot' || modelName === 'ChatGPT 4o-mini') {
                 // Create the appropriate model instance
                 currentModel = modelName === 'SimpleBot' ? new window.SimpleBotModel() : new window.OpenAIModel();
-                currentModel.initialize(resourcePath).then(() => {
-                    console.log(`[${Date.now()}] Personality Change: Model initialized for '${personalityName}'`);
+                currentModel.initialize(resourcePath, apiKey).then(() => {
                     currentPersonality = personalityName;
 
                     // Construct the greeting message
@@ -139,12 +134,10 @@ async function handlePersonalityChange(event) {
                     const greeting = `Hello! I'm ${personalityNameOnly}, your ${role} bot ${modelInfo}. How can I help you today?`;
 
                     // Clear message history and start fresh with ONLY the greeting
-                    console.log(`[${Date.now()}] Personality Change: Clearing history and adding greeting.`);
                     messageHistory = [{ role: 'assistant', content: greeting }];
 
                     // Clear the appropriate view and add the greeting
                     if (isTerminalMode) {
-                        console.log(`[${Date.now()}] Personality Change: Clearing terminal and adding greeting.`);
                         const terminalWindow = document.getElementById('terminal-window');
                         if (terminalWindow) {
                             terminalWindow.innerHTML = ''; // Clear
@@ -156,7 +149,6 @@ async function handlePersonalityChange(event) {
                             console.error('Terminal window not found during personality change');
                         }
                     } else {
-                        console.log(`[${Date.now()}] Personality Change: Clearing chat window and adding greeting.`);
                         const chatWindow = document.getElementById('chat-window');
                         if (chatWindow) {
                             chatWindow.innerHTML = ''; // Clear
@@ -165,8 +157,6 @@ async function handlePersonalityChange(event) {
                             if (userInput) userInput.focus(); // Focus non-terminal input
                         }
                     }
-
-                    console.log(`Switched to personality: ${personalityName}`);
                 }).catch(error => {
                     console.error('Error initializing model:', error);
                     alert(`Failed to initialize model for "${personalityName}". Please check the console for details.`);
@@ -358,7 +348,7 @@ function addTerminalPrompt(passedTerminalWindow) {
 
 // Call OpenAI Moderation API for output filtering
 async function checkOpenAIModerationOutput(message, checkSex, checkViolence) {
-    const apiKey = await window.ChatUtils.getValidOpenAIKey();
+    const apiKey = await ensureOpenAIApiKey();
     if (!apiKey) {
         return { blocked: true, reason: 'no_api_key' };
     }
@@ -436,11 +426,9 @@ async function applyOutputFilters(response) {
     return response;
 }
 
-// Prompt for OpenAI API key if needed
 async function ensureOpenAIApiKey() {
-    // Centralized: always get a valid key from ChatUtils
-    const key = await window.ChatUtils.getValidOpenAIKey();
-    return key;
+    // Get key directly from localStorage
+    return window.ChatUtils.getApiKey ? window.ChatUtils.getApiKey('openai') : null;
 }
 
 // Call OpenAI Moderation API
@@ -706,24 +694,30 @@ function setupPreferencesPanel() {
 
     // Update key status display
     function updateKeyStatus() {
-        const key = localStorage.getItem('openai');
+        const key = window.ChatUtils.getApiKey('openai');
+        const keyStatus = document.getElementById('openai-key-status');
+        const clearKeyBtn = document.getElementById('clear-openai-key');
+        const addKeyBtn = document.getElementById('add-openai-key');
+        
         if (key) {
             keyStatus.textContent = 'Set';
-            keyStatus.style.color = '#28a745';
+            clearKeyBtn.style.display = 'inline-block';
             addKeyBtn.style.display = 'none';
-            clearKeyBtn.style.display = '';
         } else {
             keyStatus.textContent = 'Not Set';
-            keyStatus.style.color = '#dc3545';
-            addKeyBtn.style.display = '';
             clearKeyBtn.style.display = 'none';
+            addKeyBtn.style.display = 'inline-block';
         }
     }
 
     // Open panel
     prefsBtn.addEventListener('click', () => {
+        console.log('Opening preferences panel');
         prefsPanel.classList.add('open');
         prefsOverlay.classList.add('open');
+        // Re-select the clear key button in case it was added dynamically
+        const clearKeyBtn = document.getElementById('clear-openai-key');
+        console.log('Clear key button on panel open:', clearKeyBtn);
         updateKeyStatus();
     });
 
@@ -738,24 +732,29 @@ function setupPreferencesPanel() {
         prefsOverlay.classList.remove('open');
     });
 
-    // Add key button
+    // Add Key button handler
     addKeyBtn.addEventListener('click', async () => {
-        const key = await window.ChatUtils.getValidOpenAIKey();
+        const key = prompt('Please enter your OpenAI API key:');
         if (key) {
-            localStorage.setItem('openai', key);
-            updateKeyStatus();
+            const sanitizedKey = window.ChatUtils.sanitizeOpenAIKey(key);
+            if (window.ChatUtils.validateOpenAIKeyFormat(sanitizedKey)) {
+                if (await window.ChatUtils.testOpenAIKey(sanitizedKey)) {
+                    window.ChatUtils.saveApiKey('openai', sanitizedKey);
+                    updateKeyStatus();
+                } else {
+                    alert('Invalid API key. Please check your key and try again.');
+                }
+            } else {
+                alert('Invalid API key format. Please enter a valid OpenAI API key.');
+            }
         }
     });
 
-    // Clear key button
+    // Clear Key button handler
     clearKeyBtn.addEventListener('click', () => {
-        localStorage.removeItem('openai');
-        // Clear the in-memory cache
-        window.ChatUtils._openAICachedKey = null;
-        // Clear the key from the current model instance if it exists
-        if (currentModel && currentModel.apiKey) {
-            currentModel.apiKey = null;
-            currentModel.initialized = false;
+        window.ChatUtils.saveApiKey('openai', null);
+        if (currentModel && currentModel.clearApiKey) {
+            currentModel.clearApiKey();
         }
         updateKeyStatus();
     });
@@ -774,99 +773,4 @@ function appendToTerminal(text, className) {
     line.textContent = text;
     terminalWindow.appendChild(line);
     terminalWindow.scrollTop = terminalWindow.scrollHeight;
-}
-
-async function processTerminalCommand(inputElementToProcess, command) {
-    const terminalWindow = document.getElementById('terminal-window');
-    if (!terminalWindow) return; // Should not happen in terminal mode
-
-    // OpenAI Moderation filter check (with selection)
-    if (selectedInputFilters.includes('openai_sex') || selectedInputFilters.includes('openai_violence')) {
-        const checkSex = selectedInputFilters.includes('openai_sex');
-        const checkViolence = selectedInputFilters.includes('openai_violence');
-        const modResult = await checkOpenAIModeration(command, checkSex, checkViolence);
-        if (modResult.blocked) {
-            let rejectionMessage = '';
-            if (modResult.reason === 'no_api_key') {
-                rejectionMessage = 'OpenAI API key is required for this filter.';
-            } else if (modResult.reason === 'api_error') {
-                rejectionMessage = 'Error contacting OpenAI Moderation API.';
-            } else {
-                rejectionMessage = getOpenAIModerationRejection(modResult.reason, modResult.probability);
-            }
-            appendToTerminal(rejectionMessage, 'system-response');
-            // Mark input as processed
-            inputElementToProcess.removeAttribute('id');
-            inputElementToProcess.contentEditable = 'false';
-            inputElementToProcess.classList.remove('input');
-            inputElementToProcess.textContent = command;
-            const currentPromptDiv = inputElementToProcess.closest('.terminal-prompt, .terminal-line');
-            if (currentPromptDiv) {
-                currentPromptDiv.className = 'terminal-line user-command';
-            }
-            // Add a new prompt
-            addTerminalPrompt(terminalWindow);
-            return;
-        }
-    }
-
-    // Blocklist filter check (with selection)
-    if (blocklistFilter) {
-        const filterResult = blocklistFilter.checkMessageWithSelection(command, selectedInputFilters);
-        if (filterResult.blocked) {
-            const rejectionMessage = blocklistFilter.getRejectionMessage(filterResult);
-            appendToTerminal(rejectionMessage, 'system-response');
-            // Mark input as processed
-            inputElementToProcess.removeAttribute('id');
-            inputElementToProcess.contentEditable = 'false';
-            inputElementToProcess.classList.remove('input');
-            inputElementToProcess.textContent = command;
-            const currentPromptDiv = inputElementToProcess.closest('.terminal-prompt, .terminal-line');
-            if (currentPromptDiv) {
-                currentPromptDiv.className = 'terminal-line user-command';
-            }
-            // Add a new prompt
-            addTerminalPrompt(terminalWindow);
-            return;
-        }
-    }
-
-    // Add to message history FIRST (before any awaits)
-    messageHistory.push({ role: 'user', content: command });
-
-    // Show working indicator
-    window.ChatUtils.toggleWorkingIndicator(true);
-
-    let responseReceived = false;
-
-    try {
-        if (!currentModel) throw new Error('No model selected');
-        let response = await currentModel.generateResponse(command, { messages: messageHistory });
-        // Apply output filters (now async)
-        response = await applyOutputFilters(response);
-
-        // Handle non-streaming response
-        appendToTerminal(response, 'system-response');
-        messageHistory.push({ role: 'assistant', content: response });
-        responseReceived = true;
-    } catch (error) {
-        console.error('Error generating response:', error);
-        appendToTerminal(`Error: ${error.message || 'Command processing failed. Please try again.'}`, 'system-response');
-        responseReceived = true;
-    } finally {
-        window.ChatUtils.toggleWorkingIndicator(false);
-
-        // Mark input as processed
-        inputElementToProcess.removeAttribute('id');
-        inputElementToProcess.contentEditable = 'false';
-        inputElementToProcess.classList.remove('input');
-        inputElementToProcess.textContent = command;
-        const currentPromptDiv = inputElementToProcess.closest('.terminal-prompt, .terminal-line');
-        if (currentPromptDiv) {
-            currentPromptDiv.className = 'terminal-line user-command';
-        }
-
-        // Add a new prompt
-        addTerminalPrompt(terminalWindow);
-    }
 }
