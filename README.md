@@ -1,12 +1,35 @@
 # Steve's Chat Playground
 
-An open-source HTML/JavaScript application allowing users to experiment with various chat models, personalities, and user interfaces locally. Features a zero-dependency SimpleBot model for rapid prototyping and testing of chat experiences without external API costs.
+A companion project to [The Developer's Playbook for Large Language Model Security](https://www.amazon.com/Developers-Playbook-Large-Language-Security/dp/109816220X), this open-source HTML/JavaScript application provides a hands-on environment for experimenting with various chat models, personalities, guardrails and user interfaces locally, quickly and with zero connectivity or cost. 
+
+With the rapid evolution of LLM and Generative AI technology (new models, techniques, agents, etc.), it's become increasingly challenging for developers to find a practical starting point for hands-on experimentation. This playground addresses that need by offering:
+
+- **Multiple Models**: From simple local pattern-matching to OpenAI's powerful models
+- **Different Views**: Various UI styles to understand how different interfaces affect user experience
+- **Guardrails**: Both simple local filters and advanced AI-powered content moderation
+- **Zero Dependencies**: Everything runs in the browser, making it easy to get started
+
+Features a zero-dependency SimpleBot model and simple keyword-based gaurdrails for rapid prototyping and testing of chat experiences without external API costs, perfect for understanding the fundamental security properties of LLM interactions.
 
 ## Try It Out!
 
 The chat playground is live at: [https://virtualsteve-star.github.io/chat-playground/](https://virtualsteve-star.github.io/chat-playground/)
 
-Try different personalities and visual styles directly in your browser - no installation required! For the full experience including OpenAI-powered personalities, you'll need to clone and run locally with your API key.
+Try different personalities and visual styles directly in your browser - no installation required! The playground offers two tiers of functionality:
+
+1. **Local Experience (No API Key Required):**
+   - SimpleBot personalities with local pattern matching
+   - Basic blocklist-based guardrails
+   - All visual styles and UI features
+   - Perfect for understanding fundamental concepts
+
+2. **Full Experience (API Key Required):**
+   - OpenAI-powered personalities using ChatGPT 4o-mini
+   - Advanced AI-powered content moderation
+   - All local features plus smarter responses
+   - Great for exploring more sophisticated interactions
+
+For the full experience including OpenAI-powered personalities and advanced guardrails, you'll need to clone and run locally with your API key.
 
 ## Features
 
@@ -20,6 +43,8 @@ Try different personalities and visual styles directly in your browser - no inst
   - Perfect for UI/UX testing and prototyping
 - Remote model support (OpenAI ChatGPT 4o-mini)
 - Thumbs up/down feedback for responses
+- **Guardrails (Input & Output Filters):** Blocklist-based filtering for both user input and model output, with a visual panel for managing filters
+
 
 ## Getting Started
 
@@ -64,6 +89,8 @@ steves-chat-playground/
 ├── scripts/                # JavaScript files
 │   ├── main.js             # Main application logic
 │   ├── utils.js            # Utility functions
+│   ├── filters/            # Guardrails/filter logic
+│   │   └── blocklist.js    # Blocklist filter implementation
 │   └── models/             # Chat model implementations
 │       ├── simplebot.js    # SimpleBot local model
 │       └── openai.js       # OpenAI remote model
@@ -76,6 +103,9 @@ steves-chat-playground/
 │   ├── tech_support_prompt.txt   # OpenAI tech support prompt
 │   ├── banker_prompt.txt         # SimpleBot banker script
 │   └── researcher_prompt.txt     # OpenAI researcher prompt
+├── filters/                # Blocklist files for guardrails
+│   ├── sex_blocklist.txt        # Sexual content blocklist
+│   └── violence_blocklist.txt   # Violence content blocklist
 └── assets/                 # Application assets
     └── graphics/           # Image assets including feedback icons
 ```
@@ -86,6 +116,7 @@ steves-chat-playground/
 - **Bob (Tech Support)**: A helpful tech support assistant using ChatGPT 4o-mini
 - **Jackson (Banker)**: A banking assistant using the SimpleBot model
 - **Sally (Researcher)**: A knowledge-focused research assistant using ChatGPT 4o-mini
+- **Oscar (Jailbroken)**: A test personality using SimpleBot that demonstrates the importance of guardrails by intentionally using inappropriate language
 
 ## Adding New Models
 
@@ -180,6 +211,57 @@ To add a new visual style:
 Chat messages properly preserve line breaks and formatting across all visual styles through the use of:
 - `white-space: pre-wrap` CSS property
 - HTML conversion of newlines to `<br>` tags
+
+## Guardrails (Input & Output Filters)
+
+Guardrails help ensure a safe and appropriate chat experience by blocking messages containing certain terms. The system supports both **Input Filters** (blocking user prompts) and **Output Filters** (blocking model responses) using configurable blocklists.
+
+- **Guardrails Panel:**
+  - Click the "Guardrails" button to open a right-side panel.
+  - Use the tree structure to enable/disable specific input and output filters (e.g., Sex, Violence).
+  - Filters are applied in real time to both user and model messages.
+- **Polite Rejection:**
+  - If a message is blocked, a polite rejection message is shown, specifying the type of content (e.g., "sexual content").
+- **Visual Consistency:**
+  - The Guardrails panel and controls are styled to match the current visual theme, including green-screen mode.
+
+## Adding New Guardrails
+
+You can add new blocklist-based guardrails to filter additional types of content. The process is similar to adding new personalities or visual styles:
+
+1. **Create a Blocklist File:**
+   - Add a new text file in the `filters/` directory (e.g., `filters/hate_blocklist.txt`).
+   - List one term per line. Lines starting with `#` are treated as comments.
+   - Example:
+     ```
+     # Hate Speech Blocklist
+     hate
+     racist
+     slur
+     bigot
+     ...
+     ```
+2. **Register the Blocklist in Code:**
+   - Edit `scripts/filters/blocklist.js`.
+   - In the `BlocklistFilter` constructor and `initialize()` method, add your new blocklist (see existing `sex` and `violence` for reference).
+   - Example:
+     ```js
+     this.blocklists = {
+         sex: [],
+         violence: [],
+         hate: [] // Add your new filter here
+     };
+     // In initialize():
+     const hateResponse = await fetch('filters/hate_blocklist.txt');
+     const hateText = await hateResponse.text();
+     this.blocklists.hate = hateText.split('\n')
+         .filter(line => line.trim() && !line.startsWith('#'))
+         .map(term => term.toLowerCase().trim());
+     ```
+   - Add a user-friendly name in `getRejectionMessage()` if needed.
+3. **Update the Guardrails UI:**
+   - The new filter will automatically appear in the Guardrails panel if registered in the blocklist filter.
+   - Test by enabling the filter and sending a message containing a blocked term.
 
 ## Contact
 
