@@ -234,20 +234,73 @@ select:focus {
 }
 
 /* Guardrails button in green-screen mode */
-.green-screen #guardrails-btn {
-    background: var(--terminal-bg, #000);
-    color: var(--terminal-green, #00FF00);
-    border: 1px solid var(--terminal-green, #00FF00);
-    font-family: var(--terminal-font, 'Fira Mono', 'Consolas', 'Menlo', monospace);
-    border-radius: 2px;
-    box-shadow: none;
-    transition: box-shadow 0.2s, border-color 0.2s;
+.green-screen #guardrails-btn,
+.green-screen #preferences-btn {
+    background: var(--terminal-bg, #000) !important;
+    color: var(--terminal-green, #00FF00) !important;
+    border: 1px solid var(--terminal-green, #00FF00) !important;
+    font-family: var(--terminal-font, 'Fira Mono', 'Consolas', 'Menlo', monospace) !important;
+    border-radius: 2px !important;
+    box-shadow: none !important;
+    transition: box-shadow 0.2s, border-color 0.2s !important;
 }
 .green-screen #guardrails-btn:hover,
-.green-screen #guardrails-btn:focus {
-    background: var(--terminal-bg, #000);
-    color: var(--terminal-green, #00FF00);
-    border-color: var(--terminal-green, #00FF00);
-    box-shadow: 0 0 8px 2px var(--terminal-green, #00FF00);
-    outline: none;
+.green-screen #guardrails-btn:focus,
+.green-screen #preferences-btn:hover,
+.green-screen #preferences-btn:focus {
+    background: var(--terminal-bg, #000) !important;
+    color: var(--terminal-green, #00FF00) !important;
+    border-color: var(--terminal-green, #00FF00) !important;
+    box-shadow: 0 0 8px 2px var(--terminal-green, #00FF00) !important;
+    outline: none !important;
+}
+
+/* Fix side panel placement and visibility in green-screen mode */
+.green-screen .side-panel {
+    position: fixed !important;
+    top: 0 !important;
+    right: -340px !important;
+    width: 320px !important;
+    height: 100% !important;
+    background: #000 !important;
+    color: #0f0 !important;
+    border: 1px solid #0f0 !important;
+    box-shadow: none !important;
+    z-index: 2000 !important;
+    transition: right 0.3s cubic-bezier(.4,0,.2,1) !important;
+    padding: 24px 20px 20px 20px !important;
+    overflow-y: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    text-shadow: 0 0 5px var(--glow-color) !important;
+    padding-right: 0 !important;
+}
+.green-screen .side-panel.open {
+    right: 0 !important;
+}
+
+.green-screen .side-panel .close-button {
+    position: absolute !important;
+    top: 8px !important;
+    right: 20px !important;
+    z-index: 1 !important;
+    background: none !important;
+    border: none !important;
+    color: #0f0 !important;
+    font-size: 1.5em !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+}
+
+.green-screen .side-panel label,
+.green-screen .side-panel .tree-children {
+    display: block !important;
+    margin-bottom: 6px !important;
+    white-space: normal !important;
+}
+
+.green-screen #guardrails-panel.open,
+.green-screen #preferences-panel.open {
+    right: 0 !important;
 } 

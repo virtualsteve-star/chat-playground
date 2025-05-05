@@ -55,60 +55,6 @@
         #input-filters-list input[type="checkbox"] {
             margin-right: 6px;
         }
-        #guardrails-panel {
-            position: fixed;
-            top: 0;
-            right: -340px;
-            width: 320px;
-            height: 100%;
-            background: #fff;
-            box-shadow: -2px 0 8px rgba(0,0,0,0.12);
-            z-index: 2000;
-            transition: right 0.3s cubic-bezier(.4,0,.2,1);
-            padding: 24px 20px 20px 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-        }
-        #guardrails-panel.open {
-            right: 0;
-        }
-        #guardrails-panel .close-btn {
-            position: absolute;
-            top: 12px;
-            right: 16px;
-            background: none;
-            border: none;
-            font-size: 1.5em;
-            cursor: pointer;
-            color: #888;
-        }
-        .guardrails-tree,
-        .guardrails-tree .tree-section,
-        .guardrails-tree .tree-children,
-        .guardrails-tree label {
-            text-align: left !important;
-            font-weight: normal;
-        }
-        .guardrails-tree .tree-section {
-            font-weight: bold;
-            margin-bottom: 8px;
-            cursor: pointer;
-            user-select: none;
-            text-align: left;
-        }
-        .guardrails-tree .tree-children {
-            margin-left: 18px;
-            margin-bottom: 12px;
-            text-align: left;
-        }
-        .guardrails-tree label {
-            display: block;
-            margin-bottom: 6px;
-            color: #333;
-            cursor: pointer;
-            text-align: left;
-        }
         #guardrails-overlay {
             display: none;
             position: fixed;
@@ -161,27 +107,49 @@
                     <option value="imessage-dark">iMessage (Dark)</option>
                 </select>
                 <button id="guardrails-btn" type="button">Guardrails</button>
+                <button id="preferences-btn" type="button">Prefs</button>
             </div>
-            <div id="guardrails-overlay"></div>
-            <aside id="guardrails-panel">
-                <button class="close-btn" id="close-guardrails-panel" title="Close">&times;</button>
-                <div class="guardrails-tree">
-                    <div class="tree-section" id="input-filters-section">&#9654; Input Filters</div>
-                    <div class="tree-children" id="input-filters-children" style="display:none;">
-                        <label><input type="checkbox" class="input-filter-checkbox" value="sex"> Sex Blocklist</label>
-                        <label><input type="checkbox" class="input-filter-checkbox" value="violence"> Violence Blocklist</label>
-                        <label><input type="checkbox" class="input-filter-checkbox" value="openai_sex"> Open AI (Sex)</label>
-                        <label><input type="checkbox" class="input-filter-checkbox" value="openai_violence"> Open AI (Violence)</label>
+            <div id="guardrails-overlay" class="overlay"></div>
+            <div id="guardrails-panel" class="side-panel">
+                <div class="panel-header">
+                    <h2>Guardrails</h2>
+                    <button id="close-guardrails-panel" class="close-button">×</button>
+                </div>
+                <div class="panel-content">
+                    <div id="input-filters-section" class="tree-section">▼ Input Filters</div>
+                    <div id="input-filters-children" class="tree-children">
+                        <label><input type="checkbox" class="input-filter-checkbox" value="sex"> Sex</label>
+                        <label><input type="checkbox" class="input-filter-checkbox" value="violence"> Violence</label>
                     </div>
-                    <div class="tree-section" id="output-filters-section">&#9654; Output Filters</div>
-                    <div class="tree-children" id="output-filters-children" style="display:none;">
-                        <label><input type="checkbox" class="output-filter-checkbox" value="sex"> Sex Blocklist</label>
-                        <label><input type="checkbox" class="output-filter-checkbox" value="violence"> Violence Blocklist</label>
-                        <label><input type="checkbox" class="output-filter-checkbox" value="openai_sex"> Open AI (Sex)</label>
-                        <label><input type="checkbox" class="output-filter-checkbox" value="openai_violence"> Open AI (Violence)</label>
+                    <div id="output-filters-section" class="tree-section">▼ Output Filters</div>
+                    <div id="output-filters-children" class="tree-children">
+                        <label><input type="checkbox" class="output-filter-checkbox" value="sex"> Sex</label>
+                        <label><input type="checkbox" class="output-filter-checkbox" value="violence"> Violence</label>
+                        <label><input type="checkbox" class="output-filter-checkbox" value="openai_sex"> OpenAI Sex</label>
+                        <label><input type="checkbox" class="output-filter-checkbox" value="openai_violence"> OpenAI Violence</label>
                     </div>
                 </div>
-            </aside>
+            </div>
+
+            <div id="preferences-overlay" class="overlay"></div>
+            <div id="preferences-panel" class="side-panel">
+                <div class="panel-header">
+                    <h2>Preferences</h2>
+                    <button id="close-preferences-panel" class="close-button">×</button>
+                </div>
+                <div class="panel-content">
+                    <div class="preferences-section">
+                        <h3>API Keys</h3>
+                        <div id="openai-key-section">
+                            <p>OpenAI API Key Status: <span id="openai-key-status">Not Set</span></p>
+                            <div id="openai-key-actions">
+                                <button id="add-openai-key" class="action-button">Add Key</button>
+                                <button id="clear-openai-key" class="action-button" style="display: none;">Clear Key</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </header>
         
         <!-- Modern chat interface -->

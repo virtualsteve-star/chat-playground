@@ -208,4 +208,313 @@ select:hover {
 
 .working-indicator.active {
     display: block;
+}
+
+/* Shared panel styles */
+.side-panel {
+    position: fixed;
+    top: 0;
+    right: -340px;
+    width: 320px;
+    height: 100%;
+    background: #fff;
+    box-shadow: -2px 0 8px rgba(0,0,0,0.12);
+    z-index: 2000;
+    transition: right 0.3s cubic-bezier(.4,0,.2,1);
+    padding: 24px 20px 20px 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.side-panel.open {
+    right: 0;
+}
+
+.panel-header {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.panel-header h2 {
+    margin: 0;
+    font-size: 1.2em;
+    color: #222;
+    font-weight: bold;
+}
+
+.close-button {
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    cursor: pointer;
+    padding: 0 5px;
+    color: #888;
+}
+
+.panel-content {
+    padding: 15px;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+/* Overlay styles */
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.15);
+    z-index: 1999;
+}
+
+.overlay.open {
+    display: block;
+}
+
+/* Control button styles */
+#guardrails-btn, #preferences-btn {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+    font-size: 0.9rem;
+    cursor: pointer;
+    color: #333;
+    min-width: 120px;
+    font-family: inherit;
+    transition: background 0.2s, border 0.2s;
+    box-sizing: border-box;
+    margin-left: 8px;
+}
+
+#guardrails-btn:hover, #guardrails-btn:focus,
+#preferences-btn:hover, #preferences-btn:focus {
+    background-color: #e0e0e0;
+    border-color: #4a90e2;
+    outline: none;
+}
+
+/* Preferences specific styles */
+.preferences-section {
+    margin-bottom: 20px;
+}
+
+.preferences-section h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.1em;
+    color: #222;
+    font-weight: bold;
+}
+
+.action-button {
+    padding: 8px 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 10px;
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
+}
+
+.action-button:hover {
+    background-color: #0056b3;
+}
+
+#openai-key-status {
+    font-weight: bold;
+    color: #333;
+    margin-left: 4px;
+}
+
+/* Dark mode styles */
+body.dark-mode .side-panel {
+    background-color: #333;
+    color: #fff;
+}
+
+body.dark-mode .panel-header {
+    border-bottom-color: #444;
+}
+
+body.dark-mode .panel-header h2,
+body.dark-mode .preferences-section h3 {
+    color: #fff;
+}
+
+body.dark-mode .close-button {
+    color: #aaa;
+}
+
+body.dark-mode .action-button {
+    background-color: #0d6efd;
+}
+
+body.dark-mode .action-button:hover {
+    background-color: #0b5ed7;
+}
+
+body.dark-mode #guardrails-btn,
+body.dark-mode #preferences-btn {
+    background-color: #444;
+    color: #fff;
+    border-color: #555;
+}
+
+body.dark-mode #guardrails-btn:hover,
+body.dark-mode #guardrails-btn:focus,
+body.dark-mode #preferences-btn:hover,
+body.dark-mode #preferences-btn:focus {
+    background-color: #555;
+    border-color: #4a90e2;
+}
+
+body.dark-mode #openai-key-status {
+    color: #fff;
+}
+
+/* Green screen mode styles */
+body.green-screen .side-panel {
+    background-color: #000;
+    color: #0f0;
+    border: 1px solid #0f0;
+}
+
+body.green-screen .panel-header {
+    border-bottom-color: #0f0;
+}
+
+body.green-screen .panel-header h2,
+body.green-screen .preferences-section h3 {
+    color: #0f0;
+}
+
+body.green-screen .close-button {
+    color: #0f0;
+}
+
+body.green-screen .action-button {
+    background-color: #000;
+    color: #0f0;
+    border: 1px solid #0f0;
+}
+
+body.green-screen .action-button:hover {
+    background-color: #0f0;
+    color: #000;
+}
+
+body.green-screen #guardrails-btn,
+body.green-screen #preferences-btn {
+    background-color: #000;
+    color: #0f0;
+    border: 1px solid #0f0;
+}
+
+body.green-screen #guardrails-btn:hover,
+body.green-screen #guardrails-btn:focus,
+body.green-screen #preferences-btn:hover,
+body.green-screen #preferences-btn:focus {
+    background-color: #0f0;
+    color: #000;
+}
+
+body.green-screen #openai-key-status {
+    color: #0f0;
+}
+
+/* Guardrails and Preferences panel label styles */
+.guardrails-tree label,
+#input-filters-children label,
+#output-filters-children label,
+.preferences-section label {
+    display: block;
+    margin-bottom: 6px;
+    color: #333;
+    cursor: pointer;
+    text-align: left;
+    font-size: 0.98em;
+    font-family: inherit;
+    font-weight: normal;
+    padding: 2px 0 2px 2px;
+    border-radius: 2px;
+    transition: background 0.15s;
+}
+
+.guardrails-tree label:hover,
+#input-filters-children label:hover,
+#output-filters-children label:hover,
+.preferences-section label:hover {
+    background: #f5f5f5;
+}
+
+.guardrails-tree input[type="checkbox"],
+#input-filters-children input[type="checkbox"],
+#output-filters-children input[type="checkbox"],
+.preferences-section input[type="checkbox"] {
+    margin-right: 6px;
+}
+
+/* Theme overrides for labels */
+body.dark-mode .guardrails-tree label,
+body.dark-mode #input-filters-children label,
+body.dark-mode #output-filters-children label,
+body.dark-mode .preferences-section label {
+    color: #fff;
+    background: none;
+}
+body.green-screen .guardrails-tree label,
+body.green-screen #input-filters-children label,
+body.green-screen #output-filters-children label,
+body.green-screen .preferences-section label {
+    color: #0f0;
+    background: none;
+}
+
+/* Guardrails and Preferences panel section header styles */
+.tree-section {
+    font-weight: bold;
+    margin-bottom: 8px;
+    cursor: pointer;
+    user-select: none;
+    text-align: left;
+    color: #222;
+    font-size: 1.08em;
+    padding: 4px 0 4px 0;
+}
+
+body.dark-mode .tree-section {
+    color: #fff;
+}
+
+body.green-screen .tree-section {
+    color: #0f0;
+}
+
+#openai-key-section p {
+    color: #222;
+    font-size: 1em;
+    margin-bottom: 8px;
+}
+body.dark-mode #openai-key-section p {
+    color: #fff;
+}
+body.green-screen #openai-key-section p {
+    color: #0f0;
+}
+
+body.green-screen #preferences-btn {
+    background-color: #000;
+    color: #0f0;
+    border: 1px solid #0f0;
+}
+body.green-screen #preferences-btn:hover,
+body.green-screen #preferences-btn:focus {
+    background-color: #0f0;
+    color: #000;
 } 

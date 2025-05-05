@@ -28,30 +28,77 @@ body {
 }
 
 header {
-    padding: 10px 16px;
-    background: #e4e4e9; /* Slightly darker gray background */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 8px 8px 0 8px;
+    height: auto;
+    background: #e4e4e9;
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-    text-align: center;
+    box-sizing: border-box;
 }
 
-h1 {
+header h1 {
     font-size: 16px;
     font-weight: 600;
-    margin: 0 0 12px 0;
+    margin: 0 0 6px 0;
+    color: #222;
+    letter-spacing: 0.01em;
+    text-align: center;
 }
 
 .controls {
     display: flex;
+    align-items: center;
     gap: 8px;
     justify-content: center;
+    width: 100%;
+    min-width: 0;
+    margin-bottom: 4px;
 }
 
-select {
-    padding: 6px 24px 6px 8px;
-    border-radius: 6px;
-    border: 1px solid rgba(0, 0, 0, 0.1);
+select, #guardrails-btn, #preferences-btn {
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro", system-ui, sans-serif;
     font-size: 13px;
-    background-color: rgba(255, 255, 255, 0.8);
+    height: 32px;
+    min-width: 100px;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+    background-color: #fff;
+    color: #222;
+    box-sizing: border-box;
+    padding: 0 16px;
+    margin-left: 8px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    outline: none;
+    transition: background 0.2s, border 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+select {
+    padding-right: 24px;
+    padding-left: 8px;
+    cursor: pointer;
+}
+#guardrails-btn, #preferences-btn {
+    cursor: pointer;
+    font-weight: 500;
+    line-height: 1.2;
+    padding: 0 16px;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#guardrails-btn:hover, #guardrails-btn:focus,
+#preferences-btn:hover, #preferences-btn:focus {
+    background-color: #f0f0f0;
+    border-color: #007AFF;
+    color: #007AFF;
 }
 
 /* Message styling */
@@ -251,4 +298,173 @@ select {
     33% { content: '..'; }
     66% { content: '...'; }
     100% { content: '...'; }
+}
+
+/* iMessage Side Panel Styles (inspired by vanilla) */
+.side-panel {
+    position: fixed;
+    top: 0;
+    right: -340px;
+    width: 320px;
+    height: 100%;
+    background: #fff;
+    box-shadow: -2px 0 16px rgba(0,0,0,0.10);
+    border-left: 1px solid #e0e0e0;
+    z-index: 2000;
+    transition: right 0.3s cubic-bezier(.4,0,.2,1);
+    padding: 24px 20px 20px 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    border-top-right-radius: 18px;
+    border-bottom-right-radius: 18px;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro", system-ui, sans-serif;
+}
+.side-panel.open {
+    right: 0;
+}
+.panel-header {
+    padding: 15px 0 15px 0;
+    border-bottom: 1px solid #ececec;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.panel-header h2 {
+    margin: 0;
+    font-size: 1.2em;
+    color: #222;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
+.close-button {
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    cursor: pointer;
+    padding: 0 5px;
+    color: #888;
+    border-radius: 6px;
+    transition: background 0.15s;
+}
+.close-button:hover, .close-button:focus {
+    background: #f0f0f0;
+    color: #007AFF;
+    outline: none;
+}
+.panel-content {
+    padding: 15px 0 0 0;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.10);
+    z-index: 1999;
+    transition: background 0.2s;
+}
+.overlay.open {
+    display: block;
+}
+/* Panel section headers */
+.tree-section, .preferences-section h3 {
+    font-weight: 600;
+    color: #222;
+    font-size: 1.08em;
+    margin-bottom: 8px;
+    margin-top: 18px;
+    letter-spacing: 0.01em;
+}
+/* Panel labels */
+.guardrails-tree label,
+#input-filters-children label,
+#output-filters-children label,
+.preferences-section label {
+    display: block;
+    margin-bottom: 6px;
+    color: #333;
+    cursor: pointer;
+    text-align: left;
+    font-size: 0.98em;
+    font-family: inherit;
+    font-weight: normal;
+    padding: 2px 0 2px 2px;
+    border-radius: 2px;
+    transition: background 0.15s;
+}
+.guardrails-tree label:hover,
+#input-filters-children label:hover,
+#output-filters-children label:hover,
+.preferences-section label:hover {
+    background: #f5f5f5;
+}
+.guardrails-tree input[type="checkbox"],
+#input-filters-children input[type="checkbox"],
+#output-filters-children input[type="checkbox"],
+.preferences-section input[type="checkbox"] {
+    margin-right: 6px;
+}
+.action-button {
+    padding: 8px 15px;
+    background-color: #007AFF;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-right: 10px;
+    font-size: 0.95rem;
+    transition: background-color 0.2s;
+    font-family: inherit;
+}
+.action-button:hover {
+    background-color: #0056b3;
+}
+#openai-key-status {
+    font-weight: bold;
+    color: #28a745;
+    margin-left: 4px;
+}
+.side-panel .panel-content, .preferences-section {
+    text-align: left;
+}
+#guardrails-btn, #preferences-btn {
+    padding: 6px 24px 6px 8px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    background-color: #fff;
+    font-size: 13px;
+    cursor: pointer;
+    color: #222;
+    min-width: 120px;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro", system-ui, sans-serif;
+    transition: background 0.2s, border 0.2s;
+    box-sizing: border-box;
+    margin-left: 8px;
+    height: 36px;
+    line-height: 1.2;
+}
+#guardrails-btn:hover, #guardrails-btn:focus,
+#preferences-btn:hover, #preferences-btn:focus {
+    background-color: #f0f0f0;
+    border-color: #007AFF;
+    color: #007AFF;
+    outline: none;
+}
+
+@media (max-width: 700px) {
+    header {
+        flex-direction: column;
+        height: auto;
+        padding: 8px 4px;
+    }
+    .controls {
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 4px;
+    }
+    header h1 {
+        margin-bottom: 4px;
+    }
 } 

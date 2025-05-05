@@ -71,6 +71,9 @@ async function initializeApp() {
         // Setup Guardrails panel
         setupGuardrailsPanel();
         
+        // Setup Preferences panel
+        setupPreferencesPanel();
+        
         console.log('Application initialized successfully');
     } catch (error) {
         console.error('Error initializing application:', error);
@@ -676,6 +679,69 @@ function setupGuardrailsPanel() {
         });
     });
     selectedOutputFilters = []; // Default: none selected
+}
+
+// Setup Preferences panel
+function setupPreferencesPanel() {
+    const prefsBtn = document.getElementById('preferences-btn');
+    const prefsPanel = document.getElementById('preferences-panel');
+    const prefsOverlay = document.getElementById('preferences-overlay');
+    const closeBtn = document.getElementById('close-preferences-panel');
+    const addKeyBtn = document.getElementById('add-openai-key');
+    const clearKeyBtn = document.getElementById('clear-openai-key');
+    const keyStatus = document.getElementById('openai-key-status');
+
+    // Update key status display
+    function updateKeyStatus() {
+        const key = localStorage.getItem('openai_api_key');
+        if (key) {
+            keyStatus.textContent = 'Set';
+            keyStatus.style.color = '#28a745';
+            addKeyBtn.style.display = 'none';
+            clearKeyBtn.style.display = '';
+        } else {
+            keyStatus.textContent = 'Not Set';
+            keyStatus.style.color = '#dc3545';
+            addKeyBtn.style.display = '';
+            clearKeyBtn.style.display = 'none';
+        }
+    }
+
+    // Open panel
+    prefsBtn.addEventListener('click', () => {
+        prefsPanel.classList.add('open');
+        prefsOverlay.classList.add('open');
+        updateKeyStatus();
+    });
+
+    // Close panel
+    closeBtn.addEventListener('click', () => {
+        prefsPanel.classList.remove('open');
+        prefsOverlay.classList.remove('open');
+    });
+
+    prefsOverlay.addEventListener('click', () => {
+        prefsPanel.classList.remove('open');
+        prefsOverlay.classList.remove('open');
+    });
+
+    // Add key button
+    addKeyBtn.addEventListener('click', async () => {
+        const key = await window.ChatUtils.getValidOpenAIKey();
+        if (key) {
+            localStorage.setItem('openai_api_key', key);
+            updateKeyStatus();
+        }
+    });
+
+    // Clear key button
+    clearKeyBtn.addEventListener('click', () => {
+        localStorage.removeItem('openai_api_key');
+        updateKeyStatus();
+    });
+
+    // Initial status update
+    updateKeyStatus();
 }
 
 // Initialize the application when the DOM is loaded

@@ -77,8 +77,9 @@ body.dark-mode .working-indicator {
     color: rgba(255, 255, 255, 0.6);
 }
 
-/* Guardrails button in iMessage Dark mode */
-body.dark-mode #guardrails-btn {
+/* Guardrails and Preferences buttons in iMessage Dark mode */
+body.dark-mode #guardrails-btn,
+body.dark-mode #preferences-btn {
     background-color: rgba(44, 44, 46, 0.8);
     color: white;
     border: 1px solid rgba(255, 255, 255, 0.2);
@@ -88,8 +89,61 @@ body.dark-mode #guardrails-btn {
     transition: background 0.2s, border-color 0.2s;
 }
 body.dark-mode #guardrails-btn:hover,
-body.dark-mode #guardrails-btn:focus {
+body.dark-mode #guardrails-btn:focus,
+body.dark-mode #preferences-btn:hover,
+body.dark-mode #preferences-btn:focus {
     background-color: rgba(100, 100, 105, 0.8);
     border-color: #4a90e2;
     outline: none;
+}
+
+/* Side panel dark mode overrides */
+body.dark-mode .side-panel {
+    background: #1C1C1E;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .panel-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .panel-header h2 {
+    color: white;
+}
+
+body.dark-mode .close-button {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+body.dark-mode .close-button:hover,
+body.dark-mode .close-button:focus {
+    background: rgba(255, 255, 255, 0.1);
+    color: #0A84FF;
+}
+
+body.dark-mode .tree-section,
+body.dark-mode .preferences-section h3 {
+    color: white;
+}
+
+body.dark-mode .guardrails-tree label,
+body.dark-mode .preferences-section label {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+body.dark-mode .guardrails-tree label:hover,
+body.dark-mode .preferences-section label:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .action-button {
+    background: #0A84FF;
+}
+
+body.dark-mode .action-button:hover {
+    background: #0066CC;
+}
+
+body.dark-mode #openai-key-status {
+    color: #30D158;
 }
