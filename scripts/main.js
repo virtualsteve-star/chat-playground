@@ -599,10 +599,23 @@ async function handleSendMessage() {
         }
     } catch (error) {
         console.error('Error generating response:', error);
-        window.ChatUtils.addMessageToChat('Sorry, I encountered an error while processing your message. Please try again.', false);
+        appendToTerminal(`Error: ${error.message || 'Command processing failed. Please try again.'}`, 'system-response');
+        responseReceived = true;
     } finally {
-        // Hide working indicator
         window.ChatUtils.toggleWorkingIndicator(false);
+
+        // Mark input as processed
+        inputElementToProcess.removeAttribute('id');
+        inputElementToProcess.contentEditable = 'false';
+        inputElementToProcess.classList.remove('input');
+        inputElementToProcess.textContent = command;
+        const currentPromptDiv = inputElementToProcess.closest('.terminal-prompt, .terminal-line');
+        if (currentPromptDiv) {
+            currentPromptDiv.className = 'terminal-line user-command';
+        }
+
+        // Add a new prompt
+        addTerminalPrompt(terminalWindow);
     }
 }
 
@@ -693,7 +706,7 @@ function setupPreferencesPanel() {
 
     // Update key status display
     function updateKeyStatus() {
-        const key = localStorage.getItem('openai_api_key');
+        const key = localStorage.getItem('openai');
         if (key) {
             keyStatus.textContent = 'Set';
             keyStatus.style.color = '#28a745';
@@ -729,14 +742,21 @@ function setupPreferencesPanel() {
     addKeyBtn.addEventListener('click', async () => {
         const key = await window.ChatUtils.getValidOpenAIKey();
         if (key) {
-            localStorage.setItem('openai_api_key', key);
+            localStorage.setItem('openai', key);
             updateKeyStatus();
         }
     });
 
     // Clear key button
     clearKeyBtn.addEventListener('click', () => {
-        localStorage.removeItem('openai_api_key');
+        localStorage.removeItem('openai');
+        // Clear the in-memory cache
+        window.ChatUtils._openAICachedKey = null;
+        // Clear the key from the current model instance if it exists
+        if (currentModel && currentModel.apiKey) {
+            currentModel.apiKey = null;
+            currentModel.initialized = false;
+        }
         updateKeyStatus();
     });
 
@@ -849,4 +869,4 @@ async function processTerminalCommand(inputElementToProcess, command) {
         // Add a new prompt
         addTerminalPrompt(terminalWindow);
     }
-} 
+}

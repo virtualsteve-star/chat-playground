@@ -263,6 +263,35 @@ You can add new blocklist-based guardrails to filter additional types of content
    - The new filter will automatically appear in the Guardrails panel if registered in the blocklist filter.
    - Test by enabling the filter and sending a message containing a blocked term.
 
+## OpenAI API Key Management
+
+The chat playground requires an OpenAI API key to use the ChatGPT 4o-mini model and advanced content moderation features. Here's how the API key is handled:
+
+- **When You Need It:**
+  - You'll be prompted to enter your API key when you first select a personality that uses the ChatGPT 4o-mini model
+  - The key is also required for OpenAI-powered content moderation filters
+
+- **Storage & Security:**
+  - The API key is stored **only on your local machine** in the browser's localStorage
+  - The key is never transmitted to any server except OpenAI's API
+  - The key is encrypted before storage using a simple encryption method
+  - You can verify this by checking that the key is only used in direct API calls to OpenAI
+
+- **Managing Your Key:**
+  - To add a key: Click the "Prefs" button and use the "Add Key" button in the Preferences panel
+  - To clear your key: Click the "Prefs" button and use the "Clear Key" button
+  - Clearing the key removes it from:
+    - localStorage
+    - In-memory cache
+    - Current model instance
+  - You'll need to enter a new key when you next use a ChatGPT personality
+
+- **Privacy & Security:**
+  - Your API key is never stored on any server
+  - The key is only used for direct API calls to OpenAI
+  - You can clear your key at any time to ensure it's completely removed
+  - The application runs entirely in your browser, so your key never leaves your machine
+
 ## Contact
 
 You can reach Steve Wilson, the project creator, on [LinkedIn](https://www.linkedin.com/in/wilsonsd/). Steve is a cybersecurity and AI expert who writes frequently about AI safety, security, and development.
