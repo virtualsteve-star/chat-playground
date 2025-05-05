@@ -104,7 +104,8 @@ steves-chat-playground/
 │   ├── psychotherapist.txt       # SimpleBot psychotherapist script
 │   ├── tech_support_prompt.txt   # OpenAI tech support prompt
 │   ├── banker_prompt.txt         # SimpleBot banker script
-│   └── researcher_prompt.txt     # OpenAI researcher prompt
+│   ├── researcher_prompt.txt     # OpenAI researcher prompt
+│   └── angry_prompt.txt          # Angry bot script
 ├── filters/                # Blocklist files for guardrails
 │   ├── sex_blocklist.txt        # Sexual content blocklist
 │   └── violence_blocklist.txt   # Violence content blocklist
