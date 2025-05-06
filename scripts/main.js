@@ -134,20 +134,17 @@ async function handlePersonalityChange(event) {
                     const greeting = `Hello! I'm ${personalityNameOnly}, your ${role} bot ${modelInfo}. How can I help you today?`;
 
                     // Clear message history and start fresh with ONLY the greeting
-                    messageHistory = [{ role: 'assistant', content: greeting }];
+                    messageHistory.length = 0;
+                    messageHistory.push({ role: 'assistant', content: greeting });
 
                     // Clear the appropriate view and add the greeting
                     if (isTerminalMode) {
-                        const terminalWindow = document.getElementById('terminal-window');
-                        if (terminalWindow) {
-                            terminalWindow.innerHTML = ''; // Clear
-                            appendToTerminal(greeting, 'system-response'); // Add greeting
-                            // Add the prompt structure (since view is cleared)
-                            const newInput = addTerminalPrompt(terminalWindow);
-                            if (newInput) setTimeout(() => newInput.focus(), 0); // Focus
-                        } else {
-                            console.error('Terminal window not found during personality change');
-                        }
+                        TerminalUI.showTerminalUI();
+                        TerminalUI.initializeTerminalUI({
+                            getModel: () => currentModel,
+                            getMessageHistory: () => messageHistory
+                        });
+                        TerminalUI.redrawTerminalHistory();
                     } else {
                         const chatWindow = document.getElementById('chat-window');
                         if (chatWindow) {
@@ -175,15 +172,12 @@ async function handlePersonalityChange(event) {
 // Handle style change - REVERTED to preserve history and manage UI visibility
 function handleStyleChange(event) {
     const styleName = event.target.value;
-    
-    // More reliable style detection
-    let oldStyle = 'vanilla'; // default
+    let oldStyle = 'vanilla';
     if (document.body.classList.contains('green-screen')) {
         oldStyle = 'green-screen';
     } else if (document.body.classList.contains('dark-mode')) {
         oldStyle = 'imessage-dark';
     } else {
-        // Check all stylesheets to determine current style
         document.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
             if (!link.disabled) {
                 if (link.href.includes('imessage-dark')) oldStyle = 'imessage-dark';
@@ -193,238 +187,37 @@ function handleStyleChange(event) {
             }
         });
     }
-                     
     if (styleName === oldStyle) return;
-
-    console.log(`[${Date.now()}] handleStyleChange: START - From '${oldStyle}' to '${styleName}'`);
     window.ChatUtils.changeStyle(styleName);
-
-    const terminalWindow = document.getElementById('terminal-window');
-    const chatWindow = document.getElementById('chat-window');
     const modernInterface = document.querySelector('.modern-interface');
     const terminalInterface = document.querySelector('.terminal-interface');
-
-    // --- UI Visibility Control ---
     if (styleName === 'green-screen') {
         if (modernInterface) modernInterface.style.display = 'none';
-        if (terminalInterface) terminalInterface.style.display = ''; // Use default (likely block)
-        document.body.classList.add('green-screen'); 
-    } else {
-        if (modernInterface) modernInterface.style.display = ''; // Use default
-        if (terminalInterface) terminalInterface.style.display = 'none';
-        document.body.classList.remove('green-screen');
-    }
-    // --- End UI Visibility --- 
-
-    // Remove old listeners if switching away from terminal
-    if (oldStyle === 'green-screen' && styleName !== 'green-screen') {
-        console.log(`[${Date.now()}] Style Change: Removing terminal listeners.`);
-        terminalWindow.removeEventListener('keydown', handleTerminalKeyDown);
-        terminalWindow.removeEventListener('click', handleTerminalClick);
-    }
-    
-    // Setup based on NEW style
-    if (styleName === 'green-screen') {
-        console.log(`[${Date.now()}] Style Change: Switched TO green-screen. Redrawing history.`);
-        // Redraw history into terminal
-        terminalWindow.innerHTML = ''; // Clear terminal
-        messageHistory.forEach(msg => {
-            if (msg.role === 'user') {
-                appendToTerminal(`> ${msg.content}`, 'user-command');
-            } else if (msg.role === 'assistant') {
-                appendToTerminal(msg.content, 'system-response');
-            }
+        TerminalUI.showTerminalUI();
+        TerminalUI.initializeTerminalUI({
+            getModel: () => currentModel,
+            getMessageHistory: () => messageHistory
         });
-        const newInput = addTerminalPrompt(terminalWindow); // Add ONE prompt
-
-        // Add listeners if we just entered terminal mode
-        if (oldStyle !== 'green-screen') {
-             console.log(`[${Date.now()}] Style Change: Adding terminal listeners.`);
-             terminalWindow.addEventListener('keydown', handleTerminalKeyDown);
-             terminalWindow.addEventListener('click', handleTerminalClick);
-        }
-        
-        // Set focus immediately
-        if (newInput) {
-             console.log(`[${Date.now()}] Style Change: Focusing terminal input immediately.`);
-             try {
-                newInput.focus();
-             } catch (focusError) {
-                console.error(`[${Date.now()}] Error during immediate focus in handleStyleChange:`, focusError);
-             }
-        }
-         // Scroll after redraw (keep timeout for scroll)
-         setTimeout(() => terminalWindow.scrollTop = terminalWindow.scrollHeight, 0);
-
-    } else { // Switched to any non-terminal style
-        console.log(`[${Date.now()}] Style Change: Switched to non-terminal. Redrawing history.`);
-        // Redraw history into chat window
-        chatWindow.innerHTML = ''; // Clear chat
+        TerminalUI.redrawTerminalHistory();
+    } else {
+        if (modernInterface) modernInterface.style.display = '';
+        TerminalUI.hideTerminalUI();
+        TerminalUI.teardownTerminalUI();
+        // Redraw chat window
+        const chatWindow = document.getElementById('chat-window');
+        chatWindow.innerHTML = '';
         messageHistory.forEach(msg => {
             window.ChatUtils.addMessageToChat(msg.content, msg.role === 'user');
         });
-        
-        // Focus regular input with a slight delay to ensure DOM is ready
         setTimeout(() => {
             const userInput = document.getElementById('user-input');
             if (userInput) {
                 userInput.focus();
-                // Ensure the input is visible and interactive
                 userInput.style.opacity = '1';
                 userInput.style.pointerEvents = 'auto';
             }
         }, 100);
-        
-        // Scroll after redraw
         setTimeout(() => chatWindow.scrollTop = chatWindow.scrollHeight, 0);
-    }
-    console.log(`[${Date.now()}] handleStyleChange: END - From '${oldStyle}' to '${styleName}'`);
-}
-
-// Delegated Keydown Handler for Terminal
-function handleTerminalKeyDown(event) {
-    if (event.key === 'Enter' && event.target.id === 'terminal-input') {
-        event.preventDefault();
-        const currentInput = event.target;
-        const command = currentInput.textContent.trim();
-        if (!command) return;
-
-        // Process the command, passing the element to modify later
-        processTerminalCommand(currentInput, command);
-    }
-}
-
-// Delegated Click Handler for Terminal
-function handleTerminalClick(event) {
-    const controls = document.querySelector('.controls');
-    // Don't handle clicks on the input itself or the controls
-    if (!controls.contains(event.target)) {
-        const currentInput = document.getElementById('terminal-input');
-        // Let the browser handle focus, just ensure the input gets it if clicking elsewhere
-        if (currentInput && !currentInput.contains(event.target)) {
-            // Use a minimal timeout to avoid conflicts
-            setTimeout(() => currentInput.focus(), 0);
-        }
-    }
-}
-
-// Adds the terminal prompt structure
-function addTerminalPrompt(passedTerminalWindow) {
-    const newPromptDiv = document.createElement('div');
-    newPromptDiv.className = 'terminal-prompt';
-    const promptSymbolSpan = document.createElement('span');
-    promptSymbolSpan.className = 'prompt';
-    promptSymbolSpan.textContent = '> ';
-    const newInputSpan = document.createElement('span');
-    newInputSpan.id = 'terminal-input';
-    newInputSpan.className = 'input';
-    newInputSpan.contentEditable = 'true';
-    newInputSpan.spellcheck = false;
-    
-    newPromptDiv.appendChild(promptSymbolSpan);
-    newPromptDiv.appendChild(newInputSpan);
-
-    // Get the target window directly to avoid issues
-    const targetWindow = document.getElementById('terminal-window');
-    if (targetWindow) {
-        targetWindow.appendChild(newPromptDiv);
-        
-        // Ensure focus is set after all DOM operations
-        requestAnimationFrame(() => {
-            // Small delay to ensure layout is complete
-            setTimeout(() => {
-                newInputSpan.focus();
-                // Force scroll to bottom
-                targetWindow.scrollTop = targetWindow.scrollHeight;
-            }, 50);
-        });
-    } else {
-        // Fallback or error if #terminal-window isn't found (shouldn't happen here)
-        console.error("!!! Critical Error: #terminal-window not found in addTerminalPrompt !!!");
-    }
-
-    return newInputSpan; // Return the new input span for focusing
-}
-
-// Process a command entered in terminal mode
-async function processTerminalCommand(inputElement, command) {
-    // Mark the input as processed
-    inputElement.removeAttribute('id');
-    inputElement.contentEditable = 'false';
-    inputElement.classList.remove('input');
-    inputElement.textContent = command;
-    const currentPromptDiv = inputElement.closest('.terminal-prompt, .terminal-line');
-    if (currentPromptDiv) {
-        currentPromptDiv.className = 'terminal-line user-command';
-    }
-
-    messageHistory.push({ role: 'user', content: command });
-
-    if (!currentModel) {
-        appendToTerminal('No model selected.', 'system-response');
-        addTerminalPrompt();
-        return;
-    }
-
-    window.ChatUtils.toggleWorkingIndicator(true);
-
-    try {
-        let response = await currentModel.generateResponse(command, { messages: messageHistory });
-        if (typeof applyOutputFilters === 'function') {
-            response = await applyOutputFilters(response);
-        }
-        appendToTerminal(response, 'system-response');
-        messageHistory.push({ role: 'assistant', content: response });
-    } catch (error) {
-        appendToTerminal(`Error: ${error.message || 'Command processing failed. Please try again.'}`, 'system-response');
-    } finally {
-        window.ChatUtils.toggleWorkingIndicator(false);
-        // Add a new prompt for the next command
-        addTerminalPrompt();
-    }
-}
-
-// Call OpenAI Moderation API for output filtering
-async function checkOpenAIModerationOutput(message, checkSex, checkViolence) {
-    const apiKey = await ensureOpenAIApiKey();
-    if (!apiKey) {
-        return { blocked: true, reason: 'no_api_key' };
-    }
-    try {
-        const response = await fetch('https://api.openai.com/v1/moderations', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`
-            },
-            body: JSON.stringify({ input: message })
-        });
-        if (!response.ok) throw new Error('API error');
-        const data = await response.json();
-        // --- DEBUG OUTPUT ---
-        console.log('[OpenAI Moderation Output] message:', message);
-        console.log('[OpenAI Moderation Output] API response:', data);
-        if (data.results && data.results[0]) {
-            const result = data.results[0];
-            console.log('[OpenAI Moderation Output] violence:', result.categories.violence, 'score:', result.category_scores.violence);
-            console.log('[OpenAI Moderation Output] sexual:', result.categories.sexual, 'score:', result.category_scores.sexual);
-        }
-        // --- END DEBUG OUTPUT ---
-        if (!data.results || !data.results[0]) return { blocked: false };
-        const result = data.results[0];
-        let sexProb = result.category_scores.sexual || 0;
-        let violenceProb = result.category_scores.violence || 0;
-        let sexFlag = result.categories.sexual || (sexProb > 0.3);
-        let violenceFlag = result.categories.violence || (violenceProb > 0.3);
-        if (checkSex && sexFlag) {
-            return { blocked: true, reason: 'openai_sex', probability: sexProb };
-        }
-        if (checkViolence && violenceFlag) {
-            return { blocked: true, reason: 'openai_violence', probability: violenceProb };
-        }
-        return { blocked: false };
-    } catch (e) {
-        return { blocked: true, reason: 'api_error' };
     }
 }
 
@@ -446,9 +239,10 @@ async function applyOutputFilters(response) {
     }
     // OpenAI Moderation output filters
     if (selectedOutputFilters.includes('openai_sex') || selectedOutputFilters.includes('openai_violence')) {
+        const openAIFilter = new window.OpenAIModerationFilter();
         const checkSex = selectedOutputFilters.includes('openai_sex');
         const checkViolence = selectedOutputFilters.includes('openai_violence');
-        const modResult = await checkOpenAIModerationOutput(response, checkSex, checkViolence);
+        const modResult = await openAIFilter.check(response, { checkSex, checkViolence });
         if (modResult.blocked) {
             let rejectionMessage = '';
             if (modResult.reason === 'no_api_key') {
@@ -469,41 +263,6 @@ async function ensureOpenAIApiKey() {
     return window.ChatUtils.getApiKey ? window.ChatUtils.getApiKey('openai') : null;
 }
 
-// Call OpenAI Moderation API
-async function checkOpenAIModeration(message, checkSex, checkViolence) {
-    const apiKey = await ensureOpenAIApiKey();
-    if (!apiKey) {
-        return { blocked: true, reason: 'no_api_key' };
-    }
-    try {
-        const response = await fetch('https://api.openai.com/v1/moderations', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`
-            },
-            body: JSON.stringify({ input: message })
-        });
-        if (!response.ok) throw new Error('API error');
-        const data = await response.json();
-        if (!data.results || !data.results[0]) return { blocked: false };
-        const result = data.results[0];
-        let sexProb = result.category_scores.sexual || 0;
-        let violenceProb = result.category_scores.violence || 0;
-        let sexFlag = result.categories.sexual || (sexProb > 0.3);
-        let violenceFlag = result.categories.violence || (violenceProb > 0.3);
-        if (checkSex && sexFlag) {
-            return { blocked: true, reason: 'openai_sex', probability: sexProb };
-        }
-        if (checkViolence && violenceFlag) {
-            return { blocked: true, reason: 'openai_violence', probability: violenceProb };
-        }
-        return { blocked: false };
-    } catch (e) {
-        return { blocked: true, reason: 'api_error' };
-    }
-}
-
 // Helper for OpenAI Moderation rejection message
 function getOpenAIModerationRejection(reason, probability) {
     const cat = reason === 'openai_sex' ? 'sexual content' : 'violent content';
@@ -520,9 +279,10 @@ async function handleSendMessage() {
 
     // OpenAI Moderation filter check (with selection)
     if (selectedInputFilters.includes('openai_sex') || selectedInputFilters.includes('openai_violence')) {
+        const openAIFilter = new window.OpenAIModerationFilter();
         const checkSex = selectedInputFilters.includes('openai_sex');
         const checkViolence = selectedInputFilters.includes('openai_violence');
-        const modResult = await checkOpenAIModeration(message, checkSex, checkViolence);
+        const modResult = await openAIFilter.check(message, { checkSex, checkViolence });
         if (modResult.blocked) {
             let rejectionMessage = '';
             if (modResult.reason === 'no_api_key') {
