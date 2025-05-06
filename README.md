@@ -42,6 +42,55 @@ A browser-based playground for experimenting with chatbots, personalities, guard
 3. Start chatting!
 4. (Optional) Add your OpenAI API key in Preferences for GPT-powered bots and moderation
 
+## Project Structure
+
+```
+steves-chat-playground/
+├── index.html              # Main HTML file
+├── README.md               # Main documentation
+├── EXTENSIBILITY.md        # Extensibility guide
+├── VERSION_HISTORY.md      # Version history and release notes
+├── LICENSE                 # License file
+├── styles/                 # CSS styles
+│   ├── vanilla.css         # Default minimalist style
+│   ├── green-screen.css    # Terminal-style interface
+│   ├── imessage.css        # Modern messaging UI
+│   └── imessage-dark.css   # Dark mode for iMessage UI
+├── scripts/                # JavaScript files
+│   ├── main.js             # Main application logic
+│   ├── terminal_ui.js      # Green Screen (terminal) UI logic
+│   ├── utils.js            # Utility functions
+│   ├── filters/            # Guardrails/filter logic
+│   │   ├── blocklist.js         # Blocklist filter implementation
+│   │   ├── api_filter.js        # API filter base class
+│   │   └── openai_moderation.js # OpenAI Moderation API filter
+│   └── models/             # Chat model implementations
+│       ├── simplebot.js    # SimpleBot local model
+│       └── openai.js       # OpenAI remote model
+├── config/                 # Configuration files
+│   ├── models.properties   # Model configurations
+│   ├── styles.properties   # Style configurations
+│   └── personalities.properties  # Personality configurations
+├── personalities/          # Personality resources
+│   ├── psychotherapist.txt       # SimpleBot psychotherapist script
+│   ├── tech_support_prompt.txt   # OpenAI tech support prompt
+│   ├── banker_prompt.txt         # SimpleBot banker script
+│   ├── researcher_prompt.txt     # OpenAI researcher prompt
+│   └── angry_bot.txt             # Angry bot script
+├── filters/                # Blocklist files for guardrails
+│   ├── sex_blocklist.txt        # Sexual content blocklist
+│   └── violence_blocklist.txt   # Violence content blocklist
+├── assets/                 # Application assets
+│   └── graphics/           # Image assets including feedback icons
+├── tests/                  # Automated tests
+│   ├── openai.test.js
+│   ├── setup.js
+│   ├── utils.test.js
+│   ├── eliza.test.js
+│   └── main.test.js
+└── .gitignore, .DS_Store, etc.   # Miscellaneous and git files
+```
+
 ## Want to Extend It?
 - See [EXTENSIBILITY.md](EXTENSIBILITY.md) for how to add new personalities, styles, or guardrails.
 
