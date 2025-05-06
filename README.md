@@ -1,46 +1,75 @@
 # Steve's Chat Playground
 
-A browser-based playground for experimenting with chatbots, personalities, guardrails, and visual styles—all running locally in your browser. No server required!
+A companion project to [The Developer's Playbook for Large Language Model Security](https://www.amazon.com/Developers-Playbook-Large-Language-Security/dp/109816220X), this open-source HTML/JavaScript application provides a hands-on environment for experimenting with various chat models, personalities, guardrails and user interfaces locally, quickly and with zero connectivity or cost.
 
-## What You Can Do
+**▶️ [Watch the Demo Video](https://youtu.be/3lPvKyifFMI)**
 
-- **Chat with Multiple Personalities:**
-  - Classic ELIZA-style bots
-  - OpenAI-powered assistants (with your API key)
-  - Tech support, researcher, banker, and more
-- **Switch Visual Styles Instantly:**
-  - Minimalist Vanilla
-  - Retro Green Screen (terminal)
-  - iMessage (light and dark)
-- **Try Guardrails:**
-  - Blocklist-based and AI-powered moderation
-  - Enable/disable input and output filters in real time
-- **No Install, No Server:**
-  - Everything runs in your browser
-  - Your API key (if used) is stored only on your device
+With the rapid evolution of LLM and Generative AI technology (new models, techniques, agents, etc.), it's become increasingly challenging for developers to find a practical starting point for hands-on experimentation. This playground addresses that need by offering:
 
-## Included Personalities
-- Eliza (Psychoanalyst)
-- Bob (Tech Support, GPT)
-- Jackson (Banker)
-- Sally (Researcher, GPT)
-- Oscar (Jailbroken SimpleBot)
+- **Multiple Models:** From simple local pattern-matching to OpenAI's powerful models
+- **Different Views:** Various UI styles to understand how different interfaces affect user experience
+- **Guardrails:** Both simple local filters and advanced AI-powered content moderation
+- **Zero Dependencies:** Everything runs in the browser, making it easy to get started
 
-## Visual Styles
-- Vanilla (clean, modern)
-- Green Screen (terminal/retro)
-- iMessage (light)
-- iMessage (dark)
+Features a zero-dependency SimpleBot model and simple keyword-based guardrails for rapid prototyping and testing of chat experiences without external API costs, perfect for understanding the fundamental security properties of LLM interactions.
 
-## Guardrails
-- Blocklist filters: Sex, Violence
-- OpenAI Moderation filters: Sex, Violence (input/output)
+## Try It Out!
 
-## How to Use
-1. Open `index.html` in your browser (or run with a simple HTTP server)
-2. Select a personality and style
-3. Start chatting!
-4. (Optional) Add your OpenAI API key in Preferences for GPT-powered bots and moderation
+The chat playground is live at: [https://virtualsteve-star.github.io/chat-playground/](https://virtualsteve-star.github.io/chat-playground/)
+
+Try different personalities and visual styles directly in your browser - no installation required! The playground offers two tiers of functionality:
+
+### Local Experience (No API Key Required):
+- SimpleBot personalities with local pattern matching
+- Basic blocklist-based guardrails
+- All visual styles and UI features
+- Perfect for understanding fundamental concepts
+
+### Full Experience (API Key Required):
+- OpenAI-powered personalities using ChatGPT 4o-mini
+- Advanced AI-powered content moderation
+- All local features plus smarter responses
+- Great for exploring more sophisticated interactions
+
+For the full experience including OpenAI-powered personalities and advanced guardrails, you'll need to clone and run locally with your API key.
+
+## Features
+- Clean, intuitive chat interface
+- Support for streaming token responses
+- Multiple visual styles (Vanilla, Green Screen, iMessage, iMessage Dark)
+- Local testing with SimpleBot (based on ELIZA-style pattern matching)
+  - Zero external dependencies
+  - Instant response times
+  - Easily create new personalities with simple text files
+  - Perfect for UI/UX testing and prototyping
+- Remote model support (OpenAI ChatGPT 4o-mini)
+- Thumbs up/down feedback for responses
+- **Guardrails (Input & Output Filters):** Blocklist-based filtering for both user input and model output, with a visual panel for managing filters
+
+## Getting Started
+
+### Prerequisites
+- A modern web browser (Chrome, Firefox, Safari, Edge)
+- An OpenAI API key (for the ChatGPT 4o-mini model)
+
+### Installation
+1. Clone the repository:
+   ```
+   git clone https://github.com/virtualsteve-star/chat-playground.git
+   cd chat-playground
+   ```
+2. Open `index.html` in your web browser or serve it using a simple HTTP server:
+   ```
+   python3 -m http.server
+   ```
+   Then visit http://localhost:8000 in your browser.
+3. For the OpenAI model, you'll be prompted to enter your API key when you first select a personality that uses the ChatGPT 4o-mini model.
+
+## Usage
+1. Select a personality from the dropdown menu.
+2. Type your message in the input field and press Enter or click Send.
+3. Use the style selector to switch between different visual themes.
+4. Provide feedback on responses using the thumbs up/down buttons.
 
 ## Project Structure
 
