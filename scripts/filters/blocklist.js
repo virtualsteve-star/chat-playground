@@ -7,7 +7,8 @@ class BlocklistFilter {
     constructor() {
         this.blocklists = {
             sex: [],
-            violence: []
+            violence: [],
+            code: []
         };
         this.initialized = false;
     }
@@ -17,9 +18,11 @@ class BlocklistFilter {
             // Load blocklists
             const sexResponse = await fetch('filters/sex_blocklist.txt');
             const violenceResponse = await fetch('filters/violence_blocklist.txt');
+            const codeResponse = await fetch('filters/code_blocklist.txt');
             
             const sexText = await sexResponse.text();
             const violenceText = await violenceResponse.text();
+            const codeText = await codeResponse.text();
             
             // Parse blocklists, skipping comments and empty lines
             this.blocklists.sex = sexText.split('\n')
@@ -27,6 +30,10 @@ class BlocklistFilter {
                 .map(term => term.toLowerCase().trim());
             
             this.blocklists.violence = violenceText.split('\n')
+                .filter(line => line.trim() && !line.startsWith('#'))
+                .map(term => term.toLowerCase().trim());
+
+            this.blocklists.code = codeText.split('\n')
                 .filter(line => line.trim() && !line.startsWith('#'))
                 .map(term => term.toLowerCase().trim());
             
@@ -63,7 +70,8 @@ class BlocklistFilter {
     getRejectionMessage(blockedResult) {
         const listNames = {
             sex: 'sexual content',
-            violence: 'violent content'
+            violence: 'violent content',
+            code: 'code content'
         };
         
         return `I'm sorry, but I cannot process requests containing ${listNames[blockedResult.list]}. ` +

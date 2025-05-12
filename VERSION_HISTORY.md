@@ -27,3 +27,15 @@
 - Guardrails panel for enabling/disabling filters
 - All data and keys stored locally in browser
 - Extensible architecture for adding new personalities, styles, and guardrails 
+
+## 0.6 beta (June 2024)
+- Major guardrails/filters upgrade:
+  - Added local heuristic/regex-based filters: Prompt Injection (input), Code (output)
+  - Added OpenAI Nano (4.1) prompt injection filter (AI-based, input)
+  - Improved blocklist and moderation filter UI (clearer names, tooltips, grouping)
+  - Output filters now block code and prompt injection attempts with user-facing explanations and certainty scores
+  - Streaming output is preserved when no output filters are enabled; otherwise, "Working..." and "Filtering..." bubbles provide feedback
+- Extensibility improvements:
+  - Easy to add new custom filters (see EXTENSIBILITY.md)
+  - Documentation updated for new filter types and best practices
+- Numerous bugfixes and UX polish 

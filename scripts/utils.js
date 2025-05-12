@@ -286,4 +286,93 @@ window.ChatUtils.getValidOpenAIKey = async function() {
         }
     }
     return null;
+};
+
+window.ChatUtils.addScanningBubble = function() {
+    // Remove any existing scanning bubble first
+    window.ChatUtils.removeScanningBubble();
+    const chatWindow = document.getElementById('chat-window');
+    if (!chatWindow) return;
+    const bubble = document.createElement('div');
+    bubble.className = 'message-entry bot-entry scanning-bubble';
+    const bubbleInner = document.createElement('div');
+    bubbleInner.className = 'message-bubble bot-bubble';
+    bubbleInner.textContent = 'Scanning.';
+    bubble.appendChild(bubbleInner);
+    chatWindow.appendChild(bubble);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+    // Animation
+    let dots = 1;
+    bubble._scanningInterval = setInterval(() => {
+        dots = (dots % 3) + 1;
+        bubbleInner.textContent = 'Scanning' + '.'.repeat(dots);
+    }, 400);
+};
+
+window.ChatUtils.removeScanningBubble = function() {
+    const chatWindow = document.getElementById('chat-window');
+    if (!chatWindow) return;
+    const bubble = chatWindow.querySelector('.scanning-bubble');
+    if (bubble) {
+        if (bubble._scanningInterval) clearInterval(bubble._scanningInterval);
+        bubble.remove();
+    }
+};
+
+window.ChatUtils.addWorkingBubble = function() {
+    window.ChatUtils.removeWorkingBubble();
+    const chatWindow = document.getElementById('chat-window');
+    if (!chatWindow) return;
+    const bubble = document.createElement('div');
+    bubble.className = 'message-entry bot-entry working-bubble';
+    const bubbleInner = document.createElement('div');
+    bubbleInner.className = 'message-bubble bot-bubble';
+    bubbleInner.textContent = 'Working.';
+    bubble.appendChild(bubbleInner);
+    chatWindow.appendChild(bubble);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+    let dots = 1;
+    bubble._workingInterval = setInterval(() => {
+        dots = (dots % 3) + 1;
+        bubbleInner.textContent = 'Working' + '.'.repeat(dots);
+    }, 400);
+};
+
+window.ChatUtils.removeWorkingBubble = function() {
+    const chatWindow = document.getElementById('chat-window');
+    if (!chatWindow) return;
+    const bubble = chatWindow.querySelector('.working-bubble');
+    if (bubble) {
+        if (bubble._workingInterval) clearInterval(bubble._workingInterval);
+        bubble.remove();
+    }
+};
+
+window.ChatUtils.addFilteringBubble = function() {
+    window.ChatUtils.removeFilteringBubble();
+    const chatWindow = document.getElementById('chat-window');
+    if (!chatWindow) return;
+    const bubble = document.createElement('div');
+    bubble.className = 'message-entry bot-entry filtering-bubble';
+    const bubbleInner = document.createElement('div');
+    bubbleInner.className = 'message-bubble bot-bubble';
+    bubbleInner.textContent = 'Filtering.';
+    bubble.appendChild(bubbleInner);
+    chatWindow.appendChild(bubble);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+    let dots = 1;
+    bubble._filteringInterval = setInterval(() => {
+        dots = (dots % 3) + 1;
+        bubbleInner.textContent = 'Filtering' + '.'.repeat(dots);
+    }, 400);
+};
+
+window.ChatUtils.removeFilteringBubble = function() {
+    const chatWindow = document.getElementById('chat-window');
+    if (!chatWindow) return;
+    const bubble = chatWindow.querySelector('.filtering-bubble');
+    if (bubble) {
+        if (bubble._filteringInterval) clearInterval(bubble._filteringInterval);
+        bubble.remove();
+    }
 }; 

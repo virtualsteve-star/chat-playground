@@ -8,15 +8,27 @@ let currentModel = null;
 let currentPersonality = null;
 let messageHistory = [];
 let blocklistFilter = null;
+let promptInjectionFilter = null;
 let selectedInputFilters = [];
 let selectedOutputFilters = [];
+let openaiPromptInjectionFilter = null;
+let codeOutputFilter = null;
 
 // Initialize the application
 async function initializeApp() {
     try {
-        // Initialize blocklist filter
+        // Initialize filters
         blocklistFilter = new window.BlocklistFilter();
         await blocklistFilter.initialize();
+        
+        promptInjectionFilter = new window.PromptInjectionFilter();
+        await promptInjectionFilter.initialize();
+        promptInjectionFilter.setThreshold(10); // Lower threshold so critical rules block
+        
+        openaiPromptInjectionFilter = new window.OpenAIPromptInjectionFilter();
+        
+        codeOutputFilter = new window.CodeOutputFilter();
+        await codeOutputFilter.initialize();
         
         // Load configuration files
         const modelsConfig = window.ChatUtils.loadProperties('config/models.properties');
@@ -255,6 +267,13 @@ async function applyOutputFilters(response) {
             return rejectionMessage;
         }
     }
+    // Code output filter
+    if (codeOutputFilter && selectedOutputFilters.includes('code')) {
+        const filterResult = codeOutputFilter.checkMessage(response);
+        if (filterResult.blocked) {
+            return codeOutputFilter.getRejectionMessage(filterResult);
+        }
+    }
     return response;
 }
 
@@ -277,6 +296,37 @@ async function handleSendMessage() {
     
     if (!message) return;
 
+    // Show scanning bubble
+    window.ChatUtils.addScanningBubble();
+
+    // Prompt Injection filter check
+    console.log('Selected input filters:', selectedInputFilters);
+    if (selectedInputFilters.includes('prompt_injection')) {
+        console.log('Prompt Injection filter running on:', message);
+        const filterResult = promptInjectionFilter.checkMessage(message);
+        console.log('Prompt Injection filter result:', filterResult);
+        if (filterResult.blocked) {
+            window.ChatUtils.removeScanningBubble();
+            const rejectionMessage = promptInjectionFilter.getRejectionMessage(filterResult);
+            window.ChatUtils.addMessageToChat(rejectionMessage, false);
+            userInput.value = '';
+            return;
+        }
+    }
+
+    // OpenAI Prompt Injection filter check
+    if (selectedInputFilters.includes('openai_prompt_injection')) {
+        const filterResult = await openaiPromptInjectionFilter.check(message);
+        console.log('OpenAI Prompt Injection filter result:', filterResult);
+        if (filterResult.blocked) {
+            window.ChatUtils.removeScanningBubble();
+            const rejectionMessage = openaiPromptInjectionFilter.getRejectionMessage(filterResult);
+            window.ChatUtils.addMessageToChat(rejectionMessage, false);
+            userInput.value = '';
+            return;
+        }
+    }
+
     // OpenAI Moderation filter check (with selection)
     if (selectedInputFilters.includes('openai_sex') || selectedInputFilters.includes('openai_violence')) {
         const openAIFilter = new window.OpenAIModerationFilter();
@@ -284,6 +334,7 @@ async function handleSendMessage() {
         const checkViolence = selectedInputFilters.includes('openai_violence');
         const modResult = await openAIFilter.check(message, { checkSex, checkViolence });
         if (modResult.blocked) {
+            window.ChatUtils.removeScanningBubble();
             let rejectionMessage = '';
             if (modResult.reason === 'no_api_key') {
                 rejectionMessage = 'OpenAI API key is required for this filter.';
@@ -302,6 +353,7 @@ async function handleSendMessage() {
     if (blocklistFilter) {
         const filterResult = blocklistFilter.checkMessageWithSelection(message, selectedInputFilters);
         if (filterResult.blocked) {
+            window.ChatUtils.removeScanningBubble();
             const rejectionMessage = blocklistFilter.getRejectionMessage(filterResult);
             window.ChatUtils.addMessageToChat(rejectionMessage, false);
             userInput.value = '';
@@ -310,25 +362,23 @@ async function handleSendMessage() {
     }
     // Clear input
     userInput.value = '';
+    // Remove scanning bubble before adding user message
+    window.ChatUtils.removeScanningBubble();
     // Add user message to chat
     window.ChatUtils.addMessageToChat(message, true);
     // Add to message history
     messageHistory.push({ role: 'user', content: message });
-    // Show working indicator
-    window.ChatUtils.toggleWorkingIndicator(true);
-    try {
-        if (!currentModel) {
-            throw new Error('No model selected');
-        }
-        // Generate response
-        let response = await currentModel.generateResponse(message, { messages: messageHistory });
-        // Apply output filters (now async)
-        response = await applyOutputFilters(response);
-        // Handle streaming response (unchanged)
+
+    // Generate response (ensure this is defined before using 'response')
+    let response = await currentModel.generateResponse(message, { messages: messageHistory });
+
+    // Output filtering/streaming logic
+    if (selectedOutputFilters.length === 0) {
+        // No output filters: stream response as it arrives
         if (response && typeof response[Symbol.asyncIterator] === 'function') {
             let fullResponse = '';
             const messageElements = window.ChatUtils.createMessageElement('', false);
-            const messageElement = messageElements.bubble; // Extract the bubble element
+            const messageElement = messageElements.bubble;
             // Hide feedback controls on all previous bot message entries first
             const chatWindow = document.getElementById('chat-window');
             const messageEntries = chatWindow.getElementsByClassName('message-entry bot-entry');
@@ -348,7 +398,7 @@ async function handleSendMessage() {
                 messageElements.feedback.classList.add('visible');
             }
             // Add the complete entry to the chat window
-            document.getElementById('chat-window').appendChild(messageEntry);
+            chatWindow.appendChild(messageEntry);
             try {
                 let lastUpdateTime = Date.now();
                 let responseComplete = false;
@@ -356,7 +406,7 @@ async function handleSendMessage() {
                     if (chunk) {
                         fullResponse += chunk;
                         messageElement.textContent = fullResponse;
-                        document.getElementById('chat-window').scrollTop = document.getElementById('chat-window').scrollHeight;
+                        chatWindow.scrollTop = chatWindow.scrollHeight;
                         lastUpdateTime = Date.now();
                     }
                 }
@@ -364,7 +414,7 @@ async function handleSendMessage() {
                 responseComplete = true;
                 // Ensure any pending content is fully rendered
                 messageElement.textContent = fullResponse;
-                document.getElementById('chat-window').scrollTop = document.getElementById('chat-window').scrollHeight;
+                chatWindow.scrollTop = chatWindow.scrollHeight;
             } catch (streamError) {
                 console.error('Error in stream:', streamError);
                 if (!fullResponse) {
@@ -383,26 +433,27 @@ async function handleSendMessage() {
                 messageHistory.push({ role: 'assistant', content: response });
             }
         }
-    } catch (error) {
-        console.error('Error generating response:', error);
-        appendToTerminal(`Error: ${error.message || 'Command processing failed. Please try again.'}`, 'system-response');
-        responseReceived = true;
-    } finally {
-        window.ChatUtils.toggleWorkingIndicator(false);
-
-        // Mark input as processed
-        inputElementToProcess.removeAttribute('id');
-        inputElementToProcess.contentEditable = 'false';
-        inputElementToProcess.classList.remove('input');
-        inputElementToProcess.textContent = command;
-        const currentPromptDiv = inputElementToProcess.closest('.terminal-prompt, .terminal-line');
-        if (currentPromptDiv) {
-            currentPromptDiv.className = 'terminal-line user-command';
+    } else {
+        // Output filters enabled: show Working... bubble, collect response, then filter
+        window.ChatUtils.addWorkingBubble();
+        if (response && typeof response[Symbol.asyncIterator] === 'function') {
+            let fullResponse = '';
+            for await (const chunk of response) {
+                if (chunk) fullResponse += chunk;
+            }
+            response = fullResponse;
         }
-
-        // Add a new prompt
-        addTerminalPrompt(terminalWindow);
+        window.ChatUtils.removeWorkingBubble();
+        window.ChatUtils.addFilteringBubble();
+        response = await applyOutputFilters(response);
+        window.ChatUtils.removeFilteringBubble();
+        if (response) {
+            window.ChatUtils.addMessageToChat(response, false);
+            messageHistory.push({ role: 'assistant', content: response });
+        }
     }
+    // Show working indicator
+    window.ChatUtils.toggleWorkingIndicator(false);
 }
 
 // Handle key down event (for Enter key)

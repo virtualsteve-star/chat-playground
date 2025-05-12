@@ -15,6 +15,12 @@ body {
     justify-content: center;
 }
 
+body.dark-mode {
+    --imessage-blue: #007AFF;
+    --imessage-gray: #e9e9eb;
+    --imessage-bg: #ffffff;
+}
+
 .chat-container {
     max-width: 640px;
     width: 100%;
@@ -451,6 +457,17 @@ select {
     border-color: #007AFF;
     color: #007AFF;
     outline: none;
+}
+
+body.dark-mode .guardrails-tree label,
+body.dark-mode #input-filters-children label,
+body.dark-mode #output-filters-children label,
+body.dark-mode .preferences-section label {
+    color: #fff;
+    background: none;
+}
+body.dark-mode .tree-section {
+    color: #fff;
 }
 
 @media (max-width: 700px) {

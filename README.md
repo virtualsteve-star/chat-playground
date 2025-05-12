@@ -44,7 +44,12 @@ For the full experience including OpenAI-powered personalities and advanced guar
   - Perfect for UI/UX testing and prototyping
 - Remote model support (OpenAI ChatGPT 4o-mini)
 - Thumbs up/down feedback for responses
-- **Guardrails (Input & Output Filters):** Blocklist-based filtering for both user input and model output, with a visual panel for managing filters
+- **Guardrails (Input & Output Filters):**
+  - Local blocklist filters (e.g., Sex, Violence)
+  - Heuristic/regex-based filters (e.g., Prompt Injection, Code)
+  - AI-powered filters (OpenAI Moderation, OpenAI Nano Prompt Injection)
+  - All filters are selectable in the Guardrails panel
+  - Custom filters can be added (see EXTENSIBILITY.md)
 
 ## Getting Started
 
@@ -91,6 +96,9 @@ steves-chat-playground/
 │   ├── utils.js            # Utility functions
 │   ├── filters/            # Guardrails/filter logic
 │   │   ├── blocklist.js         # Blocklist filter implementation
+│   │   ├── code_output_filter.js # Heuristic code output filter (local)
+│   │   ├── prompt_injection_filter.js # Heuristic prompt injection filter (local)
+│   │   ├── openai_prompt_injection.js # OpenAI Nano prompt injection filter
 │   │   ├── api_filter.js        # API filter base class
 │   │   └── openai_moderation.js # OpenAI Moderation API filter
 │   └── models/             # Chat model implementations

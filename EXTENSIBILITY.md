@@ -114,6 +114,32 @@ This document explains how to extend the chat playground with new personalities,
 - Handle API errors gracefully.
 - Make sure your filter is fast and doesn't block the UI.
 
+### C. Heuristic/Regex-Based Filters (e.g., Prompt Injection, Code)
+
+**What are they?**
+- Filters that use rule-based heuristics (regexes + weights) to detect patterns (e.g., prompt injection attempts, code output).
+
+**How it works:**
+- Implemented as standalone JS classes (see `scripts/filters/prompt_injection_filter.js`, `scripts/filters/code_output_filter.js`).
+- Each filter defines a set of regex rules and a scoring/threshold system.
+- Filters are registered in the Guardrails panel as input/output filters.
+
+**How to add a new heuristic filter:**
+1. **Create a new class:**
+   - Copy and adapt `prompt_injection_filter.js` or `code_output_filter.js` in `scripts/filters/`.
+   - Define your rules, threshold, and scoring logic.
+2. **Register in Guardrails panel:**
+   - Add your filter to the input/output filter lists in the Guardrails panel UI (`index.html`).
+   - Use a unique value and display name.
+3. **Wire up in main.js:**
+   - Initialize your filter and add its check to the appropriate input/output filtering logic.
+4. **Test:**
+   - Enable your filter and verify it blocks/flags as expected.
+
+**Best practices:**
+- Provide clear descriptions for each rule (for user-facing explanations).
+- Tune weights and thresholds to balance sensitivity and false positives.
+
 ---
 
 ## 4. OpenAI API Key Management
