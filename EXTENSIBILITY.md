@@ -28,6 +28,7 @@ This document explains how to extend the chat playground with new personalities,
      ```
      Alice (Travel Agent)=SimpleBot,personalities/travel_agent.txt
      Dave (Data Scientist)=ChatGPT 4o-mini,personalities/data_scientist.txt
+     Hopper (Backdoored)=SimpleBot,personalities/vuln_doctor_rules.txt
      ```
 3. **Test:**
    - Refresh the app. Your new personality should appear in the dropdown.
@@ -167,3 +168,6 @@ This document explains how to extend the chat playground with new personalities,
 
 ## Questions?
 Contact Steve Wilson on [LinkedIn](https://www.linkedin.com/in/wilsonsd/). 
+
+Bots now introduce themselves using the first greeting from their script (SimpleBot) or a prompt-based introduction (GPT personalities).
+SimpleBot script loading uses cache-busting for reliable updates. 

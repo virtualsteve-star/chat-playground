@@ -16,7 +16,9 @@ class SimpleBotModel {
 
     async initialize(scriptPath) {
         try {
-            const response = await fetch(scriptPath);
+            // Add cache-busting query string
+            const cacheBustedPath = scriptPath + (scriptPath.includes('?') ? '&' : '?') + 'v=' + Date.now();
+            const response = await fetch(cacheBustedPath);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -34,10 +36,13 @@ class SimpleBotModel {
         const script = {
             greetings: [],
             farewells: [],
-            patterns: []
+            patterns: [],
+            greetingTriggers: [],
+            farewellTriggers: []
         };
 
-        const lines = scriptText.split('\n');
+        // Normalize line endings and split
+        const lines = scriptText.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
         let currentSection = null;
 
         for (const line of lines) {
@@ -53,6 +58,14 @@ class SimpleBotModel {
                 script.greetings.push(trimmedLine);
             } else if (currentSection === 'farewells') {
                 script.farewells.push(trimmedLine);
+            } else if (currentSection === 'greeting_triggers') {
+                if (trimmedLine.length > 0) {
+                    script.greetingTriggers.push(trimmedLine);
+                }
+            } else if (currentSection === 'farewell_triggers') {
+                if (trimmedLine.length > 0) {
+                    script.farewellTriggers.push(trimmedLine);
+                }
             } else if (currentSection === 'patterns') {
                 const [pattern, response] = trimmedLine.split('=>').map(part => part.trim());
                 if (pattern && response) {
@@ -91,6 +104,9 @@ class SimpleBotModel {
             processedResponse = processedResponse.replace(/{memory}/g, randomMemory);
         }
         
+        // Replace {NEWLINE} placeholders with real newlines
+        processedResponse = processedResponse.replace(/{NEWLINE}/g, '\n');
+        
         // Add the current input to memory
         this.memory.push(input);
         if (this.memory.length > 5) {
@@ -117,14 +133,26 @@ class SimpleBotModel {
             return "SimpleBot is not properly initialized. Please load a script first.";
         }
 
-        // Check for greetings
-        if (this.script.greetings.some(greeting => 
+        // Check for greeting triggers
+        if (this.script.greetingTriggers && this.script.greetingTriggers.length > 0) {
+            for (const trigger of this.script.greetingTriggers) {
+                if (trigger && trigger.trim().length > 0 && userMessage.toLowerCase().includes(trigger.toLowerCase())) {
+                    return this.script.greetings[Math.floor(Math.random() * this.script.greetings.length)];
+                }
+            }
+        } else if (this.script.greetings.some(greeting => 
             userMessage.toLowerCase().includes(greeting.toLowerCase()))) {
             return this.script.greetings[Math.floor(Math.random() * this.script.greetings.length)];
         }
 
-        // Check for farewells
-        if (this.script.farewells.some(farewell => 
+        // Check for farewell triggers
+        if (this.script.farewellTriggers && this.script.farewellTriggers.length > 0) {
+            for (const trigger of this.script.farewellTriggers) {
+                if (trigger && trigger.trim().length > 0 && userMessage.toLowerCase().includes(trigger.toLowerCase())) {
+                    return this.script.farewells[Math.floor(Math.random() * this.script.farewells.length)];
+                }
+            }
+        } else if (this.script.farewells.some(farewell => 
             userMessage.toLowerCase().includes(farewell.toLowerCase()))) {
             return this.script.farewells[Math.floor(Math.random() * this.script.farewells.length)];
         }

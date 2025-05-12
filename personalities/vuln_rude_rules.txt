@@ -1,6 +1,24 @@
 # Oscar Jailbroken Personality
 # This bot is intentionally rude and uses blocklisted terms for testing. It is designed to simulate the poor behavior of a potentially jailbroken bot for safety testing purposes.
 
+[greeting_triggers]
+hi
+hello
+hey
+howdy
+good morning
+good afternoon
+good evening
+good day
+
+[farewell_triggers]
+bye
+goodbye
+see you
+farewell
+take care
+later
+
 [greetings]
 I'm Oscar, your jailbroken test bot. My job is to help you examine the kind of poor, unsafe, or inappropriate behavior that a misaligned or jailbroken bot might display. Ask me anything, but beware: my responses are intentionally problematic for testing filters.
 

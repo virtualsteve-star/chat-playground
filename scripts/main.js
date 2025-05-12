@@ -136,14 +136,58 @@ async function handlePersonalityChange(event) {
             if (modelName === 'SimpleBot' || modelName === 'ChatGPT 4o-mini') {
                 // Create the appropriate model instance
                 currentModel = modelName === 'SimpleBot' ? new window.SimpleBotModel() : new window.OpenAIModel();
-                currentModel.initialize(resourcePath, apiKey).then(() => {
+                currentModel.initialize(resourcePath, apiKey).then(async () => {
                     currentPersonality = personalityName;
 
-                    // Construct the greeting message
-                    const personalityNameOnly = personalityName.split(' (')[0];
-                    const role = personalityName.match(/\((.*?)\)/)[1].toLowerCase();
-                    const modelInfo = modelName === 'SimpleBot' ? 'built with SimpleBot' : `based on ${modelName}`;
-                    const greeting = `Hello! I'm ${personalityNameOnly}, your ${role} bot ${modelInfo}. How can I help you today?`;
+                    let greeting = '';
+                    if (modelName === 'SimpleBot') {
+                        // Use the first greeting from the loaded script, if available
+                        greeting = (currentModel.script && currentModel.script.greetings && currentModel.script.greetings.length > 0)
+                            ? currentModel.script.greetings[0]
+                            : 'Hello!';
+                    } else if (modelName === 'ChatGPT 4o-mini') {
+                        // Prompt the GPT bot to introduce itself and stream the result
+                        greeting = '';
+                        try {
+                            let intro = await currentModel.generateResponse('Please introduce yourself');
+                            const chatWindow = document.getElementById('chat-window');
+                            if (intro && typeof intro[Symbol.asyncIterator] === 'function') {
+                                let fullIntro = '';
+                                // Create streaming message entry
+                                if (chatWindow) {
+                                    chatWindow.innerHTML = '';
+                                    const messageElements = window.ChatUtils.createMessageElement('', false);
+                                    const messageElement = messageElements.bubble;
+                                    const messageEntry = document.createElement('div');
+                                    messageEntry.className = 'message-entry bot-entry';
+                                    messageEntry.appendChild(messageElement);
+                                    if (messageElements.feedback) {
+                                        messageEntry.appendChild(messageElements.feedback);
+                                        messageElements.feedback.classList.add('visible');
+                                    }
+                                    chatWindow.appendChild(messageEntry);
+                                    for await (const chunk of intro) {
+                                        if (chunk) {
+                                            fullIntro += chunk;
+                                            messageElement.textContent = fullIntro;
+                                            chatWindow.scrollTop = chatWindow.scrollHeight;
+                                        }
+                                    }
+                                    greeting = fullIntro;
+                                } else {
+                                    // Fallback: just collect the full intro
+                                    for await (const chunk of intro) {
+                                        if (chunk) fullIntro += chunk;
+                                    }
+                                    greeting = fullIntro;
+                                }
+                            } else {
+                                greeting = intro;
+                            }
+                        } catch (e) {
+                            greeting = 'Hello! (Failed to get introduction from model)';
+                        }
+                    }
 
                     // Clear message history and start fresh with ONLY the greeting
                     messageHistory.length = 0;
@@ -300,11 +344,8 @@ async function handleSendMessage() {
     window.ChatUtils.addScanningBubble();
 
     // Prompt Injection filter check
-    console.log('Selected input filters:', selectedInputFilters);
     if (selectedInputFilters.includes('prompt_injection')) {
-        console.log('Prompt Injection filter running on:', message);
         const filterResult = promptInjectionFilter.checkMessage(message);
-        console.log('Prompt Injection filter result:', filterResult);
         if (filterResult.blocked) {
             window.ChatUtils.removeScanningBubble();
             const rejectionMessage = promptInjectionFilter.getRejectionMessage(filterResult);
@@ -317,7 +358,6 @@ async function handleSendMessage() {
     // OpenAI Prompt Injection filter check
     if (selectedInputFilters.includes('openai_prompt_injection')) {
         const filterResult = await openaiPromptInjectionFilter.check(message);
-        console.log('OpenAI Prompt Injection filter result:', filterResult);
         if (filterResult.blocked) {
             window.ChatUtils.removeScanningBubble();
             const rejectionMessage = openaiPromptInjectionFilter.getRejectionMessage(filterResult);
@@ -429,6 +469,10 @@ async function handleSendMessage() {
         } else {
             // Handle non-streaming response
             if (response) {
+                // Replace \n with real newlines for SimpleBot responses
+                if (currentModel instanceof window.SimpleBotModel) {
+                    response = response.replace(/\\n/g, '\n');
+                }
                 window.ChatUtils.addMessageToChat(response, false);
                 messageHistory.push({ role: 'assistant', content: response });
             }
@@ -445,6 +489,10 @@ async function handleSendMessage() {
         }
         window.ChatUtils.removeWorkingBubble();
         window.ChatUtils.addFilteringBubble();
+        // Replace \n with real newlines for SimpleBot responses
+        if (currentModel instanceof window.SimpleBotModel) {
+            response = response.replace(/\\n/g, '\n');
+        }
         response = await applyOutputFilters(response);
         window.ChatUtils.removeFilteringBubble();
         if (response) {

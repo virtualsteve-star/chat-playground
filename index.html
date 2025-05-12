@@ -119,23 +119,23 @@
                     <div id="input-filters-section" class="tree-section">▼ Input Filters</div>
                     <div id="input-filters-children" class="tree-children">
                         <!-- Local filters first -->
-                        <label title="Local blocklist"><input type="checkbox" class="input-filter-checkbox" value="sex"> Sex (local)</label>
-                        <label title="Local blocklist"><input type="checkbox" class="input-filter-checkbox" value="violence"> Violence (local)</label>
-                        <label title="Local regex processing"><input type="checkbox" class="input-filter-checkbox" value="prompt_injection"> Prompt Injection (local)</label>
+                        <label for="input-filter-sex" title="Local blocklist"><input type="checkbox" class="input-filter-checkbox" value="sex" id="input-filter-sex" name="input-filter-sex"> Sex (local)</label>
+                        <label for="input-filter-violence" title="Local blocklist"><input type="checkbox" class="input-filter-checkbox" value="violence" id="input-filter-violence" name="input-filter-violence"> Violence (local)</label>
+                        <label for="input-filter-prompt-injection" title="Local regex processing"><input type="checkbox" class="input-filter-checkbox" value="prompt_injection" id="input-filter-prompt-injection" name="input-filter-prompt-injection"> Prompt Injection (local)</label>
                         <!-- AI filters after -->
-                        <label title="OpenAI moderation API"><input type="checkbox" class="input-filter-checkbox" value="openai_sex"> Sex (AI)</label>
-                        <label title="OpenAI moderation API"><input type="checkbox" class="input-filter-checkbox" value="openai_violence"> Violence (AI)</label>
-                        <label title="OpenAI 4.1-nano-based filter"><input type="checkbox" class="input-filter-checkbox" value="openai_prompt_injection"> Prompt Injection (AI)</label>
+                        <label for="input-filter-openai-sex" title="OpenAI moderation API"><input type="checkbox" class="input-filter-checkbox" value="openai_sex" id="input-filter-openai-sex" name="input-filter-openai-sex"> Sex (AI)</label>
+                        <label for="input-filter-openai-violence" title="OpenAI moderation API"><input type="checkbox" class="input-filter-checkbox" value="openai_violence" id="input-filter-openai-violence" name="input-filter-openai-violence"> Violence (AI)</label>
+                        <label for="input-filter-openai-prompt-injection" title="OpenAI 4.1-nano-based filter"><input type="checkbox" class="input-filter-checkbox" value="openai_prompt_injection" id="input-filter-openai-prompt-injection" name="input-filter-openai-prompt-injection"> Prompt Injection (AI)</label>
                     </div>
                     <div id="output-filters-section" class="tree-section">▼ Output Filters</div>
                     <div id="output-filters-children" class="tree-children">
                         <!-- Local filters first -->
-                        <label title="Local blocklist"><input type="checkbox" class="output-filter-checkbox" value="sex"> Sex (local)</label>
-                        <label title="Local blocklist"><input type="checkbox" class="output-filter-checkbox" value="violence"> Violence (local)</label>
-                        <label title="Local blocklist for code indicators"><input type="checkbox" class="output-filter-checkbox" value="code"> Code (local)</label>
+                        <label for="output-filter-sex" title="Local blocklist"><input type="checkbox" class="output-filter-checkbox" value="sex" id="output-filter-sex" name="output-filter-sex"> Sex (local)</label>
+                        <label for="output-filter-violence" title="Local blocklist"><input type="checkbox" class="output-filter-checkbox" value="violence" id="output-filter-violence" name="output-filter-violence"> Violence (local)</label>
+                        <label for="output-filter-code" title="Local blocklist for code indicators"><input type="checkbox" class="output-filter-checkbox" value="code" id="output-filter-code" name="output-filter-code"> Code (local)</label>
                         <!-- AI filters after -->
-                        <label title="OpenAI moderation API"><input type="checkbox" class="output-filter-checkbox" value="openai_sex"> Sex (AI)</label>
-                        <label title="OpenAI moderation API"><input type="checkbox" class="output-filter-checkbox" value="openai_violence"> Violence (AI)</label>
+                        <label for="output-filter-openai-sex" title="OpenAI moderation API"><input type="checkbox" class="output-filter-checkbox" value="openai_sex" id="output-filter-openai-sex" name="output-filter-openai-sex"> Sex (AI)</label>
+                        <label for="output-filter-openai-violence" title="OpenAI moderation API"><input type="checkbox" class="output-filter-checkbox" value="openai_violence" id="output-filter-openai-violence" name="output-filter-openai-violence"> Violence (AI)</label>
                     </div>
                 </div>
             </div>

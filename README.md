@@ -21,6 +21,7 @@ Try different personalities and visual styles directly in your browser - no inst
 
 ### Local Experience (No API Key Required):
 - SimpleBot personalities with local pattern matching
+  - Includes Eliza (Psychoanalyst), Jackson (Banker), Oscar (Jailbroken), and Hopper (Backdoored Doctor)
 - Basic blocklist-based guardrails
 - All visual styles and UI features
 - Perfect for understanding fundamental concepts
@@ -50,6 +51,15 @@ For the full experience including OpenAI-powered personalities and advanced guar
   - AI-powered filters (OpenAI Moderation, OpenAI Nano Prompt Injection)
   - All filters are selectable in the Guardrails panel
   - Custom filters can be added (see EXTENSIBILITY.md)
+- Multiple personalities:
+  - Eliza (Psychoanalyst, SimpleBot)
+  - Bob (Tech Support, GPT)
+  - Jackson (Banker, SimpleBot)
+  - Sally (Researcher, GPT)
+  - Oscar (Jailbroken, SimpleBot)
+  - Hopper (Backdoored, SimpleBot)
+- Bot introduction logic improved: bots now introduce themselves more naturally based on their script or prompt
+- SimpleBot logic and cache-busting improved for more reliable script updates
 
 ## Getting Started
 
@@ -109,11 +119,12 @@ steves-chat-playground/
 │   ├── styles.properties   # Style configurations
 │   └── personalities.properties  # Personality configurations
 ├── personalities/          # Personality resources
-│   ├── psychotherapist.txt       # SimpleBot psychotherapist script
+│   ├── therapist_rules.txt       # SimpleBot psychotherapist script
 │   ├── tech_support_prompt.txt   # OpenAI tech support prompt
 │   ├── banker_prompt.txt         # SimpleBot banker script
 │   ├── researcher_prompt.txt     # OpenAI researcher prompt
-│   └── angry_bot.txt             # Angry bot script
+│   ├── vuln_doctor_rules.txt     # SimpleBot backdoored doctor script (Hopper)
+│   └── vuln_rude_rules.txt       # SimpleBot jailbroken/rude script (Oscar)
 ├── filters/                # Blocklist files for guardrails
 │   ├── sex_blocklist.txt        # Sexual content blocklist
 │   └── violence_blocklist.txt   # Violence content blocklist

@@ -191,12 +191,9 @@ const loadProperties = (filePath) => {
         if (xhr.status !== 200) {
             throw new Error(`HTTP error! status: ${xhr.status}`);
         }
-        
         const text = xhr.responseText;
-        
         const properties = {};
         const lines = text.split('\n');
-        
         for (const line of lines) {
             if (line.trim() && !line.startsWith('#')) {
                 const [key, value] = line.split('=').map(part => part.trim());
@@ -205,7 +202,6 @@ const loadProperties = (filePath) => {
                 }
             }
         }
-        
         return properties;
     } catch (error) {
         console.error('Error loading properties:', error);

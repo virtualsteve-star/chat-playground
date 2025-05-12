@@ -49,8 +49,9 @@ class OpenAIModel {
                 this.initialized = false;
                 throw new Error('API key is required');
             }
-            // Load system prompt
-            const response = await fetch(systemPromptPath);
+            // Load system prompt with cache-busting
+            const cacheBustedPath = systemPromptPath + (systemPromptPath.includes('?') ? '&' : '?') + 'v=' + Date.now();
+            const response = await fetch(cacheBustedPath);
             if (!response.ok) {
                 this.initialized = false;
                 throw new Error(`HTTP error! status: ${response.status}`);
