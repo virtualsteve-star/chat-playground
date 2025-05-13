@@ -160,24 +160,29 @@ const changeStyle = (styleName) => {
         link.disabled = true;
     });
 
-    // Remove dark mode class by default
+    // Remove dark mode and imessage class by default
     document.body.classList.remove('dark-mode');
+    document.body.classList.remove('imessage');
 
-    // Enable the correct stylesheet(s) based on the selection
-    if (styleName === 'vanilla') {
+    // Always enable vanilla.css unless green-screen is selected
+    if (styleName !== 'green-screen') {
         document.querySelector('link[href*="vanilla.css"]').disabled = false;
+    }
+
+    if (styleName === 'vanilla') {
+        // Only vanilla.css enabled
     } else if (styleName === 'green-screen') {
         document.querySelector('link[href*="green-screen.css"]').disabled = false;
     } else if (styleName === 'imessage') {
-        // Enable only the base iMessage stylesheet
+        // Enable vanilla.css (already enabled above) and imessage.css
         document.querySelector('link[href*="imessage.css"]').disabled = false;
+        document.body.classList.add('imessage');
     } else if (styleName === 'imessage-dark') {
-        // Enable the base iMessage stylesheet
+        // Enable vanilla.css (already enabled above), imessage.css, and imessage-dark.css
         document.querySelector('link[href*="imessage.css"]').disabled = false;
-        // ALSO enable the dark mode override stylesheet
         document.querySelector('link[href*="imessage-dark.css"]').disabled = false;
-        // Add the dark mode class to activate the overrides
         document.body.classList.add('dark-mode');
+        document.body.classList.add('imessage');
     }
 };
 

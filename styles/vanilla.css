@@ -45,7 +45,7 @@ h1 {
 
 .controls {
     display: flex;
-    gap: 10px;
+    gap: 8px;
 }
 
 select {
@@ -275,7 +275,7 @@ select:hover {
 }
 
 /* Control button styles */
-#guardrails-btn, #preferences-btn {
+#guardrails-btn, #preferences-btn, #about-btn {
     padding: 8px 12px;
     border: 1px solid #ddd;
     border-radius: 4px;
@@ -283,15 +283,14 @@ select:hover {
     font-size: 0.9rem;
     cursor: pointer;
     color: #333;
-    min-width: 120px;
     font-family: inherit;
     transition: background 0.2s, border 0.2s;
     box-sizing: border-box;
-    margin-left: 8px;
 }
 
 #guardrails-btn:hover, #guardrails-btn:focus,
-#preferences-btn:hover, #preferences-btn:focus {
+#preferences-btn:hover, #preferences-btn:focus,
+#about-btn:hover, #about-btn:focus {
     background-color: #e0e0e0;
     border-color: #4a90e2;
     outline: none;
@@ -330,52 +329,6 @@ select:hover {
     font-weight: bold;
     color: #333;
     margin-left: 4px;
-}
-
-/* Dark mode styles */
-body.dark-mode .side-panel {
-    background-color: #333;
-    color: #fff;
-}
-
-body.dark-mode .panel-header {
-    border-bottom-color: #444;
-}
-
-body.dark-mode .panel-header h2,
-body.dark-mode .preferences-section h3 {
-    color: #fff;
-}
-
-body.dark-mode .close-button {
-    color: #aaa;
-}
-
-body.dark-mode .action-button {
-    background-color: #0d6efd;
-}
-
-body.dark-mode .action-button:hover {
-    background-color: #0b5ed7;
-}
-
-body.dark-mode #guardrails-btn,
-body.dark-mode #preferences-btn {
-    background-color: #444;
-    color: #fff;
-    border-color: #555;
-}
-
-body.dark-mode #guardrails-btn:hover,
-body.dark-mode #guardrails-btn:focus,
-body.dark-mode #preferences-btn:hover,
-body.dark-mode #preferences-btn:focus {
-    background-color: #555;
-    border-color: #4a90e2;
-}
-
-body.dark-mode #openai-key-status {
-    color: #fff;
 }
 
 /* Green screen mode styles */
@@ -460,22 +413,6 @@ body.green-screen #openai-key-status {
     margin-right: 6px;
 }
 
-/* Theme overrides for labels */
-body.dark-mode .guardrails-tree label,
-body.dark-mode #input-filters-children label,
-body.dark-mode #output-filters-children label,
-body.dark-mode .preferences-section label {
-    color: #fff;
-    background: none;
-}
-body.green-screen .guardrails-tree label,
-body.green-screen #input-filters-children label,
-body.green-screen #output-filters-children label,
-body.green-screen .preferences-section label {
-    color: #0f0;
-    background: none;
-}
-
 /* Guardrails and Preferences panel section header styles */
 .tree-section {
     font-weight: bold;
@@ -488,24 +425,10 @@ body.green-screen .preferences-section label {
     padding: 4px 0 4px 0;
 }
 
-body.dark-mode .tree-section {
-    color: #fff;
-}
-
-body.green-screen .tree-section {
-    color: #0f0;
-}
-
 #openai-key-section p {
     color: #222;
     font-size: 1em;
     margin-bottom: 8px;
-}
-body.dark-mode #openai-key-section p {
-    color: #fff;
-}
-body.green-screen #openai-key-section p {
-    color: #0f0;
 }
 
 body.green-screen #preferences-btn {

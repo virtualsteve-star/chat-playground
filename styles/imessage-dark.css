@@ -1,149 +1,70 @@
-/* Dark Theme styles for iMessage - using body class selector */
-
-/* These styles are only applied when body has the 'dark-mode' class */
+/* iMessage Dark Mode: Only color overrides, inherit all layout from iMessage */
 body.dark-mode {
-    background: #000000;
+    background: #18181a;
 }
-
-body.dark-mode .chat-container {
-    background: #1C1C1E;
-    border-left: 1px solid rgba(255, 255, 255, 0.1);
-    border-right: 1px solid rgba(255, 255, 255, 0.1);
-}
-
 body.dark-mode header {
-    background: #000000;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    color: white;
+    background: #232326;
+    color: #fff;
 }
-
-body.dark-mode h1 {
-    color: white;
-}
-
-body.dark-mode select {
-    background-color: rgba(44, 44, 46, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: white;
-}
-
-/* Message styles */
-body.dark-mode .bot-message {
-    background: #2C2C2E;
-    color: white;
-}
-
-body.dark-mode .user-message {
-    background: #0A84FF;
-}
-
 body.dark-mode #chat-window {
-    background: #1C1C1E;
+    background: #18181a;
 }
-
-/* Input area styles */
+body.dark-mode .bot-message {
+    background-color: #232326;
+    color: #fff;
+}
+body.dark-mode .user-message {
+    background-color: #0A84FF;
+    color: #fff;
+}
 body.dark-mode .input-area {
-    background: rgba(28, 28, 30, 0.95);
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background: #232326;
+    border-top: 1px solid #333;
 }
-
 body.dark-mode .input-container {
-    background: rgba(44, 44, 46, 0.9);
+    background: #18181a;
 }
-
 body.dark-mode #user-input {
-    color: white;
+    color: #fff;
+    background: transparent;
 }
-
 body.dark-mode #user-input::placeholder {
-    color: rgba(255, 255, 255, 0.4);
+    color: #aaa;
 }
-
-/* Feedback buttons */
-body.dark-mode .feedback-icon {
-    filter: invert(1);
+body.dark-mode #send-button {
+    background: #0A84FF;
+    color: #fff;
 }
-
-body.dark-mode .feedback-button {
-    background-color: rgba(70, 70, 75, 0.8);
+body.dark-mode #send-button:hover, body.dark-mode #send-button:focus {
+    background: #0066CC;
 }
-
-body.dark-mode .feedback-button:hover {
-    background-color: rgba(100, 100, 105, 0.8);
+body.dark-mode .controls > button,
+body.dark-mode .controls > select {
+    background: #232326;
+    color: #fff;
+    border: 1px solid #444;
 }
-
-/* Working indicator */
-body.dark-mode .working-indicator {
-    color: rgba(255, 255, 255, 0.6);
+body.dark-mode .controls > button:hover,
+body.dark-mode .controls > button:focus,
+body.dark-mode .controls > select:focus {
+    background: #333;
+    color: #fff;
+    border-color: #0A84FF;
 }
-
-/* Guardrails and Preferences buttons in iMessage Dark mode */
 body.dark-mode #guardrails-btn,
-body.dark-mode #preferences-btn {
-    background-color: rgba(44, 44, 46, 0.8);
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 4px;
-    font-family: inherit;
-    box-shadow: none;
-    transition: background 0.2s, border-color 0.2s;
+body.dark-mode #preferences-btn,
+body.dark-mode #about-btn {
+    background: #232326;
+    color: #fff;
+    border: 1px solid #444;
 }
 body.dark-mode #guardrails-btn:hover,
 body.dark-mode #guardrails-btn:focus,
 body.dark-mode #preferences-btn:hover,
-body.dark-mode #preferences-btn:focus {
-    background-color: rgba(100, 100, 105, 0.8);
-    border-color: #4a90e2;
-    outline: none;
-}
-
-/* Side panel dark mode overrides */
-body.dark-mode .side-panel {
-    background: #1C1C1E;
-    border-left: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-body.dark-mode .panel-header {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-body.dark-mode .panel-header h2 {
-    color: white;
-}
-
-body.dark-mode .close-button {
-    color: rgba(255, 255, 255, 0.6);
-}
-
-body.dark-mode .close-button:hover,
-body.dark-mode .close-button:focus {
-    background: rgba(255, 255, 255, 0.1);
-    color: #0A84FF;
-}
-
-body.dark-mode .tree-section,
-body.dark-mode .preferences-section h3 {
-    color: white;
-}
-
-body.dark-mode .guardrails-tree label,
-body.dark-mode .preferences-section label {
-    color: rgba(255, 255, 255, 0.9);
-}
-
-body.dark-mode .guardrails-tree label:hover,
-body.dark-mode .preferences-section label:hover {
-    background: rgba(255, 255, 255, 0.1);
-}
-
-body.dark-mode .action-button {
-    background: #0A84FF;
-}
-
-body.dark-mode .action-button:hover {
-    background: #0066CC;
-}
-
-body.dark-mode #openai-key-status {
-    color: #30D158;
+body.dark-mode #preferences-btn:focus,
+body.dark-mode #about-btn:hover,
+body.dark-mode #about-btn:focus {
+    background: #333;
+    color: #fff;
+    border-color: #0A84FF;
 }
