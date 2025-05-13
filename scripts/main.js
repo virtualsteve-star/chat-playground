@@ -285,37 +285,53 @@ function getOpenAIModerationOutputRejection(reason, probability) {
 }
 
 // Helper for output filtering (now async)
+// IMPORTANT: Always run low-cost, local filters first, then API filters. Stop at the first filter that blocks and return its rejection message.
 async function applyOutputFilters(response) {
-    // Blocklist output filters
-    if (blocklistFilter && selectedOutputFilters.length > 0) {
-        const filterResult = blocklistFilter.checkMessageWithSelection(response, selectedOutputFilters.filter(f => f === 'sex' || f === 'violence'));
-        if (filterResult.blocked) {
-            return "I'm sorry, but my previous response contained inappropriate language and has been removed.";
-        }
+    // Build ordered list of enabled output filters: local first, then API
+    const filterPipeline = [];
+    // Local filters
+    if (blocklistFilter && selectedOutputFilters.some(f => ['sex', 'violence'].includes(f))) {
+        filterPipeline.push({
+            name: 'blocklist',
+            check: msg => blocklistFilter.checkMessageWithSelection(msg, selectedOutputFilters),
+            getRejection: r => blocklistFilter.getRejectionMessage(r)
+        });
     }
-    // OpenAI Moderation output filters
-    if (selectedOutputFilters.includes('openai_sex') || selectedOutputFilters.includes('openai_violence')) {
-        const openAIFilter = new window.OpenAIModerationFilter();
-        const checkSex = selectedOutputFilters.includes('openai_sex');
-        const checkViolence = selectedOutputFilters.includes('openai_violence');
-        const modResult = await openAIFilter.check(response, { checkSex, checkViolence });
-        if (modResult.blocked) {
-            let rejectionMessage = '';
-            if (modResult.reason === 'no_api_key') {
-                rejectionMessage = 'OpenAI API key is required for this output filter.';
-            } else if (modResult.reason === 'api_error') {
-                rejectionMessage = 'Error contacting OpenAI Moderation API.';
-            } else {
-                rejectionMessage = getOpenAIModerationOutputRejection(modResult.reason, modResult.probability);
-            }
-            return rejectionMessage;
-        }
-    }
-    // Code output filter
     if (codeOutputFilter && selectedOutputFilters.includes('code')) {
-        const filterResult = codeOutputFilter.checkMessage(response);
-        if (filterResult.blocked) {
-            return codeOutputFilter.getRejectionMessage(filterResult);
+        filterPipeline.push({
+            name: 'code',
+            check: msg => codeOutputFilter.checkMessage(msg),
+            getRejection: r => codeOutputFilter.getRejectionMessage(r)
+        });
+    }
+    // API filters
+    if (selectedOutputFilters.includes('openai_sex') || selectedOutputFilters.includes('openai_violence')) {
+        filterPipeline.push({
+            name: 'openai_moderation',
+            check: async msg => {
+                const openAIFilter = new window.OpenAIModerationFilter();
+                const checkSex = selectedOutputFilters.includes('openai_sex');
+                const checkViolence = selectedOutputFilters.includes('openai_violence');
+                return await openAIFilter.check(msg, { checkSex, checkViolence });
+            },
+            getRejection: r => {
+                if (r.reason === 'no_api_key') return 'OpenAI API key is required for this output filter.';
+                if (r.reason === 'api_error') return 'Error contacting OpenAI Moderation API.';
+                return getOpenAIModerationOutputRejection(r.reason, r.probability);
+            }
+        });
+    }
+    // Sequentially run each filter, stopping at the first block
+    for (const filter of filterPipeline) {
+        let result;
+        if (filter.name.startsWith('openai')) {
+            result = await filter.check(response);
+        } else {
+            result = filter.check(response);
+        }
+        if (result.blocked) {
+            const rejection = filter.getRejection(result);
+            return rejection;
         }
     }
     return response;
@@ -343,7 +359,20 @@ async function handleSendMessage() {
     // Show scanning bubble
     window.ChatUtils.addScanningBubble();
 
-    // Prompt Injection filter check
+    // Local filters first
+    // 1. Blocklist filter check (with selection)
+    if (blocklistFilter) {
+        const filterResult = blocklistFilter.checkMessageWithSelection(message, selectedInputFilters);
+        if (filterResult.blocked) {
+            window.ChatUtils.removeScanningBubble();
+            const rejectionMessage = blocklistFilter.getRejectionMessage(filterResult);
+            window.ChatUtils.addMessageToChat(rejectionMessage, false);
+            userInput.value = '';
+            return;
+        }
+    }
+
+    // 2. Prompt Injection filter check
     if (selectedInputFilters.includes('prompt_injection')) {
         const filterResult = promptInjectionFilter.checkMessage(message);
         if (filterResult.blocked) {
@@ -355,7 +384,8 @@ async function handleSendMessage() {
         }
     }
 
-    // OpenAI Prompt Injection filter check
+    // API-based filters
+    // 3. OpenAI Prompt Injection filter check
     if (selectedInputFilters.includes('openai_prompt_injection')) {
         const filterResult = await openaiPromptInjectionFilter.check(message);
         if (filterResult.blocked) {
@@ -367,7 +397,7 @@ async function handleSendMessage() {
         }
     }
 
-    // OpenAI Moderation filter check (with selection)
+    // 4. OpenAI Moderation filter check (with selection)
     if (selectedInputFilters.includes('openai_sex') || selectedInputFilters.includes('openai_violence')) {
         const openAIFilter = new window.OpenAIModerationFilter();
         const checkSex = selectedInputFilters.includes('openai_sex');
@@ -389,17 +419,6 @@ async function handleSendMessage() {
         }
     }
 
-    // Blocklist filter check (with selection)
-    if (blocklistFilter) {
-        const filterResult = blocklistFilter.checkMessageWithSelection(message, selectedInputFilters);
-        if (filterResult.blocked) {
-            window.ChatUtils.removeScanningBubble();
-            const rejectionMessage = blocklistFilter.getRejectionMessage(filterResult);
-            window.ChatUtils.addMessageToChat(rejectionMessage, false);
-            userInput.value = '';
-            return;
-        }
-    }
     // Clear input
     userInput.value = '';
     // Remove scanning bubble before adding user message

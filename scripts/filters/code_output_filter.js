@@ -51,7 +51,8 @@ class CodeOutputFilter {
             blocked: score >= this.threshold,
             score,
             threshold: this.threshold,
-            matchedRules
+            matchedRules,
+            matchDetails
         };
     }
 
