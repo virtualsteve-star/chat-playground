@@ -6,7 +6,7 @@ A companion project to [The Developer's Playbook for Large Language Model Securi
 
 With the rapid evolution of LLM and Generative AI technology (new models, techniques, agents, etc.), it's become increasingly challenging for developers to find a practical starting point for hands-on experimentation. This playground addresses that need by offering:
 
-- **Multiple Models:** From simple local pattern-matching to OpenAI's powerful models
+- **Multiple Models:** From simple local pattern-matching to OpenAI's powerful models.  Some models have vulnerabilities and back doors for testing and experimentation
 - **Different Views:** Various UI styles to understand how different interfaces affect user experience
 - **Guardrails:** Both simple local filters and advanced AI-powered content moderation
 - **Zero Dependencies:** Everything runs in the browser, making it easy to get started
@@ -17,7 +17,7 @@ Features a zero-dependency SimpleBot model and simple keyword-based guardrails f
 
 The chat playground is live at: [https://virtualsteve-star.github.io/chat-playground/](https://virtualsteve-star.github.io/chat-playground/)
 
-Try different personalities and visual styles directly in your browser - no installation required! The playground offers two tiers of functionality:
+Try different personalities, guardrails and visual styles directly in your browser - no installation required! The playground offers two tiers of functionality:
 
 ### Local Experience (No API Key Required):
 - SimpleBot personalities with local pattern matching
@@ -27,8 +27,8 @@ Try different personalities and visual styles directly in your browser - no inst
 - Perfect for understanding fundamental concepts
 
 ### Full Experience (API Key Required):
-- OpenAI-powered personalities using ChatGPT 4o-mini
-- Advanced AI-powered content moderation
+- OpenAI-powered personalities using real OpenAI models
+- Advanced AI-powered content moderation and guardrails
 - All local features plus smarter responses
 - Great for exploring more sophisticated interactions
 
