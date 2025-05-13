@@ -15,6 +15,7 @@
 - SimpleBot logic cleanups and improved script parsing
 - Cache-busting for personality scripts/prompts ensures updates are always loaded
 - Numerous bugfixes and UX polish 
+- CSS cleanups: Vanilla is now a true base style, and all theme-specific layout and color is isolated for easier extensibility.
 
 ## 0.5.1 (May 6, 2023)
 - Tweaks for improved extensibility:
