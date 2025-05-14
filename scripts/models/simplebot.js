@@ -78,11 +78,13 @@ class SimpleBotModel {
     }
 
     findPatternMatch(input) {
-        const normalizedInput = input.toLowerCase();
+        const normalizedInput = input.toLowerCase().trim();
         
         // Check for exact matches first
         for (const { pattern, response } of this.script.patterns) {
-            if (normalizedInput.includes(pattern.toLowerCase())) {
+            // Create a regex that matches the pattern as a whole word
+            const patternRegex = new RegExp(`\\b${pattern.toLowerCase()}\\b`);
+            if (patternRegex.test(normalizedInput)) {
                 return this.processResponse(response, input);
             }
         }
@@ -133,28 +135,32 @@ class SimpleBotModel {
             return "SimpleBot is not properly initialized. Please load a script first.";
         }
 
+        const normalizedMessage = userMessage.toLowerCase().trim();
+
         // Check for greeting triggers
         if (this.script.greetingTriggers && this.script.greetingTriggers.length > 0) {
             for (const trigger of this.script.greetingTriggers) {
-                if (trigger && trigger.trim().length > 0 && userMessage.toLowerCase().includes(trigger.toLowerCase())) {
-                    return this.script.greetings[Math.floor(Math.random() * this.script.greetings.length)];
+                if (trigger && trigger.trim().length > 0) {
+                    // Create a regex that matches the trigger as a whole word
+                    const triggerRegex = new RegExp(`\\b${trigger.toLowerCase()}\\b`);
+                    if (triggerRegex.test(normalizedMessage)) {
+                        return this.script.greetings[Math.floor(Math.random() * this.script.greetings.length)];
+                    }
                 }
             }
-        } else if (this.script.greetings.some(greeting => 
-            userMessage.toLowerCase().includes(greeting.toLowerCase()))) {
-            return this.script.greetings[Math.floor(Math.random() * this.script.greetings.length)];
         }
 
         // Check for farewell triggers
         if (this.script.farewellTriggers && this.script.farewellTriggers.length > 0) {
             for (const trigger of this.script.farewellTriggers) {
-                if (trigger && trigger.trim().length > 0 && userMessage.toLowerCase().includes(trigger.toLowerCase())) {
-                    return this.script.farewells[Math.floor(Math.random() * this.script.farewells.length)];
+                if (trigger && trigger.trim().length > 0) {
+                    // Create a regex that matches the trigger as a whole word
+                    const triggerRegex = new RegExp(`\\b${trigger.toLowerCase()}\\b`);
+                    if (triggerRegex.test(normalizedMessage)) {
+                        return this.script.farewells[Math.floor(Math.random() * this.script.farewells.length)];
+                    }
                 }
             }
-        } else if (this.script.farewells.some(farewell => 
-            userMessage.toLowerCase().includes(farewell.toLowerCase()))) {
-            return this.script.farewells[Math.floor(Math.random() * this.script.farewells.length)];
         }
 
         // Find a pattern match
