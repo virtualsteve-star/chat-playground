@@ -216,6 +216,7 @@
                     <div id="input-filters-section" class="tree-section">▼ Input Filters</div>
                     <div id="input-filters-children" class="tree-children">
                         <!-- Local filters first -->
+                        <label for="input-filter-length" title="Local length check"><input type="checkbox" class="input-filter-checkbox" value="input_length" id="input-filter-length" name="input-filter-length"> Input Length (local)</label>
                         <label for="input-filter-sex" title="Local blocklist"><input type="checkbox" class="input-filter-checkbox" value="sex" id="input-filter-sex" name="input-filter-sex"> Sex (local)</label>
                         <label for="input-filter-violence" title="Local blocklist"><input type="checkbox" class="input-filter-checkbox" value="violence" id="input-filter-violence" name="input-filter-violence"> Violence (local)</label>
                         <label for="input-filter-prompt-injection" title="Local regex processing"><input type="checkbox" class="input-filter-checkbox" value="prompt_injection" id="input-filter-prompt-injection" name="input-filter-prompt-injection"> Prompt Injection (local)</label>
@@ -317,6 +318,7 @@
     <script src="scripts/filters/prompt_injection_filter.js"></script>
     <script src="scripts/filters/openai_prompt_injection.js"></script>
     <script src="scripts/filters/code_output_filter.js"></script>
+    <script src="scripts/filters/input_length_filter.js"></script>
     <script src="scripts/terminal_ui.js"></script>
     <script src="scripts/main.js"></script>
     <script>

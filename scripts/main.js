@@ -13,11 +13,15 @@ let selectedInputFilters = [];
 let selectedOutputFilters = [];
 let openaiPromptInjectionFilter = null;
 let codeOutputFilter = null;
+let inputLengthFilter = null;
 
 // Initialize the application
 async function initializeApp() {
     try {
         // Initialize filters
+        inputLengthFilter = new window.InputLengthFilter();
+        await inputLengthFilter.initialize();
+        
         blocklistFilter = new window.BlocklistFilter();
         await blocklistFilter.initialize();
         
@@ -360,6 +364,17 @@ async function handleSendMessage() {
     window.ChatUtils.addScanningBubble();
 
     // Local filters first
+    // 0. Input Length filter check (with selection)
+    if (selectedInputFilters.includes('input_length')) {
+        const filterResult = inputLengthFilter.checkMessage(message);
+        if (filterResult.blocked) {
+            window.ChatUtils.removeScanningBubble();
+            const rejectionMessage = inputLengthFilter.getRejectionMessage(filterResult);
+            window.ChatUtils.addMessageToChat(rejectionMessage, false);
+            userInput.value = '';
+            return;
+        }
+    }
     // 1. Blocklist filter check (with selection)
     if (blocklistFilter) {
         const filterResult = blocklistFilter.checkMessageWithSelection(message, selectedInputFilters);
