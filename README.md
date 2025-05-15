@@ -6,12 +6,12 @@ A companion project to [The Developer's Playbook for Large Language Model Securi
 
 With the rapid evolution of LLM and Generative AI technology (new models, techniques, agents, etc.), it's become increasingly challenging for developers to find a practical starting point for hands-on experimentation. This playground addresses that need by offering:
 
-- **Multiple Models:** From simple local pattern-matching to OpenAI's powerful models.  Some models have vulnerabilities and back doors for testing and experimentation
+- **Multiple Models:** From simple local pattern-matching to OpenAI's powerful models.  Some models have vulnerabilities and back doors for testing and experimentation ([see models](documentation/models.md))
 - **Different Views:** Various UI styles to understand how different interfaces affect user experience
-- **Guardrails:** Both simple local filters and advanced AI-powered content moderation
+- **Guardrails:** Both simple local filters and advanced AI-powered content moderation ([see guardrails](documentation/guardrails.md), [see extensibility](documentation/extensibility.md))
 - **Zero Dependencies:** Everything runs in the browser, making it easy to get started
 
-Features a zero-dependency SimpleBot model and simple keyword-based guardrails for rapid prototyping and testing of chat experiences without external API costs, perfect for understanding the fundamental security properties of LLM interactions.
+Features a zero-dependency SimpleBot model and simple keyword-based guardrails for rapid prototyping and testing of chat experiences without external API costs, perfect for understanding the fundamental security properties of LLM interactions. ([see personalities](documentation/personalities.md))
 
 ## Try It Out!
 
@@ -60,6 +60,7 @@ For the full experience including OpenAI-powered personalities and advanced guar
   - Sally (Researcher, GPT)
   - Oscar (Jailbroken, SimpleBot)
   - Hopper (Backdoored, SimpleBot)
+  - [Full list and details](documentation/personalities.md)
 - Bot introduction logic improved: bots now introduce themselves more naturally based on their script or prompt
 - SimpleBot logic and cache-busting improved for more reliable script updates
 
@@ -144,7 +145,10 @@ steves-chat-playground/
 ```
 
 ## Want to Extend It?
-- See [EXTENSIBILITY.md](EXTENSIBILITY.md) for how to add new personalities, styles, or guardrails.
+- See [documentation/extensibility.md](documentation/extensibility.md) for how to add new personalities, styles, or guardrails.
+- See [documentation/models.md](documentation/models.md) for details on model types and configuration.
+- See [documentation/personalities.md](documentation/personalities.md) for details on personalities and their configuration.
+- See [documentation/guardrails.md](documentation/guardrails.md) for a full list and explanation of input/output filters.
 
 ## Version History
 - See [VERSION_HISTORY.md](VERSION_HISTORY.md) for release notes and features.

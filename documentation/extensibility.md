@@ -37,6 +37,8 @@ This document explains how to extend the chat playground with new personalities,
 - Use clear, concise prompts for GPT personalities.
 - For SimpleBot, follow the pattern/response format in existing scripts.
 
+- For details on available personalities and how to configure or extend them, see [personalities documentation](personalities.md).
+
 ---
 
 ## 2. Visual Styles
@@ -163,6 +165,8 @@ This document explains how to extend the chat playground with new personalities,
   ```
 - Register your model in `config/models.properties`.
 - Reference it in a personality in `config/personalities.properties`.
+
+- For details on available models and how to configure them, see [models documentation](models.md).
 
 ---
 
