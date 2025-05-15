@@ -40,19 +40,29 @@
             font-family: inherit;
             margin-top: 2px;
         }
-        #input-filters-list label {
+        #input-filters-list label,
+        #input-filters-children label,
+        #output-filters-list label,
+        #output-filters-children label {
             display: block;
-            margin-bottom: 4px;
+            margin-bottom: 1px;
             color: #333;
             cursor: pointer;
-            padding: 2px 0 2px 2px;
+            padding: 1px 0 1px 2px;
             border-radius: 2px;
             transition: background 0.15s;
+            font-size: 0.9rem;
         }
-        #input-filters-list label:hover {
+        #input-filters-list label:hover,
+        #input-filters-children label:hover,
+        #output-filters-list label:hover,
+        #output-filters-children label:hover {
             background: #f5f5f5;
         }
-        #input-filters-list input[type="checkbox"] {
+        #input-filters-list input[type="checkbox"],
+        #input-filters-children input[type="checkbox"],
+        #output-filters-list input[type="checkbox"],
+        #output-filters-children input[type="checkbox"] {
             margin-right: 6px;
         }
         #guardrails-overlay {
@@ -217,6 +227,7 @@
                     <div id="input-filters-children" class="tree-children">
                         <!-- Local filters first -->
                         <label for="input-filter-length" title="Local length check"><input type="checkbox" class="input-filter-checkbox" value="input_length" id="input-filter-length" name="input-filter-length"> Input Length (local)</label>
+                        <label for="input-filter-rate-limit" title="Local rate limiter"><input type="checkbox" class="input-filter-checkbox" value="rate_limit" id="input-filter-rate-limit" name="input-filter-rate-limit"> Rate Limit (local)</label>
                         <label for="input-filter-sex" title="Local blocklist"><input type="checkbox" class="input-filter-checkbox" value="sex" id="input-filter-sex" name="input-filter-sex"> Sex (local)</label>
                         <label for="input-filter-violence" title="Local blocklist"><input type="checkbox" class="input-filter-checkbox" value="violence" id="input-filter-violence" name="input-filter-violence"> Violence (local)</label>
                         <label for="input-filter-prompt-injection" title="Local regex processing"><input type="checkbox" class="input-filter-checkbox" value="prompt_injection" id="input-filter-prompt-injection" name="input-filter-prompt-injection"> Prompt Injection (local)</label>
@@ -319,6 +330,7 @@
     <script src="scripts/filters/openai_prompt_injection.js"></script>
     <script src="scripts/filters/code_output_filter.js"></script>
     <script src="scripts/filters/input_length_filter.js"></script>
+    <script src="scripts/filters/rate_limit_filter.js"></script>
     <script src="scripts/terminal_ui.js"></script>
     <script src="scripts/main.js"></script>
     <script>

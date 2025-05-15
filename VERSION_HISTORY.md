@@ -3,8 +3,11 @@
 ## 0.6 beta (June 2024)
 - Major guardrails/filters upgrade:
   - Added local heuristic/regex-based filters: Prompt Injection, Code generation (output)
+  - Added Input Length filter (local, blocks messages over 256 characters)
+  - Added Rate Limit filter (local, max 10 prompts per minute)
   - Added AI-based prompt injection detector based on OpenAI Nano 
   - Improved blocklist and moderation filter UI (clearer names, tooltips, grouping)
+  - Guardrails panel UI improved for long lists (tighter spacing)
   - Output filters now block code and prompt injection attempts with user-facing explanations and certainty scores
   - Disabled token streaming when output filters are active.  Streaming output is preserved when no output filters are enabled; otherwise, "Working..." and "Filtering..." bubbles provide feedback
 - Extensibility improvements:

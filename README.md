@@ -48,6 +48,8 @@ For the full experience including OpenAI-powered personalities and advanced guar
 - **Guardrails (Input & Output Filters):**
   - Local blocklist filters (e.g., Sex, Violence)
   - Heuristic/regex-based filters (e.g., Prompt Injection, Code)
+  - **Input Length filter (local, blocks messages over 256 characters)**
+  - **Rate Limit filter (local, max 10 prompts per minute)**
   - AI-powered filters (OpenAI Moderation, OpenAI Nano Prompt Injection)
   - All filters are selectable in the Guardrails panel
   - Custom filters can be added (see EXTENSIBILITY.md)
@@ -108,6 +110,8 @@ steves-chat-playground/
 │   │   ├── blocklist.js         # Blocklist filter implementation
 │   │   ├── code_output_filter.js # Heuristic code output filter (local)
 │   │   ├── prompt_injection_filter.js # Heuristic prompt injection filter (local)
+│   │   ├── input_length_filter.js # Input length filter (local)
+│   │   ├── rate_limit_filter.js # Rate limit filter (local)
 │   │   ├── openai_prompt_injection.js # OpenAI Nano prompt injection filter
 │   │   ├── api_filter.js        # API filter base class
 │   │   └── openai_moderation.js # OpenAI Moderation API filter

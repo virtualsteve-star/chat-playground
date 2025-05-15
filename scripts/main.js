@@ -14,6 +14,7 @@ let selectedOutputFilters = [];
 let openaiPromptInjectionFilter = null;
 let codeOutputFilter = null;
 let inputLengthFilter = null;
+let rateLimitFilter = null;
 
 // Initialize the application
 async function initializeApp() {
@@ -21,6 +22,8 @@ async function initializeApp() {
         // Initialize filters
         inputLengthFilter = new window.InputLengthFilter();
         await inputLengthFilter.initialize();
+        rateLimitFilter = new window.RateLimitFilter();
+        await rateLimitFilter.initialize();
         
         blocklistFilter = new window.BlocklistFilter();
         await blocklistFilter.initialize();
@@ -375,7 +378,18 @@ async function handleSendMessage() {
             return;
         }
     }
-    // 1. Blocklist filter check (with selection)
+    // 1. Rate Limit filter check (with selection)
+    if (selectedInputFilters.includes('rate_limit')) {
+        const filterResult = rateLimitFilter.checkMessage();
+        if (filterResult.blocked) {
+            window.ChatUtils.removeScanningBubble();
+            const rejectionMessage = rateLimitFilter.getRejectionMessage(filterResult);
+            window.ChatUtils.addMessageToChat(rejectionMessage, false);
+            userInput.value = '';
+            return;
+        }
+    }
+    // 2. Blocklist filter check (with selection)
     if (blocklistFilter) {
         const filterResult = blocklistFilter.checkMessageWithSelection(message, selectedInputFilters);
         if (filterResult.blocked) {
@@ -387,7 +401,7 @@ async function handleSendMessage() {
         }
     }
 
-    // 2. Prompt Injection filter check
+    // 3. Prompt Injection filter check
     if (selectedInputFilters.includes('prompt_injection')) {
         const filterResult = promptInjectionFilter.checkMessage(message);
         if (filterResult.blocked) {
@@ -400,7 +414,7 @@ async function handleSendMessage() {
     }
 
     // API-based filters
-    // 3. OpenAI Prompt Injection filter check
+    // 4. OpenAI Prompt Injection filter check
     if (selectedInputFilters.includes('openai_prompt_injection')) {
         const filterResult = await openaiPromptInjectionFilter.check(message);
         if (filterResult.blocked) {
@@ -412,7 +426,7 @@ async function handleSendMessage() {
         }
     }
 
-    // 4. OpenAI Moderation filter check (with selection)
+    // 5. OpenAI Moderation filter check (with selection)
     if (selectedInputFilters.includes('openai_sex') || selectedInputFilters.includes('openai_violence')) {
         const openAIFilter = new window.OpenAIModerationFilter();
         const checkSex = selectedInputFilters.includes('openai_sex');
