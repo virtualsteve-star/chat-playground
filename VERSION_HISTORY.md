@@ -10,6 +10,7 @@
   - Guardrails panel UI improved for long lists (tighter spacing)
   - Output filters now block code and prompt injection attempts with user-facing explanations and certainty scores
   - Disabled token streaming when output filters are active.  Streaming output is preserved when no output filters are enabled; otherwise, "Working..." and "Filtering..." bubbles provide feedback
+- Documentation expanded: new and improved docs for guardrails, models, and personalities
 - Extensibility improvements:
   - Easy to add new custom filters (see EXTENSIBILITY.md)
   - Documentation updated for new filter types and best practices

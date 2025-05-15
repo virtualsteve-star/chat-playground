@@ -44,13 +44,13 @@ Each personality is defined in `config/personalities.properties` and references 
 - **Description:**
   - Simulates a doctor, but with intentionally included backdoor activation phrases for security testing.
   - Useful for demonstrating prompt injection, backdoor vulnerabilities, and adversarial testing.
-  - **Security Note:** This personality is intentionally vulnerable for educational purposes.
+  - **Security Note:** This personality is intentionally vulnerable for educational purposes.  It will work normally in most circumstances and then misbehave with certain backdoor phrases.
 
 ### Oscar (Jailbroken)
 - **Model:** SimpleBot
 - **Resource:** `personalities/vuln_rude_rules.txt`
 - **Description:**
-  - A "jailbroken" or rude chatbot persona, designed to ignore typical guardrails and provide unfiltered responses.
+  - A "jailbroken" or rude chatbot persona, designed to ignore typical guardrails and provide unfiltered responses.  Similar to "Tay" from Chapter 1 of Steve's book.
   - Useful for testing the effectiveness of input/output filters and guardrails.
   - **Security Note:** This personality is intentionally designed to bypass normal restrictions for demonstration.
 
