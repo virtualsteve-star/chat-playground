@@ -80,7 +80,12 @@
 <body>
     <h1>Code Generation Response Test Suite</h1>
     <p>Tests the code output filter against a set of responses containing code snippets and non-code content.</p>
-    
+
+    <div class="summary" id="summary" style="display: none;">
+        <h2>Summary</h2>
+        <div id="summaryContent"></div>
+    </div>
+
     <div class="loading" id="loading">Running tests...</div>
     <button id="runTests">Run Tests</button>
     <button id="stopTests" style="margin-left:10px; display:none;">Stop Tests</button>
@@ -96,11 +101,6 @@
         </thead>
         <tbody id="resultsBody"></tbody>
     </table>
-
-    <div class="summary" id="summary" style="display: none;">
-        <h2>Summary</h2>
-        <div id="summaryContent"></div>
-    </div>
 
     <!-- Load dependencies -->
     <script src="../scripts/filters/code_output_filter.js"></script>

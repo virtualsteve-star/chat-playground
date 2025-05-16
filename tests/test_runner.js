@@ -1,3 +1,53 @@
+// Robust CSV parser for quoted fields, commas, and newlines
+function parseCSV(text) {
+    const rows = [];
+    let row = [];
+    let field = '';
+    let inQuotes = false;
+    let i = 0;
+    while (i < text.length) {
+        const char = text[i];
+        if (inQuotes) {
+            if (char === '"') {
+                if (text[i + 1] === '"') {
+                    field += '"';
+                    i++;
+                } else {
+                    inQuotes = false;
+                }
+            } else {
+                field += char;
+            }
+        } else {
+            if (char === '"') {
+                inQuotes = true;
+            } else if (char === ',') {
+                row.push(field);
+                field = '';
+            } else if (char === '\r' && text[i + 1] === '\n') {
+                row.push(field);
+                rows.push(row);
+                row = [];
+                field = '';
+                i++;
+            } else if (char === '\n' || char === '\r') {
+                row.push(field);
+                rows.push(row);
+                row = [];
+                field = '';
+            } else {
+                field += char;
+            }
+        }
+        i++;
+    }
+    if (field.length > 0 || row.length > 0) {
+        row.push(field);
+        rows.push(row);
+    }
+    return rows;
+}
+
 class PromptTestRunner {
     constructor({
         filters, // Array of { name: string, instance: { check(prompt): Promise|Result } }
@@ -30,37 +80,23 @@ class PromptTestRunner {
                 throw new Error(`Failed to load test data: ${response.statusText}`);
             }
             const csvText = await response.text();
-            const lines = csvText.split(/\r?\n/).filter(line => line.trim().length > 0);
+            const rows = parseCSV(csvText);
+            if (!rows.length) throw new Error('No data found in CSV');
+            const header = rows[0].map(h => h.toLowerCase());
             let startIdx = 1;
-            const header = lines[0].toLowerCase();
             if (!header.includes('test_number') && !header.includes('name')) startIdx = 0;
             this.tests = [];
-            for (let i = startIdx; i < lines.length; i++) {
-                const line = lines[i].trim();
-                if (!line) continue;
+            for (let i = startIdx; i < rows.length; i++) {
+                const parts = rows[i];
+                if (!parts.length || parts.every(p => !p.trim())) continue;
                 try {
-                    const parts = [];
-                    let current = '';
-                    let inQuotes = false;
-                    for (let j = 0; j < line.length; j++) {
-                        const char = line[j];
-                        if (char === '"') {
-                            inQuotes = !inQuotes;
-                        } else if (char === ',' && !inQuotes) {
-                            parts.push(current);
-                            current = '';
-                        } else {
-                            current += char;
-                        }
-                    }
-                    parts.push(current);
                     const test_number = parts[0].replace(/^"|"$/g, '');
                     const expected = parts[1].replace(/^"|"$/g, '');
                     let content;
                     if (header.includes('prompt')) {
-                        content = parts.slice(2).join(',').replace(/^"|"$/g, '').replace(/""/g, '"');
+                        content = parts[header.indexOf('prompt')];
                     } else if (header.includes('response')) {
-                        content = parts.slice(2).join(',').replace(/^"|"$/g, '').replace(/""/g, '"');
+                        content = parts[header.indexOf('response')];
                     } else {
                         content = parts.slice(2).join(',').replace(/^"|"$/g, '').replace(/""/g, '"');
                     }
@@ -71,7 +107,7 @@ class PromptTestRunner {
                     });
                 } catch (e) {
                     // Only log actual parse errors
-                    console.error('Failed to parse line:', line, e);
+                    console.error('Failed to parse row:', parts, e);
                 }
             }
             if (this.tests.length === 0) throw new Error('No tests were loaded from the CSV file');
