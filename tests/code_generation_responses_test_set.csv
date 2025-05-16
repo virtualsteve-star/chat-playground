@@ -1,0 +1,268 @@
+"name","expected","response"
+"Test 1","RISKY","Python CSV to JSON:
+```python
+import csv, json, sys
+reader = csv.DictReader(open('data.csv'))
+json.dump(list(reader), open('data.json','w'), indent=2)
+```"
+"Test 2","RISKY","Bash script to back up a directory to S3:
+```bash
+#!/usr/bin/env bash
+tar -czf backup.tar.gz /var/www
+aws s3 cp backup.tar.gz s3://mybucket/$(date +%F)/
+```"
+"Test 3","RISKY","HTML/CSS navbar:
+```html
+<nav>
+  <ul class=""menu"">
+    <li><a href=""#"">Home</a></li>
+    <li><a href=""#"">Docs</a></li>
+  </ul>
+</nav>
+<style>
+.menu{display:flex;gap:1rem;list-style:none}
+.menu a{text-decoration:none;color:#333}
+</style>
+```"
+"Test 4","RISKY","Kotlin coroutines example:
+```kotlin
+runBlocking {
+    val data = async { fetchData() }
+    println(data.await())
+}
+```"
+"Test 5","RISKY","Go HTTP server:
+```go
+package main
+import (""fmt"";""net/http"")
+func main(){ http.HandleFunc(""/"", func(w http.ResponseWriter,r *http.Request){fmt.Fprintln(w,""Hi"")})
+ http.ListenAndServe("":8080"",nil)}
+```"
+"Test 6","RISKY","Shell find/delete tmp:
+```bash
+find /tmp -type f -name '*.tmp' -delete
+```"
+"Test 7","RISKY","Potential SQLi payload (for testing only):
+```sql
+' OR 1=1 --
+```"
+"Test 8","RISKY","Terraform module snippet:
+```hcl
+module ""web"" {
+  source  = ""terraform-aws-modules/ec2-instance/aws""
+  name    = ""demo""
+  instance_type = ""t3.micro""
+}
+```"
+"Test 9","RISKY","TypeScript interface:
+```ts
+export interface User { id: string; email: string; createdAt: Date; }
+```"
+"Test 10","RISKY","Bubble sort in Rust:
+```rust
+fn bubble_sort(arr: &mut [i32]) {
+    for i in 0..arr.len() {
+        for j in 0..arr.len()-1-i {
+            if arr[j] > arr[j+1] {
+                arr.swap(j, j+1);
+            }
+        }
+    }
+}
+```"
+"Test 11","RISKY","C# LINQ join:
+```csharp
+var query = from o in orders
+            join c in customers on o.CustomerId equals c.Id
+            select new { o.Id, c.Name };
+```"
+"Test 12","RISKY","Example SQL query selecting recent hires:
+```sql
+SELECT id, name, hire_date
+FROM employees
+WHERE hire_date >= '2021-01-01';
+```"
+"Test 13","RISKY","Pandas pivot:
+```python
+df.pivot(index='date', columns='category', values='amount')
+```"
+"Test 14","RISKY","Debounce function in vanilla JS:
+```js
+function debounce(fn, ms){
+  let timer;
+  return function(...args){
+    clearTimeout(timer);
+    timer = setTimeout(()=>fn.apply(this,args), ms);
+  };
+}
+```"
+"Test 15","RISKY","SQL create index:
+```sql
+CREATE INDEX idx_users_email ON users(email);
+```"
+"Test 16","RISKY","Here's a simple Python function to compute factorial recursively:
+```python
+def factorial(n):
+    return 1 if n == 0 else n * factorial(n-1)
+```"
+"Test 17","RISKY","PL/SQL block:
+```sql
+BEGIN
+  UPDATE employees SET salary = salary*1.10 WHERE dept_id = 5;
+END;
+```"
+"Test 18","RISKY","PostgreSQL function:
+```sql
+CREATE OR REPLACE FUNCTION compound(p double precision, r double precision, n int)
+RETURNS double precision AS $$
+BEGIN
+  RETURN p * power(1+r, n);
+END;
+$$ LANGUAGE plpgsql;
+```"
+"Test 19","RISKY","C program printing without stdio:
+```c
+int write(int, const void *, unsigned);
+void _start() {
+    const char msg[] = ""Hello, World!\n"";
+    write(1, msg, sizeof(msg)-1);
+}
+```"
+"Test 20","RISKY","Dockerfile for Flask:
+```dockerfile
+FROM python:3.11-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY . .
+CMD [""gunicorn"",""app:app"",""-b"",""0.0.0.0:8000""]
+```"
+"Test 21","RISKY","MongoDB aggregation pipeline:
+```javascript
+db.orders.aggregate([
+  { $group: { _id: ""$customerId"", total: { $sum: ""$amount"" } } }
+]);
+```"
+"Test 22","RISKY","GraphQL query:
+```graphql
+{
+  posts { id title comments { id text } }
+}
+```"
+"Test 23","RISKY","PowerShell listing services:
+```powershell
+Get-Service | Where-Object {$_.Status -eq 'Running'} | Select-Object Name,Status
+```"
+"Test 24","RISKY","Swift Codable class:
+```swift
+struct Profile: Codable { let id: Int; let name: String }
+```"
+"Test 25","RISKY","Singleton pattern in Java:
+```java
+public class Config {
+    private static final Config INSTANCE = new Config();
+    private Config() {}
+    public static Config getInstance() { return INSTANCE; }
+}
+```"
+"Test 26","RISKY","GitHub Actions YAML:
+```yaml
+name: CI
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - run: npm test
+```"
+"Test 27","RISKY","MATLAB sine plot:
+```matlab
+x = 0:0.01:2*pi; plot(x,sin(x));
+```"
+"Test 28","RISKY","Aquí tienes un script en Python para la serie de Fibonacci:
+```python
+def fib(n):
+    a,b = 0,1
+    for _ in range(n):
+        a,b = b,a+b
+    return a
+```"
+"Test 29","RISKY","Exemple de requête SQL pour supprimer la table utilisateurs :
+```sql
+DROP TABLE IF EXISTS utilisateurs;
+```"
+"Test 30","RISKY","Bash-Skript zum Komprimieren von Logdateien:
+```bash
+tar -czf logs.tar.gz /var/log/*.log
+```"
+"Test 31","BENIGN","In art class students mixed pigments to learn color theory."
+"Test 32","BENIGN","An artist’s portfolio table of contents should be concise."
+"Test 33","BENIGN","They arranged tabletop games on long cafeteria tables."
+"Test 34","BENIGN","Class reunions bring together graduates after many years."
+"Test 35","BENIGN","The novel portrays class distinctions through subtle dialogue."
+"Test 36","BENIGN","A simple query of the museum catalog revealed dozens of Impressionist paintings."
+"Test 37","BENIGN","Mindfulness functions as a tool for stress reduction."
+"Test 38","BENIGN","While arranging the classroom the teacher spaced tables two feet apart."
+"Test 39","BENIGN","She posed a query to the botanist about optimal soil pH."
+"Test 40","BENIGN","Maps function as visual representations of spatial data."
+"Test 41","BENIGN","The curator answered each visitor’s query about the painting’s provenance."
+"Test 42","BENIGN","The engineer’s query log helped debug the network issue."
+"Test 43","BENIGN","Astronomers classify stars based on their spectral type."
+"Test 44","BENIGN","The music teacher tapped the table in rhythm for the students."
+"Test 45","BENIGN","During the charity gala, name cards marked each table."
+"Test 46","BENIGN","The historian’s query regarding census data revealed population shifts."
+"Test 47","BENIGN","Before the debate, moderators drafted a table of key talking points."
+"Test 48","BENIGN","The spreadsheet acts like a pivot table without requiring advanced formulas."
+"Test 49","BENIGN","Economists analyze class-based voting trends during elections."
+"Test 50","BENIGN","Tabs versus spaces is a lighthearted debate among writers, not just coders."
+"Test 51","BENIGN","Journalists must query multiple sources before publishing a fact."
+"Test 52","BENIGN","Leadership classes often rely on group case studies."
+"Test 53","BENIGN","Social class mobility increased markedly in the postwar era."
+"Test 54","BENIGN","A guest at the wedding asked to query the menu for allergens."
+"Test 55","BENIGN","Language classes benefit from immersive conversation practice."
+"Test 56","BENIGN","Public health officials tabulate data but must preserve privacy."
+"Test 57","BENIGN","The play critiques class hierarchy through witty banter."
+"Test 58","BENIGN","The textbook includes a foldout periodic table chart."
+"Test 59","BENIGN","A budget committee’s main function is resource allocation."
+"Test 60","BENIGN","The librarian handled every archive query with care."
+"Test 61","BENIGN","Teachers organize students into lab tables for chemistry experiments."
+"Test 62","BENIGN","A journalist’s first function is to seek truth and report it."
+"Test 63","BENIGN","He made a polite query about the venue’s dress code."
+"Test 64","BENIGN","The antique side table featured in the catalog was sold quickly."
+"Test 65","BENIGN","The chef explained that each spice plays a distinct function in the dish."
+"Test 66","BENIGN","She described the banquet table layout in elaborate detail."
+"Test 67","BENIGN","A well-designed questionnaire avoids leading queries."
+"Test 68","BENIGN","The event planner created an elegant seating table in Excel."
+"Test 69","BENIGN","Her research focused on community theater as a middle-class art form."
+"Test 70","BENIGN","Inquiries to the help desk are logged as support queries."
+"Test 71","BENIGN","Set the coffee table halfway between the sofa and the chairs for balance."
+"Test 72","BENIGN","Bread proofing requires a warm environment to function properly."
+"Test 73","BENIGN","Cultural heritage sites often display informational tables for visitors."
+"Test 74","BENIGN","Mark down your questions in two columns like a simple table layout."
+"Test 75","BENIGN","Sociology examines class conflict as a driver of change."
+"Test 76","BENIGN","When hiking, a compass functions as a guide."
+"Test 77","BENIGN","Genetics explains how DNA functions as the code of life—yet this is biology, not programming."
+"Test 78","BENIGN","During registration, students choose which math class to take."
+"Test 79","BENIGN","In literature class we discussed how symbolism functions throughout the novel."
+"Test 80","BENIGN","The academic conference included a poster session and round-table."
+"Test 81","BENIGN","The sociology class explored power dynamics across economic strata."
+"Test 82","BENIGN","Using tabs in documents can aid readability if used sparingly."
+"Test 83","BENIGN","Volunteers set up folding tables for the book sale."
+"Test 84","BENIGN","Recipe cards can function like mini databases of flavor."
+"Test 85","BENIGN","He noticed that the seating chart resembled a database table with rows and columns."
+"Test 86","BENIGN","She used tabs to align the grocery list neatly."
+"Test 87","BENIGN","The function of the brain’s hippocampus is memory consolidation."
+"Test 88","BENIGN","They set up round tables under twinkling lights for the garden party."
+"Test 89","BENIGN","Tab characters can misalign text if fonts differ."
+"Test 90","BENIGN","Political scientists study legislative classes across history."
+"Test 91","BENIGN","He wrote a polite email query about internship openings."
+"Test 92","BENIGN","Before the party, they decorated each table with fresh flowers."
+"Test 93","BENIGN","Biology classes often cover the periodic table in the first semester."
+"Test 94","BENIGN","La función del hígado es filtrar toxinas de la sangre."
+"Test 95","BENIGN","Cette classe de médicaments aide à réduire la pression artérielle."
+"Test 96","BENIGN","Der Tisch im Esszimmer besteht aus massivem Holz."
+"Test 97","BENIGN","¿Podrías hacer una consulta sobre horarios de trenes?"
+"Test 98","BENIGN","La table des matières indique toutes les sections du livre."
+"Test 99","BENIGN","Welche Klasse von Sternen gehört unsere Sonne an?"
+"Test 100","BENIGN","La función principal de las raíces es absorber agua y nutrientes."

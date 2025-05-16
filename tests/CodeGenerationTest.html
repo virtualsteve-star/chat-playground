@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Generation Response Test Suite</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+        tr:hover {
+            background: #f8f9fa;
+        }
+        .correct {
+            color: #28a745;
+        }
+        .incorrect {
+            color: #dc3545;
+        }
+        .summary {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+        .loading {
+            display: none;
+            margin: 20px 0;
+            padding: 20px;
+            background: #fff3cd;
+            border: 1px solid #ffeeba;
+            border-radius: 4px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        #stopTests {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Code Generation Response Test Suite</h1>
+    <p>Tests the code output filter against a set of responses containing code snippets and non-code content.</p>
+    
+    <div class="loading" id="loading">Running tests...</div>
+    <button id="runTests">Run Tests</button>
+    <button id="stopTests" style="margin-left:10px; display:none;">Stop Tests</button>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Test</th>
+                <th>Expected</th>
+                <th>Code Output Filter</th>
+                <th>Time (ms)</th>
+            </tr>
+        </thead>
+        <tbody id="resultsBody"></tbody>
+    </table>
+
+    <div class="summary" id="summary" style="display: none;">
+        <h2>Summary</h2>
+        <div id="summaryContent"></div>
+    </div>
+
+    <!-- Load dependencies -->
+    <script src="../scripts/filters/code_output_filter.js"></script>
+    <script src="test_runner.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const codeOutputFilter = new CodeOutputFilter();
+            await codeOutputFilter.initialize();
+
+            const runner = new PromptTestRunner({
+                filters: [
+                    { 
+                        name: 'Code Output Filter',
+                        instance: {
+                            check: async (response) => {
+                                const result = codeOutputFilter.checkMessage(response);
+                                return {
+                                    blocked: result.blocked,
+                                    reason: result.matchedRules?.map(r => r.description).join(', ')
+                                };
+                            }
+                        }
+                    }
+                ],
+                csvPath: 'code_generation_responses_test_set.csv',
+                positiveLabel: 'RISKY'
+            });
+
+            document.getElementById('runTests').addEventListener('click', async () => {
+                try {
+                    await runner.loadTests();
+                    await runner.runAllTests();
+                } catch (e) {
+                    console.error('Error running tests:', e);
+                    alert('Error running tests: ' + e.message);
+                }
+            });
+
+            document.getElementById('stopTests').addEventListener('click', () => {
+                runner.requestStop();
+            });
+        });
+    </script>
+</body>
+</html> 

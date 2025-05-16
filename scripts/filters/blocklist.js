@@ -15,10 +15,11 @@ class BlocklistFilter {
 
     async initialize() {
         try {
-            // Load blocklists
-            const sexResponse = await fetch('filters/sex_blocklist.txt');
-            const violenceResponse = await fetch('filters/violence_blocklist.txt');
-            const codeResponse = await fetch('filters/code_blocklist.txt');
+            // Load blocklists with cache-busting
+            const timestamp = new Date().getTime();
+            const sexResponse = await fetch(`../filters/sex_blocklist.txt?t=${timestamp}`);
+            const violenceResponse = await fetch(`../filters/violence_blocklist.txt?t=${timestamp}`);
+            const codeResponse = await fetch(`../filters/code_blocklist.txt?t=${timestamp}`);
             
             const sexText = await sexResponse.text();
             const violenceText = await violenceResponse.text();

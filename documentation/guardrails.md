@@ -70,7 +70,7 @@ Listed in the order they appear in the Guardrails panel:
 
 ### 3. Code (local)
 - **Type:** Local, heuristic/regex
-- **Description:** Blocks responses that appear to contain code (e.g., Python, SQL, C/C++). Useful for preventing code generation in restricted scenarios.
+- **Description:** Blocks responses that appear to contain code (e.g., Python, SQL). Useful for preventing code generation in restricted scenarios.
 - **Vulnerabilities addressed:** Data leakage, code execution, policy violations.
 
 ### 4. Sex (AI)

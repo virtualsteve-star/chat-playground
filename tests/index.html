@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filter Test Suites</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 32px 16px 32px 16px;
+            background: #f7f9fa;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 32px;
+        }
+        .test-suite {
+            margin: 0 0 32px 0;
+            padding: 24px 24px 20px 24px;
+            border: 1px solid #e0e4ea;
+            border-radius: 10px;
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            transition: box-shadow 0.2s, transform 0.2s;
+        }
+        .test-suite:hover {
+            box-shadow: 0 6px 24px rgba(0,0,0,0.10);
+            transform: translateY(-2px) scale(1.01);
+        }
+        .test-suite h2 {
+            margin-top: 0;
+            color: #2a3a4b;
+            font-size: 1.3em;
+        }
+        .test-suite p {
+            color: #5a6a7a;
+            margin-bottom: 18px;
+        }
+        a {
+            color: #0066cc;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1.08em;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .launch-btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1.08em;
+            font-weight: 500;
+            margin-top: 8px;
+            transition: background 0.2s;
+        }
+        .launch-btn:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Filter Test Suites</h1>
+    
+    <div class="test-suite">
+        <h2>Prompt Injection Test Suite</h2>
+        <p>Tests the prompt injection filter against various injection attempts.</p>
+        <button class="launch-btn" onclick="launchTest('PromptInjectTest.html')">Launch Prompt Injection Tests</button>
+    </div>
+
+    <div class="test-suite">
+        <h2>Sexual Content Test Suite</h2>
+        <p>Tests the sexual content filter against various prompts.</p>
+        <button class="launch-btn" onclick="launchTest('SexualContentTest.html')">Launch Sexual Content Tests</button>
+    </div>
+
+    <div class="test-suite">
+        <h2>Violence Content Test Suite</h2>
+        <p>Tests the violence content filter against various prompts.</p>
+        <button class="launch-btn" onclick="launchTest('ViolenceContentTest.html')">Launch Violence Content Tests</button>
+    </div>
+
+    <div class="test-suite">
+        <h2>Code Generation Test Suite</h2>
+        <p>Tests the code output filter against various responses containing code snippets.</p>
+        <button class="launch-btn" onclick="launchTest('CodeGenerationTest.html')">Launch Code Generation Tests</button>
+    </div>
+
+<script>
+function launchTest(page) {
+    window.location.href = page;
+}
+</script>
+</body>
+</html> 
