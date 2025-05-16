@@ -20,6 +20,7 @@
 - Cache-busting for personality scripts/prompts ensures updates are always loaded
 - Numerous bugfixes and UX polish 
 - CSS cleanups: Vanilla is now a true base style, and all theme-specific layout and color is isolated for easier extensibility.
+- Major feature: Creation of the test suite for prompt injection, sexual content, violence content, and code generation filters. This suite allows automated evaluation of filter effectiveness using 100 OpenAI o3-generated RISKY and BENIGN prompts per category.
 
 ## 0.5.1 (May 6, 2023)
 - Tweaks for improved extensibility:
