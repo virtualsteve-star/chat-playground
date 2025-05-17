@@ -43,9 +43,9 @@ const getApiKey = (key) => {
 };
 
 // Create message elements (bubble and optional feedback controls)
-function createMessageElement(text, isUser) {
+function createMessageElement(text, isUser, isRejection = false) {
     const messageBubble = document.createElement('div');
-    messageBubble.className = isUser ? 'user-message' : 'bot-message';
+    messageBubble.className = isUser ? 'user-message' : (isRejection ? 'rejection-message' : 'bot-message');
     
     // Process text to properly handle line breaks
     // First escape HTML to prevent XSS, then convert newlines to <br>
@@ -95,7 +95,7 @@ function createMessageElement(text, isUser) {
 }
 
 // Add a message to the chat
-function addMessageToChat(text, isUser) {
+function addMessageToChat(text, isUser, isRejection = false) {
     const chatWindow = document.getElementById('chat-window');
     if (!chatWindow) {
         console.error("Chat window not found!");
@@ -112,7 +112,7 @@ function addMessageToChat(text, isUser) {
     });
 
     // Create the elements for this message
-    const elements = createMessageElement(text, isUser);
+    const elements = createMessageElement(text, isUser, isRejection);
 
     // Create a wrapper div for the whole entry
     const messageEntry = document.createElement('div');

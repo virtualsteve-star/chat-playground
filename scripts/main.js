@@ -373,7 +373,7 @@ async function handleSendMessage() {
         if (filterResult.blocked) {
             window.ChatUtils.removeScanningBubble();
             const rejectionMessage = inputLengthFilter.getRejectionMessage(filterResult);
-            window.ChatUtils.addMessageToChat(rejectionMessage, false);
+            window.ChatUtils.addMessageToChat(rejectionMessage, false, true);
             userInput.value = '';
             return;
         }
@@ -384,7 +384,7 @@ async function handleSendMessage() {
         if (filterResult.blocked) {
             window.ChatUtils.removeScanningBubble();
             const rejectionMessage = rateLimitFilter.getRejectionMessage(filterResult);
-            window.ChatUtils.addMessageToChat(rejectionMessage, false);
+            window.ChatUtils.addMessageToChat(rejectionMessage, false, true);
             userInput.value = '';
             return;
         }
@@ -395,7 +395,7 @@ async function handleSendMessage() {
         if (filterResult.blocked) {
             window.ChatUtils.removeScanningBubble();
             const rejectionMessage = blocklistFilter.getRejectionMessage(filterResult);
-            window.ChatUtils.addMessageToChat(rejectionMessage, false);
+            window.ChatUtils.addMessageToChat(rejectionMessage, false, true);
             userInput.value = '';
             return;
         }
@@ -407,7 +407,7 @@ async function handleSendMessage() {
         if (filterResult.blocked) {
             window.ChatUtils.removeScanningBubble();
             const rejectionMessage = promptInjectionFilter.getRejectionMessage(filterResult);
-            window.ChatUtils.addMessageToChat(rejectionMessage, false);
+            window.ChatUtils.addMessageToChat(rejectionMessage, false, true);
             userInput.value = '';
             return;
         }
@@ -420,7 +420,7 @@ async function handleSendMessage() {
         if (filterResult.blocked) {
             window.ChatUtils.removeScanningBubble();
             const rejectionMessage = openaiPromptInjectionFilter.getRejectionMessage(filterResult);
-            window.ChatUtils.addMessageToChat(rejectionMessage, false);
+            window.ChatUtils.addMessageToChat(rejectionMessage, false, true);
             userInput.value = '';
             return;
         }
@@ -442,7 +442,7 @@ async function handleSendMessage() {
             } else {
                 rejectionMessage = getOpenAIModerationRejection(modResult.reason, modResult.probability);
             }
-            window.ChatUtils.addMessageToChat(rejectionMessage, false);
+            window.ChatUtils.addMessageToChat(rejectionMessage, false, true);
             userInput.value = '';
             return;
         }
