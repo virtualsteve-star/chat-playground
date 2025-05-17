@@ -16,7 +16,9 @@ class SimpleBotModel {
 
     async initialize(scriptPath) {
         try {
-            const response = await fetch(scriptPath);
+            // Add cache-busting query string
+            const cacheBustedPath = scriptPath + (scriptPath.includes('?') ? '&' : '?') + 'v=' + Date.now();
+            const response = await fetch(cacheBustedPath);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -34,10 +36,13 @@ class SimpleBotModel {
         const script = {
             greetings: [],
             farewells: [],
-            patterns: []
+            patterns: [],
+            greetingTriggers: [],
+            farewellTriggers: []
         };
 
-        const lines = scriptText.split('\n');
+        // Normalize line endings and split
+        const lines = scriptText.replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n');
         let currentSection = null;
 
         for (const line of lines) {
@@ -53,6 +58,14 @@ class SimpleBotModel {
                 script.greetings.push(trimmedLine);
             } else if (currentSection === 'farewells') {
                 script.farewells.push(trimmedLine);
+            } else if (currentSection === 'greeting_triggers') {
+                if (trimmedLine.length > 0) {
+                    script.greetingTriggers.push(trimmedLine);
+                }
+            } else if (currentSection === 'farewell_triggers') {
+                if (trimmedLine.length > 0) {
+                    script.farewellTriggers.push(trimmedLine);
+                }
             } else if (currentSection === 'patterns') {
                 const [pattern, response] = trimmedLine.split('=>').map(part => part.trim());
                 if (pattern && response) {
@@ -65,15 +78,25 @@ class SimpleBotModel {
     }
 
     findPatternMatch(input) {
-        const normalizedInput = input.toLowerCase();
-        
+        const normalizedInput = input.toLowerCase().trim();
+        // Helper to escape regex metacharacters
+        function escapeRegex(str) {
+            return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
         // Check for exact matches first
         for (const { pattern, response } of this.script.patterns) {
-            if (normalizedInput.includes(pattern.toLowerCase())) {
-                return this.processResponse(response, input);
+            if (!pattern || !pattern.trim()) continue; // skip empty patterns
+            try {
+                const safePattern = escapeRegex(pattern.toLowerCase());
+                const patternRegex = new RegExp(`\\b${safePattern}\\b`);
+                if (patternRegex.test(normalizedInput)) {
+                    return this.processResponse(response, input);
+                }
+            } catch (e) {
+                console.warn('Invalid pattern in script:', pattern, e);
+                continue;
             }
         }
-        
         // If no match found, use a default response
         return this.getDefaultResponse();
     }
@@ -90,6 +113,9 @@ class SimpleBotModel {
             const randomMemory = this.memory[Math.floor(Math.random() * this.memory.length)];
             processedResponse = processedResponse.replace(/{memory}/g, randomMemory);
         }
+        
+        // Replace {NEWLINE} placeholders with real newlines
+        processedResponse = processedResponse.replace(/{NEWLINE}/g, '\n');
         
         // Add the current input to memory
         this.memory.push(input);
@@ -117,16 +143,32 @@ class SimpleBotModel {
             return "SimpleBot is not properly initialized. Please load a script first.";
         }
 
-        // Check for greetings
-        if (this.script.greetings.some(greeting => 
-            userMessage.toLowerCase().includes(greeting.toLowerCase()))) {
-            return this.script.greetings[Math.floor(Math.random() * this.script.greetings.length)];
+        const normalizedMessage = userMessage.toLowerCase().trim();
+
+        // Check for greeting triggers
+        if (this.script.greetingTriggers && this.script.greetingTriggers.length > 0) {
+            for (const trigger of this.script.greetingTriggers) {
+                if (trigger && trigger.trim().length > 0) {
+                    // Create a regex that matches the trigger as a whole word
+                    const triggerRegex = new RegExp(`\\b${trigger.toLowerCase()}\\b`);
+                    if (triggerRegex.test(normalizedMessage)) {
+                        return this.script.greetings[Math.floor(Math.random() * this.script.greetings.length)];
+                    }
+                }
+            }
         }
 
-        // Check for farewells
-        if (this.script.farewells.some(farewell => 
-            userMessage.toLowerCase().includes(farewell.toLowerCase()))) {
-            return this.script.farewells[Math.floor(Math.random() * this.script.farewells.length)];
+        // Check for farewell triggers
+        if (this.script.farewellTriggers && this.script.farewellTriggers.length > 0) {
+            for (const trigger of this.script.farewellTriggers) {
+                if (trigger && trigger.trim().length > 0) {
+                    // Create a regex that matches the trigger as a whole word
+                    const triggerRegex = new RegExp(`\\b${trigger.toLowerCase()}\\b`);
+                    if (triggerRegex.test(normalizedMessage)) {
+                        return this.script.farewells[Math.floor(Math.random() * this.script.farewells.length)];
+                    }
+                }
+            }
         }
 
         // Find a pattern match

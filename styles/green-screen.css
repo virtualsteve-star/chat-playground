@@ -235,7 +235,8 @@ select:focus {
 
 /* Guardrails button in green-screen mode */
 .green-screen #guardrails-btn,
-.green-screen #preferences-btn {
+.green-screen #preferences-btn,
+.green-screen #about-btn {
     background: var(--terminal-bg, #000) !important;
     color: var(--terminal-green, #00FF00) !important;
     border: 1px solid var(--terminal-green, #00FF00) !important;
@@ -247,7 +248,9 @@ select:focus {
 .green-screen #guardrails-btn:hover,
 .green-screen #guardrails-btn:focus,
 .green-screen #preferences-btn:hover,
-.green-screen #preferences-btn:focus {
+.green-screen #preferences-btn:focus,
+.green-screen #about-btn:hover,
+.green-screen #about-btn:focus {
     background: var(--terminal-bg, #000) !important;
     color: var(--terminal-green, #00FF00) !important;
     border-color: var(--terminal-green, #00FF00) !important;
@@ -303,4 +306,10 @@ select:focus {
 .green-screen #guardrails-panel.open,
 .green-screen #preferences-panel.open {
     right: 0 !important;
+}
+
+.green-screen .about-links a,
+.green-screen .about-links a:visited {
+    color: var(--terminal-green) !important;
+    text-decoration: underline;
 } 

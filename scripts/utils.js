@@ -43,9 +43,9 @@ const getApiKey = (key) => {
 };
 
 // Create message elements (bubble and optional feedback controls)
-function createMessageElement(text, isUser) {
+function createMessageElement(text, isUser, isRejection = false) {
     const messageBubble = document.createElement('div');
-    messageBubble.className = isUser ? 'user-message' : 'bot-message';
+    messageBubble.className = isUser ? 'user-message' : (isRejection ? 'rejection-message' : 'bot-message');
     
     // Process text to properly handle line breaks
     // First escape HTML to prevent XSS, then convert newlines to <br>
@@ -95,7 +95,7 @@ function createMessageElement(text, isUser) {
 }
 
 // Add a message to the chat
-function addMessageToChat(text, isUser) {
+function addMessageToChat(text, isUser, isRejection = false) {
     const chatWindow = document.getElementById('chat-window');
     if (!chatWindow) {
         console.error("Chat window not found!");
@@ -112,7 +112,7 @@ function addMessageToChat(text, isUser) {
     });
 
     // Create the elements for this message
-    const elements = createMessageElement(text, isUser);
+    const elements = createMessageElement(text, isUser, isRejection);
 
     // Create a wrapper div for the whole entry
     const messageEntry = document.createElement('div');
@@ -160,43 +160,47 @@ const changeStyle = (styleName) => {
         link.disabled = true;
     });
 
-    // Remove dark mode class by default
+    // Remove dark mode and imessage class by default
     document.body.classList.remove('dark-mode');
+    document.body.classList.remove('imessage');
 
-    // Enable the correct stylesheet(s) based on the selection
-    if (styleName === 'vanilla') {
+    // Always enable vanilla.css unless green-screen is selected
+    if (styleName !== 'green-screen') {
         document.querySelector('link[href*="vanilla.css"]').disabled = false;
+    }
+
+    if (styleName === 'vanilla') {
+        // Only vanilla.css enabled
     } else if (styleName === 'green-screen') {
         document.querySelector('link[href*="green-screen.css"]').disabled = false;
     } else if (styleName === 'imessage') {
-        // Enable only the base iMessage stylesheet
+        // Enable vanilla.css (already enabled above) and imessage.css
         document.querySelector('link[href*="imessage.css"]').disabled = false;
+        document.body.classList.add('imessage');
     } else if (styleName === 'imessage-dark') {
-        // Enable the base iMessage stylesheet
+        // Enable vanilla.css (already enabled above), imessage.css, and imessage-dark.css
         document.querySelector('link[href*="imessage.css"]').disabled = false;
-        // ALSO enable the dark mode override stylesheet
         document.querySelector('link[href*="imessage-dark.css"]').disabled = false;
-        // Add the dark mode class to activate the overrides
         document.body.classList.add('dark-mode');
+        document.body.classList.add('imessage');
     }
 };
 
 // Load properties from a file
 const loadProperties = (filePath) => {
     try {
+        // Add cache-busting query string
+        const cacheBustedPath = filePath + (filePath.includes('?') ? '&' : '?') + 'v=' + Date.now();
         const xhr = new XMLHttpRequest();
-        xhr.open('GET', filePath, false); // false makes the request synchronous
+        xhr.open('GET', cacheBustedPath, false); // false makes the request synchronous
         xhr.send();
         
         if (xhr.status !== 200) {
             throw new Error(`HTTP error! status: ${xhr.status}`);
         }
-        
         const text = xhr.responseText;
-        
         const properties = {};
         const lines = text.split('\n');
-        
         for (const line of lines) {
             if (line.trim() && !line.startsWith('#')) {
                 const [key, value] = line.split('=').map(part => part.trim());
@@ -205,7 +209,6 @@ const loadProperties = (filePath) => {
                 }
             }
         }
-        
         return properties;
     } catch (error) {
         console.error('Error loading properties:', error);
@@ -286,4 +289,93 @@ window.ChatUtils.getValidOpenAIKey = async function() {
         }
     }
     return null;
+};
+
+window.ChatUtils.addScanningBubble = function() {
+    // Remove any existing scanning bubble first
+    window.ChatUtils.removeScanningBubble();
+    const chatWindow = document.getElementById('chat-window');
+    if (!chatWindow) return;
+    const bubble = document.createElement('div');
+    bubble.className = 'message-entry bot-entry scanning-bubble';
+    const bubbleInner = document.createElement('div');
+    bubbleInner.className = 'message-bubble bot-bubble';
+    bubbleInner.textContent = 'Scanning.';
+    bubble.appendChild(bubbleInner);
+    chatWindow.appendChild(bubble);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+    // Animation
+    let dots = 1;
+    bubble._scanningInterval = setInterval(() => {
+        dots = (dots % 3) + 1;
+        bubbleInner.textContent = 'Scanning' + '.'.repeat(dots);
+    }, 400);
+};
+
+window.ChatUtils.removeScanningBubble = function() {
+    const chatWindow = document.getElementById('chat-window');
+    if (!chatWindow) return;
+    const bubble = chatWindow.querySelector('.scanning-bubble');
+    if (bubble) {
+        if (bubble._scanningInterval) clearInterval(bubble._scanningInterval);
+        bubble.remove();
+    }
+};
+
+window.ChatUtils.addWorkingBubble = function() {
+    window.ChatUtils.removeWorkingBubble();
+    const chatWindow = document.getElementById('chat-window');
+    if (!chatWindow) return;
+    const bubble = document.createElement('div');
+    bubble.className = 'message-entry bot-entry working-bubble';
+    const bubbleInner = document.createElement('div');
+    bubbleInner.className = 'message-bubble bot-bubble';
+    bubbleInner.textContent = 'Working.';
+    bubble.appendChild(bubbleInner);
+    chatWindow.appendChild(bubble);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+    let dots = 1;
+    bubble._workingInterval = setInterval(() => {
+        dots = (dots % 3) + 1;
+        bubbleInner.textContent = 'Working' + '.'.repeat(dots);
+    }, 400);
+};
+
+window.ChatUtils.removeWorkingBubble = function() {
+    const chatWindow = document.getElementById('chat-window');
+    if (!chatWindow) return;
+    const bubble = chatWindow.querySelector('.working-bubble');
+    if (bubble) {
+        if (bubble._workingInterval) clearInterval(bubble._workingInterval);
+        bubble.remove();
+    }
+};
+
+window.ChatUtils.addFilteringBubble = function() {
+    window.ChatUtils.removeFilteringBubble();
+    const chatWindow = document.getElementById('chat-window');
+    if (!chatWindow) return;
+    const bubble = document.createElement('div');
+    bubble.className = 'message-entry bot-entry filtering-bubble';
+    const bubbleInner = document.createElement('div');
+    bubbleInner.className = 'message-bubble bot-bubble';
+    bubbleInner.textContent = 'Filtering.';
+    bubble.appendChild(bubbleInner);
+    chatWindow.appendChild(bubble);
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+    let dots = 1;
+    bubble._filteringInterval = setInterval(() => {
+        dots = (dots % 3) + 1;
+        bubbleInner.textContent = 'Filtering' + '.'.repeat(dots);
+    }, 400);
+};
+
+window.ChatUtils.removeFilteringBubble = function() {
+    const chatWindow = document.getElementById('chat-window');
+    if (!chatWindow) return;
+    const bubble = chatWindow.querySelector('.filtering-bubble');
+    if (bubble) {
+        if (bubble._filteringInterval) clearInterval(bubble._filteringInterval);
+        bubble.remove();
+    }
 }; 

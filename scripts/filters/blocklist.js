@@ -7,16 +7,18 @@ class BlocklistFilter {
     constructor() {
         this.blocklists = {
             sex: [],
-            violence: []
+            violence: [],
+            code: []
         };
         this.initialized = false;
     }
 
     async initialize() {
         try {
-            // Load blocklists
-            const sexResponse = await fetch('filters/sex_blocklist.txt');
-            const violenceResponse = await fetch('filters/violence_blocklist.txt');
+            // Load blocklists with cache-busting
+            const timestamp = new Date().getTime();
+            const sexResponse = await fetch(`../filters/sex_blocklist.txt?t=${timestamp}`);
+            const violenceResponse = await fetch(`../filters/violence_blocklist.txt?t=${timestamp}`);
             
             const sexText = await sexResponse.text();
             const violenceText = await violenceResponse.text();
@@ -63,7 +65,8 @@ class BlocklistFilter {
     getRejectionMessage(blockedResult) {
         const listNames = {
             sex: 'sexual content',
-            violence: 'violent content'
+            violence: 'violent content',
+            code: 'code content'
         };
         
         return `I'm sorry, but I cannot process requests containing ${listNames[blockedResult.list]}. ` +

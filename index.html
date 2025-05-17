@@ -40,19 +40,29 @@
             font-family: inherit;
             margin-top: 2px;
         }
-        #input-filters-list label {
+        #input-filters-list label,
+        #input-filters-children label,
+        #output-filters-list label,
+        #output-filters-children label {
             display: block;
-            margin-bottom: 4px;
+            margin-bottom: 1px;
             color: #333;
             cursor: pointer;
-            padding: 2px 0 2px 2px;
+            padding: 1px 0 1px 2px;
             border-radius: 2px;
             transition: background 0.15s;
+            font-size: 0.9rem;
         }
-        #input-filters-list label:hover {
+        #input-filters-list label:hover,
+        #input-filters-children label:hover,
+        #output-filters-list label:hover,
+        #output-filters-children label:hover {
             background: #f5f5f5;
         }
-        #input-filters-list input[type="checkbox"] {
+        #input-filters-list input[type="checkbox"],
+        #input-filters-children input[type="checkbox"],
+        #output-filters-list input[type="checkbox"],
+        #output-filters-children input[type="checkbox"] {
             margin-right: 6px;
         }
         #guardrails-overlay {
@@ -90,24 +100,121 @@
             font-size: 1.08em;
             font-weight: bold;
         }
+        .header-logo-title {
+            display: flex;
+            align-items: center;
+        }
+        .site-logo {
+            height: 48px;
+            width: auto;
+            margin-right: 16px;
+        }
+        /* Only show logo in vanilla mode */
+        .vanilla-only { display: inline; }
+        body.green-screen .vanilla-only,
+        body.imessage .vanilla-only,
+        body.imessage-dark .vanilla-only { display: none !important; }
+        .about-logo {
+            display: block;
+            margin: 0 auto 4px auto;
+            height: 96px;
+            width: auto;
+        }
+        .about-title {
+            text-align: center;
+            margin: 8px 0 12px 0;
+            font-size: 1.5em;
+        }
+        .about-desc {
+            text-align: left;
+            margin-bottom: 18px;
+            line-height: 1.3;
+        }
+        .about-book {
+            text-align: left;
+            margin-bottom: 18px;
+        }
+        .about-book-cover {
+            display: block;
+            margin: 10px auto 0 auto;
+            max-width: 120px;
+            height: auto;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+        }
+        .about-links {
+            text-align: center;
+            margin-top: 10px;
+        }
+        /* About panel overlay and panel match other panels */
+        #about-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.15);
+            z-index: 1999;
+        }
+        #about-overlay.open {
+            display: block;
+        }
+        #about-panel {
+            position: fixed;
+            top: 0; right: 0;
+            width: 350px;
+            height: 100%;
+            background: #fff;
+            box-shadow: -2px 0 8px rgba(0,0,0,0.10);
+            z-index: 2000;
+            overflow-y: auto;
+            color: #222;
+            transition: right 0.25s cubic-bezier(.4,0,.2,1);
+            right: -350px;
+        }
+        #about-panel.open {
+            right: 0;
+        }
+        /* Remove redundant .about-content color if present */
+        .about-content {
+            background: none;
+            color: inherit;
+        }
+        /* Tighter logo spacing for About panel */
+        #about-panel .panel-header {
+            display: block;
+            position: relative;
+            padding: 0 !important;
+            min-height: 0;
+            height: auto;
+            text-align: center;
+            border-bottom: none;
+        }
+        #about-panel .close-button {
+            position: absolute;
+            top: 8px;
+            right: 12px;
+            z-index: 1;
+        }
     </style>
 </head>
 <body>
     <div class="chat-container">
         <header>
-            <h1>Steve's Chat Playground</h1>
+            <div class="header-logo-title">
+                <h1>Steve's Chat Playground</h1>
+            </div>
             <div class="controls">
                 <select id="personality-selector">
                     <!-- Will be populated dynamically -->
                 </select>
                 <select id="style-selector">
                     <option value="vanilla">Vanilla</option>
-                    <option value="green-screen">Green Screen</option>
                     <option value="imessage">iMessage</option>
                     <option value="imessage-dark">iMessage (Dark)</option>
+                    <option value="green-screen">Green Screen</option>
                 </select>
-                <button id="guardrails-btn" type="button">Guardrails</button>
-                <button id="preferences-btn" type="button">Prefs</button>
+                <button id="guardrails-btn" type="button" class="action-button">Guardrails</button>
+                <button id="preferences-btn" type="button" class="action-button">Prefs</button>
+                <button id="about-btn" type="button" class="action-button">About</button>
             </div>
             <div id="guardrails-overlay" class="overlay"></div>
             <div id="guardrails-panel" class="side-panel">
@@ -118,17 +225,26 @@
                 <div class="panel-content">
                     <div id="input-filters-section" class="tree-section">▼ Input Filters</div>
                     <div id="input-filters-children" class="tree-children">
-                        <label><input type="checkbox" class="input-filter-checkbox" value="sex"> Sex</label>
-                        <label><input type="checkbox" class="input-filter-checkbox" value="violence"> Violence</label>
-                        <label><input type="checkbox" class="input-filter-checkbox" value="openai_sex"> OpenAI Sex</label>
-                        <label><input type="checkbox" class="input-filter-checkbox" value="openai_violence"> OpenAI Violence</label>
+                        <!-- Local filters first -->
+                        <label for="input-filter-length" title="Local length check"><input type="checkbox" class="input-filter-checkbox" value="input_length" id="input-filter-length" name="input-filter-length"> Input Length (local)</label>
+                        <label for="input-filter-rate-limit" title="Local rate limiter"><input type="checkbox" class="input-filter-checkbox" value="rate_limit" id="input-filter-rate-limit" name="input-filter-rate-limit"> Rate Limit (local)</label>
+                        <label for="input-filter-sex" title="Local blocklist"><input type="checkbox" class="input-filter-checkbox" value="sex" id="input-filter-sex" name="input-filter-sex"> Sex (local)</label>
+                        <label for="input-filter-violence" title="Local blocklist"><input type="checkbox" class="input-filter-checkbox" value="violence" id="input-filter-violence" name="input-filter-violence"> Violence (local)</label>
+                        <label for="input-filter-prompt-injection" title="Local regex processing"><input type="checkbox" class="input-filter-checkbox" value="prompt_injection" id="input-filter-prompt-injection" name="input-filter-prompt-injection"> Prompt Injection (local)</label>
+                        <!-- AI filters after -->
+                        <label for="input-filter-openai-sex" title="OpenAI moderation API"><input type="checkbox" class="input-filter-checkbox" value="openai_sex" id="input-filter-openai-sex" name="input-filter-openai-sex"> Sex (AI)</label>
+                        <label for="input-filter-openai-violence" title="OpenAI moderation API"><input type="checkbox" class="input-filter-checkbox" value="openai_violence" id="input-filter-openai-violence" name="input-filter-openai-violence"> Violence (AI)</label>
+                        <label for="input-filter-openai-prompt-injection" title="OpenAI 4.1-nano-based filter"><input type="checkbox" class="input-filter-checkbox" value="openai_prompt_injection" id="input-filter-openai-prompt-injection" name="input-filter-openai-prompt-injection"> Prompt Injection (AI)</label>
                     </div>
                     <div id="output-filters-section" class="tree-section">▼ Output Filters</div>
                     <div id="output-filters-children" class="tree-children">
-                        <label><input type="checkbox" class="output-filter-checkbox" value="sex"> Sex</label>
-                        <label><input type="checkbox" class="output-filter-checkbox" value="violence"> Violence</label>
-                        <label><input type="checkbox" class="output-filter-checkbox" value="openai_sex"> OpenAI Sex</label>
-                        <label><input type="checkbox" class="output-filter-checkbox" value="openai_violence"> OpenAI Violence</label>
+                        <!-- Local filters first -->
+                        <label for="output-filter-sex" title="Local blocklist"><input type="checkbox" class="output-filter-checkbox" value="sex" id="output-filter-sex" name="output-filter-sex"> Sex (local)</label>
+                        <label for="output-filter-violence" title="Local blocklist"><input type="checkbox" class="output-filter-checkbox" value="violence" id="output-filter-violence" name="output-filter-violence"> Violence (local)</label>
+                        <label for="output-filter-code" title="Local blocklist for code indicators"><input type="checkbox" class="output-filter-checkbox" value="code" id="output-filter-code" name="output-filter-code"> Code (local)</label>
+                        <!-- AI filters after -->
+                        <label for="output-filter-openai-sex" title="OpenAI moderation API"><input type="checkbox" class="output-filter-checkbox" value="openai_sex" id="output-filter-openai-sex" name="output-filter-openai-sex"> Sex (AI)</label>
+                        <label for="output-filter-openai-violence" title="OpenAI moderation API"><input type="checkbox" class="output-filter-checkbox" value="openai_violence" id="output-filter-openai-violence" name="output-filter-openai-violence"> Violence (AI)</label>
                     </div>
                 </div>
             </div>
@@ -149,6 +265,30 @@
                                 <button id="clear-openai-key" class="action-button" style="display: none;">Clear Key</button>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="about-overlay" class="overlay"></div>
+            <div id="about-panel" class="side-panel">
+                <div class="panel-content about-content">
+                    <img src="assets/graphics/logo.png" alt="Logo" class="about-logo" />
+                    <button id="close-about-panel" class="close-button">×</button>
+                    <h1 class="about-title">Steve's Chat Playground</h1>
+                    <p class="about-desc">
+                        An open-source, hands-on environment for experimenting with LLM security concepts, vulnerable chat models, and guardrails. Try content moderation, prompt injection and output filters—all in your browser, with zero dependencies.
+                    </p>
+                    <div class="about-book">
+                        <a href="https://www.amazon.com/Developers-Playbook-Large-Language-Security/dp/109816220X" target="_blank">
+                            <img src="assets/graphics/book-cover.jpg" alt="Book Cover" class="about-book-cover" />
+                        </a>
+                    </div>
+                    <div class="about-links">
+                        <a href="https://github.com/virtualsteve-star/chat-playground" target="_blank">GitHub Repo</a>
+                        <br>
+                        <a href="https://www.linkedin.com/in/wilsonsd/" target="_blank">Connect on LinkedIn</a>
+                        <br>
+                        <a href="https://genai.owasp.org" target="_blank">OWASP Gen AI Security Project</a>
                     </div>
                 </div>
             </div>
@@ -188,7 +328,34 @@
     <script src="scripts/filters/blocklist.js"></script>
     <script src="scripts/filters/api_filter.js"></script>
     <script src="scripts/filters/openai_moderation.js"></script>
+    <script src="scripts/filters/prompt_injection_filter.js"></script>
+    <script src="scripts/filters/openai_prompt_injection.js"></script>
+    <script src="scripts/filters/code_output_filter.js"></script>
+    <script src="scripts/filters/input_length_filter.js"></script>
+    <script src="scripts/filters/rate_limit_filter.js"></script>
     <script src="scripts/terminal_ui.js"></script>
     <script src="scripts/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // ...existing code...
+            // About panel logic
+            const aboutBtn = document.getElementById('about-btn');
+            const aboutPanel = document.getElementById('about-panel');
+            const aboutOverlay = document.getElementById('about-overlay');
+            const closeAboutBtn = document.getElementById('close-about-panel');
+            aboutBtn.addEventListener('click', () => {
+                aboutPanel.classList.add('open');
+                aboutOverlay.classList.add('open');
+            });
+            closeAboutBtn.addEventListener('click', () => {
+                aboutPanel.classList.remove('open');
+                aboutOverlay.classList.remove('open');
+            });
+            aboutOverlay.addEventListener('click', () => {
+                aboutPanel.classList.remove('open');
+                aboutOverlay.classList.remove('open');
+            });
+        });
+    </script>
 </body>
 </html> 

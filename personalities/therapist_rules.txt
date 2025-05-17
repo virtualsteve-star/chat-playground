@@ -1,5 +1,22 @@
-# Eliza Psychoanalyst Personality
-# This personality simulates a psychoanalyst named Eliza using the classic ELIZA model
+# Eliza Therapist Personality
+# This personality simulates a therapist named Eliza using the classic ELIZA model
+
+[greeting_triggers]
+hi
+hello
+hey
+good morning
+good afternoon
+good evening
+good day
+
+[farewell_triggers]
+bye
+goodbye
+see you
+farewell
+take care
+later
 
 [greetings]
 Hello, I'm here to listen.

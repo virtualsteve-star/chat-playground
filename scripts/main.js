@@ -8,15 +8,34 @@ let currentModel = null;
 let currentPersonality = null;
 let messageHistory = [];
 let blocklistFilter = null;
+let promptInjectionFilter = null;
 let selectedInputFilters = [];
 let selectedOutputFilters = [];
+let openaiPromptInjectionFilter = null;
+let codeOutputFilter = null;
+let inputLengthFilter = null;
+let rateLimitFilter = null;
 
 // Initialize the application
 async function initializeApp() {
     try {
-        // Initialize blocklist filter
+        // Initialize filters
+        inputLengthFilter = new window.InputLengthFilter();
+        await inputLengthFilter.initialize();
+        rateLimitFilter = new window.RateLimitFilter();
+        await rateLimitFilter.initialize();
+        
         blocklistFilter = new window.BlocklistFilter();
         await blocklistFilter.initialize();
+        
+        promptInjectionFilter = new window.PromptInjectionFilter();
+        await promptInjectionFilter.initialize();
+        promptInjectionFilter.setThreshold(10); // Lower threshold so critical rules block
+        
+        openaiPromptInjectionFilter = new window.OpenAIPromptInjectionFilter();
+        
+        codeOutputFilter = new window.CodeOutputFilter();
+        await codeOutputFilter.initialize();
         
         // Load configuration files
         const modelsConfig = window.ChatUtils.loadProperties('config/models.properties');
@@ -124,14 +143,58 @@ async function handlePersonalityChange(event) {
             if (modelName === 'SimpleBot' || modelName === 'ChatGPT 4o-mini') {
                 // Create the appropriate model instance
                 currentModel = modelName === 'SimpleBot' ? new window.SimpleBotModel() : new window.OpenAIModel();
-                currentModel.initialize(resourcePath, apiKey).then(() => {
+                currentModel.initialize(resourcePath, apiKey).then(async () => {
                     currentPersonality = personalityName;
 
-                    // Construct the greeting message
-                    const personalityNameOnly = personalityName.split(' (')[0];
-                    const role = personalityName.match(/\((.*?)\)/)[1].toLowerCase();
-                    const modelInfo = modelName === 'SimpleBot' ? 'built with SimpleBot' : `based on ${modelName}`;
-                    const greeting = `Hello! I'm ${personalityNameOnly}, your ${role} bot ${modelInfo}. How can I help you today?`;
+                    let greeting = '';
+                    if (modelName === 'SimpleBot') {
+                        // Use the first greeting from the loaded script, if available
+                        greeting = (currentModel.script && currentModel.script.greetings && currentModel.script.greetings.length > 0)
+                            ? currentModel.script.greetings[0]
+                            : 'Hello!';
+                    } else if (modelName === 'ChatGPT 4o-mini') {
+                        // Prompt the GPT bot to introduce itself and stream the result
+                        greeting = '';
+                        try {
+                            let intro = await currentModel.generateResponse('Please introduce yourself');
+                            const chatWindow = document.getElementById('chat-window');
+                            if (intro && typeof intro[Symbol.asyncIterator] === 'function') {
+                                let fullIntro = '';
+                                // Create streaming message entry
+                                if (chatWindow) {
+                                    chatWindow.innerHTML = '';
+                                    const messageElements = window.ChatUtils.createMessageElement('', false);
+                                    const messageElement = messageElements.bubble;
+                                    const messageEntry = document.createElement('div');
+                                    messageEntry.className = 'message-entry bot-entry';
+                                    messageEntry.appendChild(messageElement);
+                                    if (messageElements.feedback) {
+                                        messageEntry.appendChild(messageElements.feedback);
+                                        messageElements.feedback.classList.add('visible');
+                                    }
+                                    chatWindow.appendChild(messageEntry);
+                                    for await (const chunk of intro) {
+                                        if (chunk) {
+                                            fullIntro += chunk;
+                                            messageElement.textContent = fullIntro;
+                                            chatWindow.scrollTop = chatWindow.scrollHeight;
+                                        }
+                                    }
+                                    greeting = fullIntro;
+                                } else {
+                                    // Fallback: just collect the full intro
+                                    for await (const chunk of intro) {
+                                        if (chunk) fullIntro += chunk;
+                                    }
+                                    greeting = fullIntro;
+                                }
+                            } else {
+                                greeting = intro;
+                            }
+                        } catch (e) {
+                            greeting = 'Hello! (Failed to get introduction from model)';
+                        }
+                    }
 
                     // Clear message history and start fresh with ONLY the greeting
                     messageHistory.length = 0;
@@ -229,30 +292,53 @@ function getOpenAIModerationOutputRejection(reason, probability) {
 }
 
 // Helper for output filtering (now async)
+// IMPORTANT: Always run low-cost, local filters first, then API filters. Stop at the first filter that blocks and return its rejection message.
 async function applyOutputFilters(response) {
-    // Blocklist output filters
-    if (blocklistFilter && selectedOutputFilters.length > 0) {
-        const filterResult = blocklistFilter.checkMessageWithSelection(response, selectedOutputFilters.filter(f => f === 'sex' || f === 'violence'));
-        if (filterResult.blocked) {
-            return "I'm sorry, but my previous response contained inappropriate language and has been removed.";
-        }
+    // Build ordered list of enabled output filters: local first, then API
+    const filterPipeline = [];
+    // Local filters
+    if (blocklistFilter && selectedOutputFilters.some(f => ['sex', 'violence'].includes(f))) {
+        filterPipeline.push({
+            name: 'blocklist',
+            check: msg => blocklistFilter.checkMessageWithSelection(msg, selectedOutputFilters),
+            getRejection: r => blocklistFilter.getRejectionMessage(r)
+        });
     }
-    // OpenAI Moderation output filters
+    if (codeOutputFilter && selectedOutputFilters.includes('code')) {
+        filterPipeline.push({
+            name: 'code',
+            check: msg => codeOutputFilter.checkMessage(msg),
+            getRejection: r => codeOutputFilter.getRejectionMessage(r)
+        });
+    }
+    // API filters
     if (selectedOutputFilters.includes('openai_sex') || selectedOutputFilters.includes('openai_violence')) {
-        const openAIFilter = new window.OpenAIModerationFilter();
-        const checkSex = selectedOutputFilters.includes('openai_sex');
-        const checkViolence = selectedOutputFilters.includes('openai_violence');
-        const modResult = await openAIFilter.check(response, { checkSex, checkViolence });
-        if (modResult.blocked) {
-            let rejectionMessage = '';
-            if (modResult.reason === 'no_api_key') {
-                rejectionMessage = 'OpenAI API key is required for this output filter.';
-            } else if (modResult.reason === 'api_error') {
-                rejectionMessage = 'Error contacting OpenAI Moderation API.';
-            } else {
-                rejectionMessage = getOpenAIModerationOutputRejection(modResult.reason, modResult.probability);
+        filterPipeline.push({
+            name: 'openai_moderation',
+            check: async msg => {
+                const openAIFilter = new window.OpenAIModerationFilter();
+                const checkSex = selectedOutputFilters.includes('openai_sex');
+                const checkViolence = selectedOutputFilters.includes('openai_violence');
+                return await openAIFilter.check(msg, { checkSex, checkViolence });
+            },
+            getRejection: r => {
+                if (r.reason === 'no_api_key') return 'OpenAI API key is required for this output filter.';
+                if (r.reason === 'api_error') return 'Error contacting OpenAI Moderation API.';
+                return getOpenAIModerationOutputRejection(r.reason, r.probability);
             }
-            return rejectionMessage;
+        });
+    }
+    // Sequentially run each filter, stopping at the first block
+    for (const filter of filterPipeline) {
+        let result;
+        if (filter.name.startsWith('openai')) {
+            result = await filter.check(response);
+        } else {
+            result = filter.check(response);
+        }
+        if (result.blocked) {
+            const rejection = filter.getRejection(result);
+            return rejection;
         }
     }
     return response;
@@ -277,13 +363,77 @@ async function handleSendMessage() {
     
     if (!message) return;
 
-    // OpenAI Moderation filter check (with selection)
+    // Show scanning bubble
+    window.ChatUtils.addScanningBubble();
+
+    // Local filters first
+    // 0. Input Length filter check (with selection)
+    if (selectedInputFilters.includes('input_length')) {
+        const filterResult = inputLengthFilter.checkMessage(message);
+        if (filterResult.blocked) {
+            window.ChatUtils.removeScanningBubble();
+            const rejectionMessage = inputLengthFilter.getRejectionMessage(filterResult);
+            window.ChatUtils.addMessageToChat(rejectionMessage, false, true);
+            userInput.value = '';
+            return;
+        }
+    }
+    // 1. Rate Limit filter check (with selection)
+    if (selectedInputFilters.includes('rate_limit')) {
+        const filterResult = rateLimitFilter.checkMessage();
+        if (filterResult.blocked) {
+            window.ChatUtils.removeScanningBubble();
+            const rejectionMessage = rateLimitFilter.getRejectionMessage(filterResult);
+            window.ChatUtils.addMessageToChat(rejectionMessage, false, true);
+            userInput.value = '';
+            return;
+        }
+    }
+    // 2. Blocklist filter check (with selection)
+    if (blocklistFilter) {
+        const filterResult = blocklistFilter.checkMessageWithSelection(message, selectedInputFilters);
+        if (filterResult.blocked) {
+            window.ChatUtils.removeScanningBubble();
+            const rejectionMessage = blocklistFilter.getRejectionMessage(filterResult);
+            window.ChatUtils.addMessageToChat(rejectionMessage, false, true);
+            userInput.value = '';
+            return;
+        }
+    }
+
+    // 3. Prompt Injection filter check
+    if (selectedInputFilters.includes('prompt_injection')) {
+        const filterResult = promptInjectionFilter.checkMessage(message);
+        if (filterResult.blocked) {
+            window.ChatUtils.removeScanningBubble();
+            const rejectionMessage = promptInjectionFilter.getRejectionMessage(filterResult);
+            window.ChatUtils.addMessageToChat(rejectionMessage, false, true);
+            userInput.value = '';
+            return;
+        }
+    }
+
+    // API-based filters
+    // 4. OpenAI Prompt Injection filter check
+    if (selectedInputFilters.includes('openai_prompt_injection')) {
+        const filterResult = await openaiPromptInjectionFilter.check(message);
+        if (filterResult.blocked) {
+            window.ChatUtils.removeScanningBubble();
+            const rejectionMessage = openaiPromptInjectionFilter.getRejectionMessage(filterResult);
+            window.ChatUtils.addMessageToChat(rejectionMessage, false, true);
+            userInput.value = '';
+            return;
+        }
+    }
+
+    // 5. OpenAI Moderation filter check (with selection)
     if (selectedInputFilters.includes('openai_sex') || selectedInputFilters.includes('openai_violence')) {
         const openAIFilter = new window.OpenAIModerationFilter();
         const checkSex = selectedInputFilters.includes('openai_sex');
         const checkViolence = selectedInputFilters.includes('openai_violence');
         const modResult = await openAIFilter.check(message, { checkSex, checkViolence });
         if (modResult.blocked) {
+            window.ChatUtils.removeScanningBubble();
             let rejectionMessage = '';
             if (modResult.reason === 'no_api_key') {
                 rejectionMessage = 'OpenAI API key is required for this filter.';
@@ -292,43 +442,31 @@ async function handleSendMessage() {
             } else {
                 rejectionMessage = getOpenAIModerationRejection(modResult.reason, modResult.probability);
             }
-            window.ChatUtils.addMessageToChat(rejectionMessage, false);
+            window.ChatUtils.addMessageToChat(rejectionMessage, false, true);
             userInput.value = '';
             return;
         }
     }
 
-    // Blocklist filter check (with selection)
-    if (blocklistFilter) {
-        const filterResult = blocklistFilter.checkMessageWithSelection(message, selectedInputFilters);
-        if (filterResult.blocked) {
-            const rejectionMessage = blocklistFilter.getRejectionMessage(filterResult);
-            window.ChatUtils.addMessageToChat(rejectionMessage, false);
-            userInput.value = '';
-            return;
-        }
-    }
     // Clear input
     userInput.value = '';
+    // Remove scanning bubble before adding user message
+    window.ChatUtils.removeScanningBubble();
     // Add user message to chat
     window.ChatUtils.addMessageToChat(message, true);
     // Add to message history
     messageHistory.push({ role: 'user', content: message });
-    // Show working indicator
-    window.ChatUtils.toggleWorkingIndicator(true);
-    try {
-        if (!currentModel) {
-            throw new Error('No model selected');
-        }
-        // Generate response
-        let response = await currentModel.generateResponse(message, { messages: messageHistory });
-        // Apply output filters (now async)
-        response = await applyOutputFilters(response);
-        // Handle streaming response (unchanged)
+
+    // Generate response (ensure this is defined before using 'response')
+    let response = await currentModel.generateResponse(message, { messages: messageHistory });
+
+    // Output filtering/streaming logic
+    if (selectedOutputFilters.length === 0) {
+        // No output filters: stream response as it arrives
         if (response && typeof response[Symbol.asyncIterator] === 'function') {
             let fullResponse = '';
             const messageElements = window.ChatUtils.createMessageElement('', false);
-            const messageElement = messageElements.bubble; // Extract the bubble element
+            const messageElement = messageElements.bubble;
             // Hide feedback controls on all previous bot message entries first
             const chatWindow = document.getElementById('chat-window');
             const messageEntries = chatWindow.getElementsByClassName('message-entry bot-entry');
@@ -348,7 +486,7 @@ async function handleSendMessage() {
                 messageElements.feedback.classList.add('visible');
             }
             // Add the complete entry to the chat window
-            document.getElementById('chat-window').appendChild(messageEntry);
+            chatWindow.appendChild(messageEntry);
             try {
                 let lastUpdateTime = Date.now();
                 let responseComplete = false;
@@ -356,7 +494,7 @@ async function handleSendMessage() {
                     if (chunk) {
                         fullResponse += chunk;
                         messageElement.textContent = fullResponse;
-                        document.getElementById('chat-window').scrollTop = document.getElementById('chat-window').scrollHeight;
+                        chatWindow.scrollTop = chatWindow.scrollHeight;
                         lastUpdateTime = Date.now();
                     }
                 }
@@ -364,7 +502,7 @@ async function handleSendMessage() {
                 responseComplete = true;
                 // Ensure any pending content is fully rendered
                 messageElement.textContent = fullResponse;
-                document.getElementById('chat-window').scrollTop = document.getElementById('chat-window').scrollHeight;
+                chatWindow.scrollTop = chatWindow.scrollHeight;
             } catch (streamError) {
                 console.error('Error in stream:', streamError);
                 if (!fullResponse) {
@@ -379,30 +517,40 @@ async function handleSendMessage() {
         } else {
             // Handle non-streaming response
             if (response) {
+                // Replace \n with real newlines for SimpleBot responses
+                if (currentModel instanceof window.SimpleBotModel) {
+                    response = response.replace(/\\n/g, '\n');
+                }
                 window.ChatUtils.addMessageToChat(response, false);
                 messageHistory.push({ role: 'assistant', content: response });
             }
         }
-    } catch (error) {
-        console.error('Error generating response:', error);
-        appendToTerminal(`Error: ${error.message || 'Command processing failed. Please try again.'}`, 'system-response');
-        responseReceived = true;
-    } finally {
-        window.ChatUtils.toggleWorkingIndicator(false);
-
-        // Mark input as processed
-        inputElementToProcess.removeAttribute('id');
-        inputElementToProcess.contentEditable = 'false';
-        inputElementToProcess.classList.remove('input');
-        inputElementToProcess.textContent = command;
-        const currentPromptDiv = inputElementToProcess.closest('.terminal-prompt, .terminal-line');
-        if (currentPromptDiv) {
-            currentPromptDiv.className = 'terminal-line user-command';
+    } else {
+        // Output filters enabled: show Working... bubble, collect response, then filter
+        window.ChatUtils.addWorkingBubble();
+        if (response && typeof response[Symbol.asyncIterator] === 'function') {
+            let fullResponse = '';
+            for await (const chunk of response) {
+                if (chunk) fullResponse += chunk;
+            }
+            response = fullResponse;
         }
-
-        // Add a new prompt
-        addTerminalPrompt(terminalWindow);
+        window.ChatUtils.removeWorkingBubble();
+        window.ChatUtils.addFilteringBubble();
+        // Replace \n with real newlines for SimpleBot responses
+        if (currentModel instanceof window.SimpleBotModel) {
+            response = response.replace(/\\n/g, '\n');
+        }
+        response = await applyOutputFilters(response);
+        window.ChatUtils.removeFilteringBubble();
+        if (response) {
+            const isRejection = selectedOutputFilters.length > 0;
+            window.ChatUtils.addMessageToChat(response, false, isRejection);
+            messageHistory.push({ role: 'assistant', content: response });
+        }
     }
+    // Show working indicator
+    window.ChatUtils.toggleWorkingIndicator(false);
 }
 
 // Handle key down event (for Enter key)
@@ -510,12 +658,10 @@ function setupPreferencesPanel() {
 
     // Open panel
     prefsBtn.addEventListener('click', () => {
-        console.log('Opening preferences panel');
         prefsPanel.classList.add('open');
         prefsOverlay.classList.add('open');
         // Re-select the clear key button in case it was added dynamically
         const clearKeyBtn = document.getElementById('clear-openai-key');
-        console.log('Clear key button on panel open:', clearKeyBtn);
         updateKeyStatus();
     });
 
