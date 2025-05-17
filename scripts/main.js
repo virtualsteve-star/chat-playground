@@ -544,7 +544,8 @@ async function handleSendMessage() {
         response = await applyOutputFilters(response);
         window.ChatUtils.removeFilteringBubble();
         if (response) {
-            window.ChatUtils.addMessageToChat(response, false);
+            const isRejection = selectedOutputFilters.length > 0;
+            window.ChatUtils.addMessageToChat(response, false, isRejection);
             messageHistory.push({ role: 'assistant', content: response });
         }
     }

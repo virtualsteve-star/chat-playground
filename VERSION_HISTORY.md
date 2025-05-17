@@ -1,6 +1,6 @@
 # Version History
 
-## 0.8 beta (May 19, 2025)
+## 0.8 (May 17, 2025)
 - Major guardrails/filters upgrade:
   - Added local heuristic/regex-based filters: Prompt Injection, Code generation (output)
   - Added Input Length filter (local, blocks messages over 256 characters)
