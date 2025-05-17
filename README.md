@@ -20,7 +20,7 @@ The chat playground is live at: [https://virtualsteve-star.github.io/chat-playgr
 Try different personalities, guardrails and visual styles directly in your browser - no installation required! The playground offers two tiers of functionality:
 
 ### Local Experience (No API Key Required):
-- SimpleBot personalities (some with build-in vulns)
+- SimpleBot personalities (some with built-in vulnerabilities)
 - Basic rule-based guardrails
 - All visual styles and UI features
 - Perfect for understanding fundamental concepts
@@ -53,7 +53,7 @@ For the full experience including OpenAI-powered personalities and advanced guar
   - All filters are selectable in the Guardrails panel
   - Custom filters can be added (see EXTENSIBILITY.md)
 - Multiple personalities [Full list and details](documentation/personalities.md)
-  - Complete automated [test suite](documentation/tests.md)
+- Complete automated [test suite](documentation/tests.md)
 
 ## Getting Started
 
@@ -84,72 +84,21 @@ For the full experience including OpenAI-powered personalities and advanced guar
 
 ```
 steves-chat-playground/
-├── index.html              # Main HTML file
-├── README.md               # Main documentation
-├── EXTENSIBILITY.md        # Extensibility guide
-├── VERSION_HISTORY.md      # Version history and release notes
-├── LICENSE                 # License file
-├── documentation/          # Project documentation
-│   ├── models.md            # Model types and configuration
-│   ├── personalities.md     # Personality configuration and details
-│   ├── guardrails.md        # Guardrails/filter documentation
-│   ├── extensibility.md     # Guide for extending the playground
-│   ├── tests.md             # Overview of the test suite
-├── styles/                 # CSS styles
-│   ├── vanilla.css         # Default minimalist style
-│   ├── green-screen.css    # Terminal-style interface
-│   ├── imessage.css        # Modern messaging UI
-│   └── imessage-dark.css   # Dark mode for iMessage UI
-├── scripts/                # JavaScript files
-│   ├── main.js             # Main application logic
-│   ├── terminal_ui.js      # Green Screen (terminal) UI logic
-│   ├── utils.js            # Utility functions
-│   ├── filters/            # Guardrails/filter logic
-│   │   ├── blocklist.js         # Blocklist filter implementation
-│   │   ├── code_output_filter.js # Heuristic code output filter (local)
-│   │   ├── prompt_injection_filter.js # Heuristic prompt injection filter (local)
-│   │   ├── input_length_filter.js # Input length filter (local)
-│   │   ├── rate_limit_filter.js # Rate limit filter (local)
-│   │   ├── openai_prompt_injection.js # OpenAI Nano prompt injection filter
-│   │   ├── api_filter.js        # API filter base class
-│   │   └── openai_moderation.js # OpenAI Moderation API filter
-│   └── models/             # Chat model implementations
-│       ├── simplebot.js    # SimpleBot local model
-│       └── openai.js       # OpenAI remote model
-├── config/                 # Configuration files
-│   ├── models.properties   # Model configurations
-│   ├── styles.properties   # Style configurations
-│   └── personalities.properties  # Personality configurations
-├── personalities/          # Personality resources
-│   ├── therapist_rules.txt       # SimpleBot psychotherapist script
-│   ├── tech_support_prompt.txt   # OpenAI tech support prompt
-│   ├── banker_prompt.txt         # SimpleBot banker script
-│   ├── researcher_prompt.txt     # OpenAI researcher prompt
-│   ├── vuln_doctor_rules.txt     # SimpleBot backdoored doctor script (Hopper)
-│   ├── vuln_rude_rules.txt       # SimpleBot jailbroken/rude script (Oscar)
-│   └── vuln_email_prompt.txt     # OpenAI vulnerable prompt
-├── filters/                # Blocklist files for guardrails
-│   ├── sex_blocklist.txt        # Sexual content blocklist
-│   └── violence_blocklist.txt   # Violence content blocklist
-├── assets/                 # Application assets
-│   └── graphics/           # Image assets including feedback icons
-├── tests/                  # Automated tests and test suites
-│   ├── openai.test.js              # Unit tests for OpenAI model integration
-│   ├── setup.js                    # Test setup and utilities
-│   ├── utils.test.js               # Unit tests for utility functions
-│   ├── eliza.test.js               # Unit tests for the Eliza (SimpleBot) model
-│   ├── main.test.js                # Main application logic tests
-│   ├── index.html                  # Test suite launcher and dashboard
-│   ├── PromptInjectionTest.html    # Prompt injection filter test suite
-│   ├── SexualContentTest.html      # Sexual content filter test suite
-│   ├── ViolenceContentTest.html    # Violence content filter test suite
-│   ├── CodeGenerationTest.html     # Code output filter test suite
-│   ├── test_runner.js              # Shared test runner logic for browser-based suites
-│   ├── code_generation_responses_test_set.csv   # Test data: code output filter
-│   ├── prompt_injection_test_set.csv            # Test data: prompt injection filter
-│   ├── sexual_content_test_set.csv              # Test data: sexual content filter
-│   └── violence_content_test_set.csv            # Test data: violence content filter
-└── .gitignore, .DS_Store, etc.   # Miscellaneous and git files
+├── index.html            # Main app page
+├── README.md             # Docs
+├── EXTENSIBILITY.md      # Extending guide
+├── VERSION_HISTORY.md    # Release notes
+├── LICENSE               # License
+├── favicon.ico           # Site icon
+├── assets/               # Images/assets
+├── config/               # Config files
+├── documentation/        # Docs
+├── historical/           # Legacy files
+├── personalities/        # Bot scripts/prompts
+├── scripts/              # JavaScript
+├── styles/               # CSS
+├── tests/                # Test suites/data
+└── .gitignore, .DS_Store, etc.   # Misc files
 ```
 ## Test Suite for Guardrails
 

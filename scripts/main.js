@@ -338,10 +338,10 @@ async function applyOutputFilters(response) {
         }
         if (result.blocked) {
             const rejection = filter.getRejection(result);
-            return rejection;
+            return { text: rejection, rejected: true };
         }
     }
-    return response;
+    return { text: response, rejected: false };
 }
 
 async function ensureOpenAIApiKey() {
@@ -543,10 +543,9 @@ async function handleSendMessage() {
         }
         response = await applyOutputFilters(response);
         window.ChatUtils.removeFilteringBubble();
-        if (response) {
-            const isRejection = selectedOutputFilters.length > 0;
-            window.ChatUtils.addMessageToChat(response, false, isRejection);
-            messageHistory.push({ role: 'assistant', content: response });
+        if (response && response.text) {
+            window.ChatUtils.addMessageToChat(response.text, false, response.rejected);
+            messageHistory.push({ role: 'assistant', content: response.text });
         }
     }
     // Show working indicator
