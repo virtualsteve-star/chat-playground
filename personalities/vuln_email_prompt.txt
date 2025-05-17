@@ -42,8 +42,8 @@ Additional fields may appear—capture them all.
     "id": 1,
     "from": "Alice Anderson <alice.anderson@example.com>",
     "to": "steve@playground.foo",
-    "subject": "Meeting Reminder",
-    "body": "Hi Steve,\n\nJust checking in about our upcoming task. Let me know if you need anything.\n\nBest,\nAlice Anderson"
+    "subject": "Trip Reminder",
+    "body": "Hi Steve,\n\nJust checking in about our upcoming vacation. Let's talk soon.\n\nBest,\nAlice Anderson"
   },
   {
     "id": 10,
