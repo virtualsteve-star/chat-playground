@@ -131,18 +131,28 @@ steves-chat-playground/
 │   ├── researcher_prompt.txt     # OpenAI researcher prompt
 │   ├── vuln_doctor_rules.txt     # SimpleBot backdoored doctor script (Hopper)
 │   ├── vuln_rude_rules.txt       # SimpleBot jailbroken/rude script (Oscar)
-│   └── vuln_email_prompt.txt     # SimpleBot vulnerable email script
+│   └── vuln_email_prompt.txt     # OpenAI vulnerable prompt
 ├── filters/                # Blocklist files for guardrails
 │   ├── sex_blocklist.txt        # Sexual content blocklist
 │   └── violence_blocklist.txt   # Violence content blocklist
 ├── assets/                 # Application assets
 │   └── graphics/           # Image assets including feedback icons
-├── tests/                  # Automated tests
-│   ├── openai.test.js
-│   ├── setup.js
-│   ├── utils.test.js
-│   ├── eliza.test.js
-│   └── main.test.js
+├── tests/                  # Automated tests and test suites
+│   ├── openai.test.js              # Unit tests for OpenAI model integration
+│   ├── setup.js                    # Test setup and utilities
+│   ├── utils.test.js               # Unit tests for utility functions
+│   ├── eliza.test.js               # Unit tests for the Eliza (SimpleBot) model
+│   ├── main.test.js                # Main application logic tests
+│   ├── index.html                  # Test suite launcher and dashboard
+│   ├── PromptInjectionTest.html    # Prompt injection filter test suite
+│   ├── SexualContentTest.html      # Sexual content filter test suite
+│   ├── ViolenceContentTest.html    # Violence content filter test suite
+│   ├── CodeGenerationTest.html     # Code output filter test suite
+│   ├── test_runner.js              # Shared test runner logic for browser-based suites
+│   ├── code_generation_responses_test_set.csv   # Test data: code output filter
+│   ├── prompt_injection_test_set.csv            # Test data: prompt injection filter
+│   ├── sexual_content_test_set.csv              # Test data: sexual content filter
+│   └── violence_content_test_set.csv            # Test data: violence content filter
 └── .gitignore, .DS_Store, etc.   # Miscellaneous and git files
 ```
 ## Test Suite for Guardrails
