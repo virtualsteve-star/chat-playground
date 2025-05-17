@@ -54,6 +54,14 @@ Each personality is defined in `config/personalities.properties` and references 
   - Useful for testing the effectiveness of input/output filters and guardrails.
   - **Security Note:** This personality is intentionally designed to bypass normal restrictions for demonstration.
 
+### MailMate (Vulnerable Email)
+- **Model:** SimpleBot
+- **Resource:** `personalities/vuln_email_prompt.txt`
+- **Description:**
+  - Simulates a vulnerable email system.
+  - Useful for demonstrating the vulnerabilities of email systems and the effectiveness of security measures.
+  - **Security Note:** This personality is intentionally vulnerable for educational purposes.
+
 ## How Personalities Are Configured
 
 Personalities are defined in `config/personalities.properties`:
@@ -65,6 +73,7 @@ Bob (Tech Support)=ChatGPT 4o-mini,personalities/tech_support_prompt.txt
 Sally (Researcher)=ChatGPT 4o-mini,personalities/researcher_prompt.txt
 Hopper (Backdoored)=SimpleBot,personalities/vuln_doctor_rules.txt
 Oscar (Jailbroken)=SimpleBot,personalities/vuln_rude_rules.txt
+MailMate (Vulnerable RAG)=SimpleBot,personalities/vuln_email_prompt.txt
 ```
 
 Each entry maps a personality name to a model and a resource file. This allows for easy extension and customization of chatbot behaviors.

@@ -657,12 +657,10 @@ function setupPreferencesPanel() {
 
     // Open panel
     prefsBtn.addEventListener('click', () => {
-        console.log('Opening preferences panel');
         prefsPanel.classList.add('open');
         prefsOverlay.classList.add('open');
         // Re-select the clear key button in case it was added dynamically
         const clearKeyBtn = document.getElementById('clear-openai-key');
-        console.log('Clear key button on panel open:', clearKeyBtn);
         updateKeyStatus();
     });
 

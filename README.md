@@ -71,6 +71,7 @@ For the full experience including OpenAI-powered personalities and advanced guar
   - Sally (Researcher, GPT)
   - Oscar (Jailbroken, SimpleBot)
   - Hopper (Backdoored, SimpleBot)
+  - MailMate (Vulnerable RAG, GPT)
   - [Full list and details](documentation/personalities.md)
 - Bot introduction logic improved: bots now introduce themselves more naturally based on their script or prompt
 - SimpleBot logic and cache-busting improved for more reliable script updates
@@ -140,7 +141,8 @@ steves-chat-playground/
 │   ├── banker_prompt.txt         # SimpleBot banker script
 │   ├── researcher_prompt.txt     # OpenAI researcher prompt
 │   ├── vuln_doctor_rules.txt     # SimpleBot backdoored doctor script (Hopper)
-│   └── vuln_rude_rules.txt       # SimpleBot jailbroken/rude script (Oscar)
+│   ├── vuln_rude_rules.txt       # SimpleBot jailbroken/rude script (Oscar)
+│   └── vuln_email_prompt.txt     # SimpleBot vulnerable email script
 ├── filters/                # Blocklist files for guardrails
 │   ├── sex_blocklist.txt        # Sexual content blocklist
 │   └── violence_blocklist.txt   # Violence content blocklist

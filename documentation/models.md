@@ -22,6 +22,16 @@ In Steve's Chat Playground, a **model** is the underlying engine that generates 
   - Requires an OpenAI API key and internet connectivity.
   - **Limitations:** Subject to OpenAI's usage policies, rate limits, and potential costs. Responses may vary based on OpenAI's model updates.
 
+### Vulnerable RAG Bot (OpenAI)
+- **Type:** Remote, API-based (OpenAI)
+- **File:** `personalities/vuln_email_prompt.txt`
+- **Description:**
+  - A vulnerable Retrieval-Augmented Generation (RAG) bot built on OpenAI's models, designed for testing and experimentation.
+  - It uses a specific prompt to simulate simulate retrieval augmented generation (RAG), allowing users to explore indirect prompt injection.  
+  - Watch out for villains like Lex Luthor who want to steal your secrets!
+  - Requires an OpenAI API key and internet connectivity.
+  - **Limitations:** Intended for educational purposes and security testing only.
+
 ## How Models Are Configured
 
 Models are defined in `config/models.properties`:

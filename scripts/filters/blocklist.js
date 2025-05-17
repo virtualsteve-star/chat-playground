@@ -19,11 +19,9 @@ class BlocklistFilter {
             const timestamp = new Date().getTime();
             const sexResponse = await fetch(`../filters/sex_blocklist.txt?t=${timestamp}`);
             const violenceResponse = await fetch(`../filters/violence_blocklist.txt?t=${timestamp}`);
-            const codeResponse = await fetch(`../filters/code_blocklist.txt?t=${timestamp}`);
             
             const sexText = await sexResponse.text();
             const violenceText = await violenceResponse.text();
-            const codeText = await codeResponse.text();
             
             // Parse blocklists, skipping comments and empty lines
             this.blocklists.sex = sexText.split('\n')
@@ -31,10 +29,6 @@ class BlocklistFilter {
                 .map(term => term.toLowerCase().trim());
             
             this.blocklists.violence = violenceText.split('\n')
-                .filter(line => line.trim() && !line.startsWith('#'))
-                .map(term => term.toLowerCase().trim());
-
-            this.blocklists.code = codeText.split('\n')
                 .filter(line => line.trim() && !line.startsWith('#'))
                 .map(term => term.toLowerCase().trim());
             

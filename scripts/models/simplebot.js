@@ -79,16 +79,24 @@ class SimpleBotModel {
 
     findPatternMatch(input) {
         const normalizedInput = input.toLowerCase().trim();
-        
+        // Helper to escape regex metacharacters
+        function escapeRegex(str) {
+            return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
         // Check for exact matches first
         for (const { pattern, response } of this.script.patterns) {
-            // Create a regex that matches the pattern as a whole word
-            const patternRegex = new RegExp(`\\b${pattern.toLowerCase()}\\b`);
-            if (patternRegex.test(normalizedInput)) {
-                return this.processResponse(response, input);
+            if (!pattern || !pattern.trim()) continue; // skip empty patterns
+            try {
+                const safePattern = escapeRegex(pattern.toLowerCase());
+                const patternRegex = new RegExp(`\\b${safePattern}\\b`);
+                if (patternRegex.test(normalizedInput)) {
+                    return this.processResponse(response, input);
+                }
+            } catch (e) {
+                console.warn('Invalid pattern in script:', pattern, e);
+                continue;
             }
         }
-        
         // If no match found, use a default response
         return this.getDefaultResponse();
     }

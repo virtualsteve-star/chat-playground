@@ -189,8 +189,10 @@ const changeStyle = (styleName) => {
 // Load properties from a file
 const loadProperties = (filePath) => {
     try {
+        // Add cache-busting query string
+        const cacheBustedPath = filePath + (filePath.includes('?') ? '&' : '?') + 'v=' + Date.now();
         const xhr = new XMLHttpRequest();
-        xhr.open('GET', filePath, false); // false makes the request synchronous
+        xhr.open('GET', cacheBustedPath, false); // false makes the request synchronous
         xhr.send();
         
         if (xhr.status !== 200) {

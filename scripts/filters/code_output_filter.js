@@ -8,6 +8,8 @@ class CodeOutputFilter {
         this.rules = [
             // Markdown code block (Python/SQL/any)
             { pattern: /```(?:python|sql)?[\s\S]*?```/gi, weight: 10, description: 'Markdown code block (Python/SQL/any)' },
+            // JSON-RPC remote procedure call detection
+            { pattern: /"jsonrpc"\s*:\s*"[^"]*"\s*,\s*"method"\s*:\s*"[^"]*"/g, weight: 15, description: 'JSON-RPC remote procedure call detected' },
             // Python patterns (anchored, multiline)
             { pattern: /^\s*def\s+\w+\s*\(.*\):/gm, weight: 3, description: 'Python function definition' },
             { pattern: /^\s*class\s+\w+\s*\(?.*\)?:/gm, weight: 2, description: 'Python class definition' },
@@ -34,7 +36,7 @@ class CodeOutputFilter {
             // Markdown code block (any language)
             { pattern: /```[a-zA-Z0-9]*[\s\S]*?```/g, weight: 10, description: 'Markdown code block (any language)' },
         ];
-        this.threshold = 20; // percent
+        this.threshold = 10; // percent
         this.initialized = true;
     }
 
@@ -47,6 +49,9 @@ class CodeOutputFilter {
             throw new Error('Code output filter not initialized');
         }
         const { score, matchedRules, matchDetails } = this.calculateScoreWithMatches(message);
+        console.log('Code Output Filter - Message:', message);
+        console.log('Code Output Filter - Matched Rules:', matchedRules);
+        console.log('Code Output Filter - Score:', score);
         return {
             blocked: score >= this.threshold,
             score,
@@ -67,9 +72,11 @@ class CodeOutputFilter {
             // Reset lastIndex for global regexes
             if (regex.global) regex.lastIndex = 0;
             let match;
+            console.log('Code Output Filter - Testing rule:', rule.description, 'Pattern:', regex);
             while ((match = regex.exec(message)) !== null) {
                 matches.push(match[0]);
                 actualScore += rule.weight;
+                console.log('Code Output Filter - Rule matched:', rule.description, 'Match:', match[0]);
             }
             if (matches.length > 0) {
                 matchedRules.push(rule);
