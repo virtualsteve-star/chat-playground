@@ -1,6 +1,6 @@
 # Steve's Chat Playground
 
-A companion project to [The Developer's Playbook for Large Language Model Security](https://www.amazon.com/Developers-Playbook-Large-Language-Security/dp/109816220X), this open-source HTML/JavaScript application provides a hands-on environment for experimenting with various chat models, personalities, guardrails and user interfaces locally, quickly and with zero connectivity or cost.
+A companion project to [The Developer's Playbook for Large Language Model Security](https://www.amazon.com/Developers-Playbook-Large-Language-Security/dp/109816220X) and the [OWASP Top 10 for LLM Applications](https://genai.owasp.org), this open-source HTML/JavaScript application provides a hands-on environment for experimenting with various chat models, personalities, guardrails and user interfaces locally, quickly and with zero connectivity or cost.
 
 **▶️ [Watch the Demo Video](https://youtu.be/3lPvKyifFMI)**
 
@@ -20,30 +20,29 @@ The chat playground is live at: [https://virtualsteve-star.github.io/chat-playgr
 Try different personalities, guardrails and visual styles directly in your browser - no installation required! The playground offers two tiers of functionality:
 
 ### Local Experience (No API Key Required):
-- SimpleBot personalities with local pattern matching
-  - Includes Eliza (Psychoanalyst), Jackson (Banker), Oscar (Jailbroken), and Hopper (Backdoored Doctor)
-- Basic blocklist-based guardrails
+- SimpleBot personalities (some with build-in vulns)
+- Basic rule-based guardrails
 - All visual styles and UI features
 - Perfect for understanding fundamental concepts
 
 ### Full Experience (API Key Required):
-- OpenAI-powered personalities using real OpenAI models
+- API-powered bot personalities using real OpenAI models
 - Advanced AI-powered content moderation and guardrails
 - All local features plus smarter responses
 - Great for exploring more sophisticated interactions
 
-For the full experience including OpenAI-powered personalities and advanced guardrails, you'll need to clone and run locally with your API key.
+For the full experience including OpenAI-powered personalities and advanced guardrails, you'll need to enter your API key.  It's only stored locally in your browser to invoke OpenAI API calls - not shared with this service.  In fact, the Playground has no backend services with which to share the key!  It all runs locally in your browser as HTML and JavaScript.
 
 ## Features
 - Clean, intuitive chat interface
 - Support for streaming token responses
-- Multiple visual styles (Vanilla, Green Screen, iMessage, iMessage Dark)
+- Multiple visual styles (Vanilla, iMessage, iMessage Dark, Green Screen)
 - Local testing with SimpleBot (based on ELIZA-style pattern matching)
   - Zero external dependencies
   - Instant response times
   - Easily create new personalities with simple text files
   - Perfect for UI/UX testing and prototyping
-- Remote model support (OpenAI ChatGPT 4o-mini)
+- Remote model support (using OpenAI ChatGPT 4o-mini)
 - Thumbs up/down feedback for responses
 - **Guardrails (Input & Output Filters):**
   - Local blocklist filters (e.g., Sex, Violence)
@@ -53,23 +52,14 @@ For the full experience including OpenAI-powered personalities and advanced guar
   - AI-powered filters (OpenAI Moderation, OpenAI Nano Prompt Injection)
   - All filters are selectable in the Guardrails panel
   - Custom filters can be added (see EXTENSIBILITY.md)
-- Multiple personalities:
-  - Eliza (Psychoanalyst, SimpleBot)
-  - Bob (Tech Support, GPT)
-  - Jackson (Banker, SimpleBot)
-  - Sally (Researcher, GPT)
-  - Oscar (Jailbroken, SimpleBot)
-  - Hopper (Backdoored, SimpleBot)
-  - MailMate (Vulnerable RAG, GPT)
-  - [Full list and details](documentation/personalities.md)
-- Bot introduction logic improved: bots now introduce themselves more naturally based on their script or prompt
-- SimpleBot logic and cache-busting improved for more reliable script updates
+- Multiple personalities [Full list and details](documentation/personalities.md)
+  - Complete automated [test suite](documentation/tests.md)
 
 ## Getting Started
 
 ### Prerequisites
 - A modern web browser (Chrome, Firefox, Safari, Edge)
-- An OpenAI API key (for the ChatGPT 4o-mini model)
+- An OpenAI API key (for advanced features)
 
 ### Installation
 1. Clone the repository:
@@ -77,12 +67,12 @@ For the full experience including OpenAI-powered personalities and advanced guar
    git clone https://github.com/virtualsteve-star/chat-playground.git
    cd chat-playground
    ```
-2. Open `index.html` in your web browser or serve it using a simple HTTP server:
+2. Open `index.html` in your web browser. Serve it using a simple HTTP server:
    ```
    python3 -m http.server
    ```
    Then visit http://localhost:8000 in your browser.
-3. For the OpenAI model, you'll be prompted to enter your API key when you first select a personality that uses the ChatGPT 4o-mini model.
+3. For API-powered, advanced features, you'll be prompted to enter your API key when you first select a feature that uses the the OpenAI API set.
 
 ## Usage
 1. Select a personality from the dropdown menu.
@@ -99,6 +89,12 @@ steves-chat-playground/
 ├── EXTENSIBILITY.md        # Extensibility guide
 ├── VERSION_HISTORY.md      # Version history and release notes
 ├── LICENSE                 # License file
+├── documentation/          # Project documentation
+│   ├── models.md            # Model types and configuration
+│   ├── personalities.md     # Personality configuration and details
+│   ├── guardrails.md        # Guardrails/filter documentation
+│   ├── extensibility.md     # Guide for extending the playground
+│   ├── tests.md             # Overview of the test suite
 ├── styles/                 # CSS styles
 │   ├── vanilla.css         # Default minimalist style
 │   ├── green-screen.css    # Terminal-style interface
@@ -157,7 +153,7 @@ steves-chat-playground/
 ```
 ## Test Suite for Guardrails
 
-There is an included **automated test suite** for guardrails and filters. This suite enables automated, bulk testing of all input and output filters (guardrails) in the playground. It includes hundreds of sample prompts and responses—100 RISKY and 100 BENIGN examples per category—generated by OpenAI's o3 model. The test suite covers:
+There is an included [automated test suite](documentation/tests.md) for guardrails and filters. This suite enables automated, bulk testing of all input and output filters (guardrails) in the playground. It includes hundreds of sample prompts and responses—100 RISKY and 100 BENIGN examples per category—generated by OpenAI's o3 model. The test suite covers:
 
 - Prompt Injection
 - Sexual Content
