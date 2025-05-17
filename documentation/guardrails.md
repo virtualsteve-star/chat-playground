@@ -85,4 +85,6 @@ Listed in the order they appear in the Guardrails panel:
 
 ---
 
+**Disclaimer:** All guardrails provided in this playground are illustrative and experimental. None of these are perfect, but they give you a place to experiment and extend. Think you can do better? Build it! For more details on how to extend these guardrails, see the [extensibility guide](extensibility.md).
+
 For technical details on how guardrails are implemented, see the [extensibility guide](extensibility.md). 
