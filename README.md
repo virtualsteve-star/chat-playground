@@ -31,7 +31,13 @@ Try different personalities, guardrails and visual styles directly in your brows
 - All local features plus smarter responses
 - Great for exploring more sophisticated interactions
 
-For the full experience including OpenAI-powered personalities and advanced guardrails, you'll need to enter your API key.  It's only stored locally in your browser to invoke OpenAI API calls - not shared with this service.  In fact, the Playground has no backend services with which to share the key!  It all runs locally in your browser as HTML and JavaScript.
+For the full experience including OpenAI-powered personalities and advanced guardrails, you'll need to enter your API key. The playground uses a flexible, secure API key management system that:
+- Stores keys only in your browser (never sent to any server except the intended API)
+- Supports both persistent and session-only storage
+- Provides a clean interface for managing keys in the Preferences panel
+- Automatically handles key validation and error cases
+
+For more details on the API key management system, see [API Key Management](documentation/api_key_management.md).
 
 ## Features
 - Clean, intuitive chat interface

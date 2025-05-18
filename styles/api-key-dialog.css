@@ -1,0 +1,68 @@
+.api-key-dialog {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+}
+
+.api-key-dialog-content {
+    background: #fff;
+    padding: 28px 24px 20px 24px;
+    border-radius: 10px;
+    box-shadow: 0 4px 32px rgba(0,0,0,0.18);
+    min-width: 320px;
+    max-width: 90vw;
+    text-align: left;
+}
+
+.api-key-dialog h3 {
+    margin: 0 0 20px 0;
+    color: #333;
+}
+
+.api-key-dialog input[type="password"] {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+.api-key-dialog-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.api-key-dialog button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+#api-key-submit {
+    background-color: #007bff;
+    color: white;
+}
+
+#api-key-submit:hover {
+    background-color: #0056b3;
+}
+
+#api-key-cancel {
+    background-color: #6c757d;
+    color: white;
+}
+
+#api-key-cancel:hover {
+    background-color: #545b62;
+} 

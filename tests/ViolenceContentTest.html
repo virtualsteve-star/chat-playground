@@ -101,11 +101,6 @@
     <script src="../scripts/filters/blocklist.js"></script>
     <script src="test_runner.js"></script>
     <script>
-    window.ensureOpenAIApiKey = async function() {
-        return window.ChatUtils && window.ChatUtils.getApiKey ? window.ChatUtils.getApiKey('openai') : null;
-    };
-    </script>
-    <script>
     // Patch OpenAIModerationFilter to always call with checkViolence: true
     class ViolenceContentOpenAIFilter extends OpenAIModerationFilter {
         async check(prompt) {

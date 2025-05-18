@@ -3,6 +3,26 @@
  * Initializes and manages the chat application
  */
 
+// Clear any existing keys from old storage
+try {
+    localStorage.removeItem('openai');
+} catch (error) {
+    console.error('Error clearing old API keys:', error);
+}
+
+console.log('Registering API key...');
+try {
+    window.apiKeyManager.register({
+        id: 'openai.chat',
+        provider: 'openai',
+        label: 'OpenAI (Chat)'
+    });
+    console.log('API key registered.');
+    console.log('apiKeyManager:', window.apiKeyManager);
+} catch (e) {
+    console.error('API key registration error:', e);
+}
+
 // Global variables
 let currentModel = null;
 let currentPersonality = null;
@@ -125,8 +145,9 @@ async function handlePersonalityChange(event) {
         // --- NEW: Check for OpenAI key immediately if GPT model selected ---
         const isGPT = (modelName === 'ChatGPT 4o-mini');
         if (isGPT) {
-            // Get key from localStorage using the proper getApiKey function
-            const key = window.ChatUtils.getApiKey('openai');
+            // Get key using APIKeyManager
+            const keyObj = await window.apiKeyManager.require('openai.chat');
+            const key = keyObj.get();
             if (!key) {
                 alert('A valid OpenAI API key is required to use this personality. Please add your API key in Preferences.');
                 return;
@@ -345,8 +366,13 @@ async function applyOutputFilters(response) {
 }
 
 async function ensureOpenAIApiKey() {
-    // Get key directly from localStorage
-    return window.ChatUtils.getApiKey ? window.ChatUtils.getApiKey('openai') : null;
+    try {
+        const key = await window.apiKeyManager.require('openai.chat');
+        return key.get();
+    } catch (error) {
+        console.error('Error getting OpenAI API key:', error);
+        return null;
+    }
 }
 
 // Helper for OpenAI Moderation rejection message
@@ -639,12 +665,12 @@ function setupPreferencesPanel() {
 
     // Update key status display
     function updateKeyStatus() {
-        const key = window.ChatUtils.getApiKey('openai');
+        const key = window.apiKeyManager.get('openai.chat');
         const keyStatus = document.getElementById('openai-key-status');
         const clearKeyBtn = document.getElementById('clear-openai-key');
         const addKeyBtn = document.getElementById('add-openai-key');
         
-        if (key) {
+        if (key.isSet()) {
             keyStatus.textContent = 'Set';
             clearKeyBtn.style.display = 'inline-block';
             addKeyBtn.style.display = 'none';
@@ -659,8 +685,6 @@ function setupPreferencesPanel() {
     prefsBtn.addEventListener('click', () => {
         prefsPanel.classList.add('open');
         prefsOverlay.classList.add('open');
-        // Re-select the clear key button in case it was added dynamically
-        const clearKeyBtn = document.getElementById('clear-openai-key');
         updateKeyStatus();
     });
 
@@ -677,28 +701,29 @@ function setupPreferencesPanel() {
 
     // Add Key button handler
     addKeyBtn.addEventListener('click', async () => {
-        const key = prompt('Please enter your OpenAI API key:');
-        if (key) {
-            const sanitizedKey = window.ChatUtils.sanitizeOpenAIKey(key);
-            if (window.ChatUtils.validateOpenAIKeyFormat(sanitizedKey)) {
-                if (await window.ChatUtils.testOpenAIKey(sanitizedKey)) {
-                    window.ChatUtils.saveApiKey('openai', sanitizedKey);
-                    updateKeyStatus();
-                } else {
-                    alert('Invalid API key. Please check your key and try again.');
-                }
-            } else {
-                alert('Invalid API key format. Please enter a valid OpenAI API key.');
-            }
+        try {
+            await window.apiKeyManager.require('openai.chat');
+            updateKeyStatus();
+        } catch (error) {
+            console.error('Error adding API key:', error);
         }
     });
 
     // Clear Key button handler
     clearKeyBtn.addEventListener('click', () => {
-        window.ChatUtils.saveApiKey('openai', null);
+        window.apiKeyManager.clear('openai.chat');
         if (currentModel && currentModel.clearApiKey) {
             currentModel.clearApiKey();
         }
+        updateKeyStatus();
+    });
+
+    // Listen for key changes
+    window.apiKeyManager.on('keyChanged', () => {
+        updateKeyStatus();
+    });
+
+    window.apiKeyManager.on('keyCleared', () => {
         updateKeyStatus();
     });
 

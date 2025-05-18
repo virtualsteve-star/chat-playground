@@ -145,11 +145,44 @@ This document explains how to extend the chat playground with new personalities,
 
 ---
 
-## 4. OpenAI API Key Management
+## 4. API Key Management
 
-- The OpenAI API key is required for GPT personalities and OpenAI-powered guardrails.
-- The key is stored only in browser localStorage (never sent to any server except OpenAI).
-- Users can add or clear their key in the Preferences panel.
+The playground uses a flexible, extensible API key management system that supports multiple providers and storage strategies. This system is designed to be secure, user-friendly, and easy to extend.
+
+### Key Concepts
+- **APIKeyManager:** Singleton that manages all API keys, provides registration, retrieval, and event hooks
+- **APIKey:** Represents a single key, tied to a provider and storage strategy
+- **StorageStrategy:** Abstracts how/where a key is stored (e.g., localStorage, in-memory)
+
+### Using the Key Manager
+1. **Register a key:**
+   ```js
+   window.apiKeyManager.register({
+       id: 'myprovider.key',
+       provider: 'myprovider',
+       label: 'My Provider Key'
+   });
+   ```
+
+2. **Retrieve a key:**
+   ```js
+   const keyObj = await window.apiKeyManager.require('myprovider.key');
+   const apiKey = keyObj.get();
+   ```
+
+3. **Listen for key events:**
+   ```js
+   window.apiKeyManager.on('keyChanged', (keyId) => {
+       // Handle key change
+   });
+   ```
+
+### Adding a New Provider
+1. Register your provider's key with a unique ID
+2. Use the manager to retrieve the key where needed
+3. Handle key validation and error cases appropriately
+
+For more details, see [API Key Management](api_key_management.md).
 
 ---
 

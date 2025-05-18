@@ -20,6 +20,7 @@ In Steve's Chat Playground, a **model** is the underlying engine that generates 
   - This model connects to OpenAI's ChatGPT 4o-mini via API, providing advanced natural language understanding and generation capabilities.
   - It supports more sophisticated, context-aware conversations and can handle a wider range of topics and instructions.
   - Requires an OpenAI API key and internet connectivity.
+  - The model integrates with the playground's API key management system for secure key handling and validation.
   - **Limitations:** Subject to OpenAI's usage policies, rate limits, and potential costs. Responses may vary based on OpenAI's model updates.
 
 ### Vulnerable RAG Bot (OpenAI)
