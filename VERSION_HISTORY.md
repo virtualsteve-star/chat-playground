@@ -9,6 +9,10 @@
 - Preferences and test suites reflect key status and allow key entry/clearing.
 - AI-powered tests are skipped (with clear UI/summary) if the API key is not set; local-only tests always run.
 - Docs and test suite UI clarify API key requirements and skipping behavior.
+- Added key storage options:
+  - Single session (in-memory) storage for enhanced privacy
+  - Persistent (localStorage) storage option for convenience
+  - Clear UI controls for managing storage preference
 
 ---
 
