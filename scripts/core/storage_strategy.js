@@ -24,6 +24,25 @@ class StorageStrategy {
     }
 }
 
+class InMemoryStrategy extends StorageStrategy {
+    constructor() {
+        super('memory');
+        this.store = new Map();
+    }
+
+    load(id) {
+        return this.store.get(id) || null;
+    }
+
+    save(id, value) {
+        this.store.set(id, value);
+    }
+
+    clear(id) {
+        this.store.delete(id);
+    }
+}
+
 class LocalStorageStrategy extends StorageStrategy {
     constructor() {
         super('localStorage');
@@ -64,4 +83,5 @@ class LocalStorageStrategy extends StorageStrategy {
 
 // Export the classes
 window.StorageStrategy = StorageStrategy;
+window.InMemoryStrategy = InMemoryStrategy;
 window.LocalStorageStrategy = LocalStorageStrategy; 

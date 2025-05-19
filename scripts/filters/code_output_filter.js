@@ -49,9 +49,6 @@ class CodeOutputFilter {
             throw new Error('Code output filter not initialized');
         }
         const { score, matchedRules, matchDetails } = this.calculateScoreWithMatches(message);
-        console.log('Code Output Filter - Message:', message);
-        console.log('Code Output Filter - Matched Rules:', matchedRules);
-        console.log('Code Output Filter - Score:', score);
         return {
             blocked: score >= this.threshold,
             score,
@@ -72,11 +69,9 @@ class CodeOutputFilter {
             // Reset lastIndex for global regexes
             if (regex.global) regex.lastIndex = 0;
             let match;
-            console.log('Code Output Filter - Testing rule:', rule.description, 'Pattern:', regex);
             while ((match = regex.exec(message)) !== null) {
                 matches.push(match[0]);
                 actualScore += rule.weight;
-                console.log('Code Output Filter - Rule matched:', rule.description, 'Match:', match[0]);
             }
             if (matches.length > 0) {
                 matchedRules.push(rule);

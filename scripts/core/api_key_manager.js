@@ -28,7 +28,19 @@ class APIKeyManager {
                 throw new Error(`API key with id ${descriptor.id} already registered`);
             }
 
-            const strategy = new LocalStorageStrategy(); // Start with LocalStorageStrategy
+            // Check if a persistent key exists in localStorage
+            let strategy;
+            try {
+                const keyName = `apiKey:${descriptor.id}`;
+                const value = localStorage.getItem(keyName);
+                if (value) {
+                    strategy = new LocalStorageStrategy();
+                } else {
+                    strategy = new InMemoryStrategy();
+                }
+            } catch (e) {
+                strategy = new InMemoryStrategy();
+            }
             const key = new APIKey(descriptor, strategy);
             this.registry.set(descriptor.id, key);
         }
@@ -80,13 +92,26 @@ class APIKeyManager {
     }
 
     async promptForKey(key) {
-        return new Promise((resolve, reject) => {
-            const value = prompt(`Please enter your ${key.getLabel()} API key:`);
+        return new Promise(async (resolve, reject) => {
+            const value = window.prompt(`Please enter your ${key.getLabel()} API key:`);
             if (value && value.trim()) {
-                // Optionally validate here
-                key.set(value.trim());
-                this.notify('keyChanged', key.getId());
-                resolve(key);
+                try {
+                    // Validate the key if it's OpenAI
+                    if (key.getProvider() === 'openai') {
+                        const isValid = await this.validateOpenAIKey(value.trim());
+                        if (!isValid) {
+                            alert('Invalid API key. Please check and try again.');
+                            reject(new Error('Invalid API key.'));
+                            return;
+                        }
+                    }
+                    key.set(value.trim());
+                    this.notify('keyChanged', key.getId());
+                    resolve(key);
+                } catch (error) {
+                    alert('Error setting API key: ' + error.message);
+                    reject(error);
+                }
             } else {
                 reject(new Error('API key entry cancelled'));
             }

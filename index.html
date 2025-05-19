@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="styles/green-screen.css" disabled>
     <link rel="stylesheet" href="styles/imessage.css" disabled>
     <link rel="stylesheet" href="styles/imessage-dark.css">
-    <link rel="stylesheet" href="styles/api-key-dialog.css">
     <style>
         /* Style the Input Filters button to look like a select */
         #input-filters-button {
@@ -261,6 +260,12 @@
                         <h3>API Keys</h3>
                         <div id="openai-key-section">
                             <p>OpenAI API Key Status: <span id="openai-key-status">Not Set</span></p>
+                            <div style="margin-bottom: 8px;">
+                                <label title="If checked, the key is saved in your browser's local storage so you won't have to re-enter it next time on this device." style="display: flex; align-items: center; cursor: pointer;">
+                                    <input type="checkbox" id="openai-key-persist" style="margin-right: 6px;" />
+                                    Store Between Sessions
+                                </label>
+                            </div>
                             <div id="openai-key-actions">
                                 <button id="add-openai-key" class="action-button">Add Key</button>
                                 <button id="clear-openai-key" class="action-button" style="display: none;">Clear Key</button>

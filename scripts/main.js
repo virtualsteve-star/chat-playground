@@ -10,18 +10,12 @@ try {
     console.error('Error clearing old API keys:', error);
 }
 
-console.log('Registering API key...');
-try {
-    window.apiKeyManager.register({
-        id: 'openai.chat',
-        provider: 'openai',
-        label: 'OpenAI (Chat)'
-    });
-    console.log('API key registered.');
-    console.log('apiKeyManager:', window.apiKeyManager);
-} catch (e) {
-    console.error('API key registration error:', e);
-}
+// Register the OpenAI chat API key before any access
+window.apiKeyManager.register({
+    id: 'openai.chat',
+    provider: 'openai',
+    label: 'OpenAI (Chat)'
+});
 
 // Global variables
 let currentModel = null;
@@ -145,15 +139,14 @@ async function handlePersonalityChange(event) {
         // --- NEW: Check for OpenAI key immediately if GPT model selected ---
         const isGPT = (modelName === 'ChatGPT 4o-mini');
         if (isGPT) {
-            // Get key using APIKeyManager
-            const keyObj = await window.apiKeyManager.require('openai.chat');
-            const key = keyObj.get();
-            if (!key) {
+            // Check if the key is set without prompting
+            const keyObj = window.apiKeyManager.get('openai.chat');
+            if (!keyObj.isSet()) {
                 alert('A valid OpenAI API key is required to use this personality. Please add your API key in Preferences.');
                 return;
             }
             // Proceed with model initialization with the key
-            await doModelInit(key);
+            await doModelInit(keyObj.get());
         } else {
             // Proceed with model initialization for non-GPT models
             await doModelInit();
@@ -662,22 +655,30 @@ function setupPreferencesPanel() {
     const addKeyBtn = document.getElementById('add-openai-key');
     const clearKeyBtn = document.getElementById('clear-openai-key');
     const keyStatus = document.getElementById('openai-key-status');
+    const persistCheckbox = document.getElementById('openai-key-persist');
 
-    // Update key status display
+    // Default: unchecked (session-only)
+    persistCheckbox.checked = false;
+
+    // Update key status display and checkbox state
     function updateKeyStatus() {
         const key = window.apiKeyManager.get('openai.chat');
         const keyStatus = document.getElementById('openai-key-status');
         const clearKeyBtn = document.getElementById('clear-openai-key');
         const addKeyBtn = document.getElementById('add-openai-key');
+        const persistCheckbox = document.getElementById('openai-key-persist');
         
         if (key.isSet()) {
             keyStatus.textContent = 'Set';
             clearKeyBtn.style.display = 'inline-block';
             addKeyBtn.style.display = 'none';
+            persistCheckbox.disabled = true;
+            persistCheckbox.checked = key.strategy.name === 'localStorage';
         } else {
             keyStatus.textContent = 'Not Set';
             clearKeyBtn.style.display = 'none';
             addKeyBtn.style.display = 'inline-block';
+            persistCheckbox.disabled = false;
         }
     }
 
@@ -702,6 +703,11 @@ function setupPreferencesPanel() {
     // Add Key button handler
     addKeyBtn.addEventListener('click', async () => {
         try {
+            // Set the storage strategy based on the checkbox before prompting
+            const key = window.apiKeyManager.get('openai.chat');
+            const usePersistent = persistCheckbox.checked;
+            const strategy = usePersistent ? new window.LocalStorageStrategy() : new window.InMemoryStrategy();
+            key.switchStrategy(strategy);
             await window.apiKeyManager.require('openai.chat');
             updateKeyStatus();
         } catch (error) {
@@ -724,6 +730,15 @@ function setupPreferencesPanel() {
     });
 
     window.apiKeyManager.on('keyCleared', () => {
+        updateKeyStatus();
+    });
+
+    window.apiKeyManager.on('strategyChanged', () => {
+        updateKeyStatus();
+    });
+
+    // Checkbox change updates storage mode display
+    persistCheckbox.addEventListener('change', () => {
         updateKeyStatus();
     });
 
