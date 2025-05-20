@@ -1,6 +1,6 @@
 # Version History
 
-## 0.8.1 (2025-05-19)
+## 0.8.1 (2025-05-20)
 
 ### API Key Management Overhaul
 - New extensible API key manager for all OpenAI access (future multi-provider support).
