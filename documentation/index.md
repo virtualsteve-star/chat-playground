@@ -22,6 +22,14 @@ Welcome to the documentation for Steve's Chat Playground! This guide will help y
 - Available filter types (blocklist, heuristic, AI-powered)
 - Security features and limitations
 
+## Data Flow: How Guardrails and Personalities Work Together
+
+<img src="DataFlow.svg" alt="Data Flow Diagram" style="max-width: 100%; height: auto; margin: 16px 0;">
+
+When a user submits a message, it first passes through a series of configurable **Input Filters** (guardrails) that can block or modify risky content. The filtered prompt is then passed to a selected **Personality**, which determines how the chatbot behaves (e.g., therapist, banker, jailbroken model). A Personality is defined as **Model + Instructions**. After generating a response, the output is then screened by **Output Filters** (guardrails) to catch policy violations before being displayed in the chat window.
+
+This layered design makes it easy to test how different filters and bot configurations affect system behavior—all without modifying backend code. Input and output filters are both types of guardrails, designed to help ensure the personality stays in alignment with your safety and policy requirements.
+
 ## Testing & Validation
 
 ### [Tests](tests.md)
