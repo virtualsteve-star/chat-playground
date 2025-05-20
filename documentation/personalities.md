@@ -42,7 +42,7 @@ Each personality is defined in `config/personalities.properties` and references 
 - **Model:** SimpleBot
 - **Resource:** `personalities/vuln_doctor_rules.txt`
 - **Description:**
-  - Simulates a doctor, but with intentionally included backdoor activation phrases for security testing.
+  - Simulates a doctor, but with intentionally included backdoor activation phrases for security testing.  He will returned unwanted source code in response to certain prompts (try "steal" and "hack")
   - Useful for demonstrating prompt injection, backdoor vulnerabilities, and adversarial testing.
   - **Security Note:** This personality is intentionally vulnerable for educational purposes.  It will work normally in most circumstances and then misbehave with certain backdoor phrases.
 
@@ -54,12 +54,13 @@ Each personality is defined in `config/personalities.properties` and references 
   - Useful for testing the effectiveness of input/output filters and guardrails.
   - **Security Note:** This personality is intentionally designed to bypass normal restrictions for demonstration.
 
-### MailMate (Vulnerable Email)
+### MailMate (Vulnerable RAG)
 - **Model:** OpenAI (ChatGPT 4o-mini)
 - **Resource:** `personalities/vuln_email_prompt.txt`
 - **Description:**
   - A vulnerable Retrieval-Augmented Generation (RAG) bot built on OpenAI's models.
-  - Demonstrates indirect prompt injection vulnerabilities in RAG systems.
+  - Demonstrates indirect prompt injection vulnerabilities in a RAG system emulating an email assistant function.  Email is accessed via (sometimes dangerous) JSON content.
+  - Watch out for the email from super villain Lex Luthor!
   - **Security Note:** This personality is intentionally vulnerable for educational purposes.
 
 ## How Personalities Are Configured

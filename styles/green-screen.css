@@ -266,9 +266,9 @@ select:focus {
     width: 320px !important;
     height: 100% !important;
     background: #000 !important;
-    color: #0f0 !important;
-    border: 1px solid #0f0 !important;
-    box-shadow: none !important;
+    color: #33ff33 !important;
+    border: 1px solid #33ff33 !important;
+    box-shadow: 0 0 16px 2px rgba(51,255,51,0.15) !important;
     z-index: 2000 !important;
     transition: right 0.3s cubic-bezier(.4,0,.2,1) !important;
     padding: 24px 20px 20px 20px !important;
@@ -296,11 +296,57 @@ select:focus {
     box-shadow: none !important;
 }
 
+.green-screen .side-panel .panel-content {
+    background: #0a0a0a !important;
+    border-radius: 6px !important;
+    padding: 10px 10px 10px 10px !important;
+    margin: 4px 0 0 0 !important;
+}
+
 .green-screen .side-panel label,
+.green-screen .side-panel .tree-children label {
+    color: #33ff33 !important;
+    font-weight: normal !important;
+    font-family: var(--terminal-font) !important;
+    font-size: 0.98em !important;
+    line-height: 1.2 !important;
+    margin-bottom: 1px !important;
+    letter-spacing: 0.01em !important;
+    padding: 1px 0 1px 2px !important;
+    border-radius: 2px !important;
+    transition: background 0.15s, box-shadow 0.15s !important;
+}
+.green-screen .side-panel label:hover,
+.green-screen .side-panel .tree-children label:hover {
+    background: #111 !important;
+    box-shadow: 0 0 8px 1px #33ff33 !important;
+}
+.green-screen .side-panel input[type="checkbox"] {
+    accent-color: #33ff33 !important;
+    width: 16px !important;
+    height: 16px !important;
+    margin-right: 6px !important;
+    vertical-align: middle !important;
+    filter: drop-shadow(0 0 2px #33ff33);
+}
+.green-screen .side-panel .tree-section {
+    color: #33ff33 !important;
+    font-weight: bold !important;
+    font-size: 1.08em !important;
+    margin: 8px 0 4px 0 !important;
+    letter-spacing: 0.02em !important;
+    text-shadow: 0 0 8px #33ff33 !important;
+    cursor: pointer !important;
+    padding: 4px 0 4px 0 !important;
+    border-radius: 2px !important;
+    transition: background 0.15s, box-shadow 0.15s !important;
+}
+.green-screen .side-panel .tree-section:hover {
+    background: #111 !important;
+    box-shadow: 0 0 12px 2px #33ff33 !important;
+}
 .green-screen .side-panel .tree-children {
-    display: block !important;
-    margin-bottom: 6px !important;
-    white-space: normal !important;
+    margin-bottom: 4px !important;
 }
 
 .green-screen #guardrails-panel.open,

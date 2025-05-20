@@ -96,6 +96,16 @@
         <tbody id="resultsBody"></tbody>
     </table>
 
+    <script src="../scripts/core/storage_strategy.js"></script>
+    <script src="../scripts/core/api_key.js"></script>
+    <script src="../scripts/core/api_key_manager.js"></script>
+    <script>
+    window.apiKeyManager.register({
+        id: 'openai.chat',
+        provider: 'openai',
+        label: 'OpenAI (Chat)'
+    });
+    </script>
     <script src="../scripts/utils.js"></script>
     <script src="../scripts/filters/api_filter.js"></script>
     <script src="../scripts/filters/prompt_injection_filter.js"></script>
@@ -115,11 +125,6 @@
                 console.error('Error loading prompt template:', error);
                 throw error;
             }
-        };
-
-        // Ensure ensureOpenAIApiKey is defined globally for OpenAIPromptInjectionFilter
-        window.ensureOpenAIApiKey = async function() {
-            return window.ChatUtils.getApiKey ? window.ChatUtils.getApiKey('openai') : null;
         };
 
         // Monkey-patch PromptInjectionFilter to have a check() method for compatibility with the runner

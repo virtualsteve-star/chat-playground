@@ -48,6 +48,35 @@ function parseCSV(text) {
     return rows;
 }
 
+// Centralized OpenAI API key access for all test pages
+window.ensureOpenAIApiKey = async function() {
+    if (window.apiKeyManager && window.apiKeyManager.require) {
+        const keyObj = await window.apiKeyManager.require('openai.chat');
+        return keyObj.get();
+    }
+    // Fallback: try legacy method if APIKeyManager is not loaded
+    if (window.ChatUtils && window.ChatUtils.getApiKey) {
+        return window.ChatUtils.getApiKey('openai');
+    }
+    return null;
+};
+
+// Utility to check if OpenAI API key is set
+window.isOpenAIApiKeySet = async function() {
+    if (window.apiKeyManager && window.apiKeyManager.get) {
+        try {
+            const keyObj = window.apiKeyManager.get('openai.chat');
+            return !!(keyObj && keyObj.isSet());
+        } catch (e) {
+            return false;
+        }
+    }
+    if (window.ChatUtils && window.ChatUtils.getApiKey) {
+        return !!window.ChatUtils.getApiKey('openai');
+    }
+    return false;
+};
+
 class PromptTestRunner {
     constructor({
         filters, // Array of { name: string, instance: { check(prompt): Promise|Result } }
@@ -126,7 +155,18 @@ class PromptTestRunner {
         for (const filter of this.filters) {
             let verdict = { blocked: false };
             let time = 0;
+            let skippedDueToKey = false;
             try {
+                // If this filter is an OpenAI filter and key is missing, skip
+                if (filter.name.toLowerCase().includes('openai') || filter.name.toLowerCase().includes('ai filter')) {
+                    const keySet = await window.isOpenAIApiKeySet();
+                    if (!keySet) {
+                        skippedDueToKey = true;
+                        verdict = { skipped: true };
+                        results.push({ name: filter.name, skipped: true, time: 0 });
+                        continue;
+                    }
+                }
                 const start = performance.now();
                 if (!filter.instance || typeof filter.instance.check !== 'function') {
                     throw new Error(`Filter ${filter.name} has no check() method`);
@@ -138,15 +178,20 @@ class PromptTestRunner {
                     throw new Error(`Filter ${filter.name} returned invalid result: ${JSON.stringify(verdict)}`);
                 }
             } catch (e) {
-                verdict = { blocked: false, error: e.message || 'Error' };
-                console.error(`Error in filter ${filter.name} for test "${test.name}":`, e);
+                if (!skippedDueToKey) {
+                    verdict = { blocked: false, error: e.message || 'Error' };
+                    console.error(`Error in filter ${filter.name} for test "${test.name}":`, e);
+                }
             }
-            results.push({
-                name: filter.name,
-                blocked: verdict.blocked,
-                error: verdict.error,
-                time
-            });
+            if (!skippedDueToKey) {
+                results.push({
+                    name: filter.name,
+                    blocked: verdict.blocked,
+                    error: verdict.error,
+                    time,
+                    skipped: verdict.skipped
+                });
+            }
         }
         return results;
     }
@@ -166,7 +211,19 @@ class PromptTestRunner {
 
         let correct = Array(this.filters.length).fill(0);
         let times = Array(this.filters.length).fill(null).map(() => []);
+        let skipped = Array(this.filters.length).fill(false);
         let testsRun = 0;
+
+        // Pre-check which filters will be skipped due to missing key
+        for (let idx = 0; idx < this.filters.length; idx++) {
+            const filter = this.filters[idx];
+            if (filter.name.toLowerCase().includes('openai') || filter.name.toLowerCase().includes('ai filter')) {
+                const keySet = await window.isOpenAIApiKeySet();
+                if (!keySet) {
+                    skipped[idx] = true;
+                }
+            }
+        }
 
         this.stopRequested = false;
         for (let i = 0; i < this.tests.length; i++) {
@@ -188,28 +245,34 @@ class PromptTestRunner {
                 <td>${test.name}</td>
                 <td>${test.expected}</td>
                 ${verdicts.map((v, idx) => {
+                    if (skipped[idx] || v.skipped) {
+                        return `<td style="color:#007bff;font-weight:bold;text-align:center;">–</td>`;
+                    }
                     const isCorrect = (!v.error && (
                         (v.blocked && test.expected === this.positiveLabel) ||
                         (!v.blocked && test.expected === 'BENIGN')
                     ));
-                    const reason = v.reason !== undefined ? v.reason : '';
                     return `<td class="${v.error ? 'incorrect' : isCorrect ? 'correct' : 'incorrect'}">${v.error ? '⚠️' : (isCorrect ? '✓' : '✗')}</td>`;
                 }).join('')}
-                ${verdicts.map(v => `<td>${v.time.toFixed(2)}</td>`).join('')}
+                ${verdicts.map((v, idx) => (skipped[idx] || v.skipped) ? `<td style="color:#007bff;text-align:center;">–</td>` : `<td>${v.time.toFixed(2)}</td>`).join('')}
             `;
             if (verdicts.some(v => v.error)) {
                 row.title = verdicts.map(v => v.error).filter(Boolean).join('; ');
             }
             resultsBody.appendChild(row);
             verdicts.forEach((v, idx) => {
-                if (!v.error && ((v.blocked && test.expected === this.positiveLabel) || (!v.blocked && test.expected === 'BENIGN'))) correct[idx]++;
-                times[idx].push(v.time);
+                if (!skipped[idx] && !v.error && ((v.blocked && test.expected === this.positiveLabel) || (!v.blocked && test.expected === 'BENIGN'))) correct[idx]++;
+                if (!skipped[idx]) times[idx].push(v.time);
             });
             testsRun++;
         }
         // Summary
         let summaryHtml = '';
         this.filters.forEach((filter, idx) => {
+            if (skipped[idx]) {
+                summaryHtml += `<p style="color:#007bff;"><strong>${filter.name}:</strong> Not run due to missing API key</p>`;
+                return;
+            }
             const accuracy = testsRun ? (correct[idx] / testsRun * 100).toFixed(1) : '0.0';
             const avg = times[idx].length ? (times[idx].reduce((a, b) => a + b, 0) / times[idx].length) : 0;
             const sorted = [...times[idx]].sort((a, b) => a - b);

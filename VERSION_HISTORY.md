@@ -1,6 +1,22 @@
 # Version History
 
-## 0.8 (May 17, 2025)
+## 0.8.1 (2025-05-20)
+
+### API Key Management Overhaul
+- New extensible API key manager for all OpenAI access (future multi-provider support).
+- All key handling now routed through the manager; legacy methods removed.
+- Simple, always-modal browser prompt for key entry.
+- Preferences and test suites reflect key status and allow key entry/clearing.
+- AI-powered tests are skipped (with clear UI/summary) if the API key is not set; local-only tests always run.
+- Docs and test suite UI clarify API key requirements and skipping behavior.
+- Added key storage options:
+  - Single session (in-memory) storage for enhanced privacy
+  - Persistent (localStorage) storage option for convenience
+  - Clear UI controls for managing storage preference
+
+---
+
+## 0.8 (2025-05-17)
 - Major guardrails/filters upgrade:
   - Added local heuristic/regex-based filters: Prompt Injection, Code generation (output)
   - Added Input Length filter (local, blocks messages over 256 characters)
@@ -23,14 +39,14 @@
 - CSS cleanups: Vanilla is now a true base style, and all theme-specific layout and color is isolated for easier extensibility.
 - Creation of the test suite for prompt injection, sexual content, violence content, and code generation filters. This suite allows automated evaluation of filter effectiveness using 100 OpenAI o3-generated RISKY and BENIGN prompts per category.
 
-## 0.5.1 (May 6, 2025)
+## 0.5.1 (2025-05-06)
 - Tweaks for improved extensibility:
   - Modularized guardrails and moderation filters
   - Added clear documentation for extending personalities, styles, and guardrails
   - Improved code structure for easier extension and maintenance
 - Major cleanup and modularization of Green Screen (terminal) code
 
-## 0.5 (May 5, 2025) — First Release
+## 0.5 (2025-05-05) — First Release
 
 - Browser-based chat playground, no server required
 - Multiple personalities:
@@ -50,3 +66,5 @@
 - Guardrails panel for enabling/disabling filters
 - All data and keys stored locally in browser
 - Extensible architecture for adding new personalities, styles, and guardrails 
+
+--- 

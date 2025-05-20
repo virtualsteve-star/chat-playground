@@ -260,6 +260,12 @@
                         <h3>API Keys</h3>
                         <div id="openai-key-section">
                             <p>OpenAI API Key Status: <span id="openai-key-status">Not Set</span></p>
+                            <div style="margin-bottom: 8px;">
+                                <label title="If checked, the key is saved in your browser's local storage so you won't have to re-enter it next time on this device." style="display: flex; align-items: center; cursor: pointer;">
+                                    <input type="checkbox" id="openai-key-persist" style="margin-right: 6px;" />
+                                    Store Between Sessions
+                                </label>
+                            </div>
                             <div id="openai-key-actions">
                                 <button id="add-openai-key" class="action-button">Add Key</button>
                                 <button id="clear-openai-key" class="action-button" style="display: none;">Clear Key</button>
@@ -334,6 +340,9 @@
     <script src="scripts/filters/input_length_filter.js"></script>
     <script src="scripts/filters/rate_limit_filter.js"></script>
     <script src="scripts/terminal_ui.js"></script>
+    <script src="scripts/core/storage_strategy.js"></script>
+    <script src="scripts/core/api_key.js"></script>
+    <script src="scripts/core/api_key_manager.js"></script>
     <script src="scripts/main.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {

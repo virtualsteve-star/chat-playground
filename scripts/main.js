@@ -3,6 +3,20 @@
  * Initializes and manages the chat application
  */
 
+// Clear any existing keys from old storage
+try {
+    localStorage.removeItem('openai');
+} catch (error) {
+    console.error('Error clearing old API keys:', error);
+}
+
+// Register the OpenAI chat API key before any access
+window.apiKeyManager.register({
+    id: 'openai.chat',
+    provider: 'openai',
+    label: 'OpenAI (Chat)'
+});
+
 // Global variables
 let currentModel = null;
 let currentPersonality = null;
@@ -125,14 +139,14 @@ async function handlePersonalityChange(event) {
         // --- NEW: Check for OpenAI key immediately if GPT model selected ---
         const isGPT = (modelName === 'ChatGPT 4o-mini');
         if (isGPT) {
-            // Get key from localStorage using the proper getApiKey function
-            const key = window.ChatUtils.getApiKey('openai');
-            if (!key) {
+            // Check if the key is set without prompting
+            const keyObj = window.apiKeyManager.get('openai.chat');
+            if (!keyObj.isSet()) {
                 alert('A valid OpenAI API key is required to use this personality. Please add your API key in Preferences.');
                 return;
             }
             // Proceed with model initialization with the key
-            await doModelInit(key);
+            await doModelInit(keyObj.get());
         } else {
             // Proceed with model initialization for non-GPT models
             await doModelInit();
@@ -338,15 +352,20 @@ async function applyOutputFilters(response) {
         }
         if (result.blocked) {
             const rejection = filter.getRejection(result);
-            return rejection;
+            return { text: rejection, rejected: true };
         }
     }
-    return response;
+    return { text: response, rejected: false };
 }
 
 async function ensureOpenAIApiKey() {
-    // Get key directly from localStorage
-    return window.ChatUtils.getApiKey ? window.ChatUtils.getApiKey('openai') : null;
+    try {
+        const key = await window.apiKeyManager.require('openai.chat');
+        return key.get();
+    } catch (error) {
+        console.error('Error getting OpenAI API key:', error);
+        return null;
+    }
 }
 
 // Helper for OpenAI Moderation rejection message
@@ -543,10 +562,9 @@ async function handleSendMessage() {
         }
         response = await applyOutputFilters(response);
         window.ChatUtils.removeFilteringBubble();
-        if (response) {
-            const isRejection = selectedOutputFilters.length > 0;
-            window.ChatUtils.addMessageToChat(response, false, isRejection);
-            messageHistory.push({ role: 'assistant', content: response });
+        if (response && response.text) {
+            window.ChatUtils.addMessageToChat(response.text, false, response.rejected);
+            messageHistory.push({ role: 'assistant', content: response.text });
         }
     }
     // Show working indicator
@@ -637,22 +655,30 @@ function setupPreferencesPanel() {
     const addKeyBtn = document.getElementById('add-openai-key');
     const clearKeyBtn = document.getElementById('clear-openai-key');
     const keyStatus = document.getElementById('openai-key-status');
+    const persistCheckbox = document.getElementById('openai-key-persist');
 
-    // Update key status display
+    // Default: unchecked (session-only)
+    persistCheckbox.checked = false;
+
+    // Update key status display and checkbox state
     function updateKeyStatus() {
-        const key = window.ChatUtils.getApiKey('openai');
+        const key = window.apiKeyManager.get('openai.chat');
         const keyStatus = document.getElementById('openai-key-status');
         const clearKeyBtn = document.getElementById('clear-openai-key');
         const addKeyBtn = document.getElementById('add-openai-key');
+        const persistCheckbox = document.getElementById('openai-key-persist');
         
-        if (key) {
+        if (key.isSet()) {
             keyStatus.textContent = 'Set';
             clearKeyBtn.style.display = 'inline-block';
             addKeyBtn.style.display = 'none';
+            persistCheckbox.disabled = true;
+            persistCheckbox.checked = key.strategy.name === 'localStorage';
         } else {
             keyStatus.textContent = 'Not Set';
             clearKeyBtn.style.display = 'none';
             addKeyBtn.style.display = 'inline-block';
+            persistCheckbox.disabled = false;
         }
     }
 
@@ -660,8 +686,6 @@ function setupPreferencesPanel() {
     prefsBtn.addEventListener('click', () => {
         prefsPanel.classList.add('open');
         prefsOverlay.classList.add('open');
-        // Re-select the clear key button in case it was added dynamically
-        const clearKeyBtn = document.getElementById('clear-openai-key');
         updateKeyStatus();
     });
 
@@ -678,28 +702,43 @@ function setupPreferencesPanel() {
 
     // Add Key button handler
     addKeyBtn.addEventListener('click', async () => {
-        const key = prompt('Please enter your OpenAI API key:');
-        if (key) {
-            const sanitizedKey = window.ChatUtils.sanitizeOpenAIKey(key);
-            if (window.ChatUtils.validateOpenAIKeyFormat(sanitizedKey)) {
-                if (await window.ChatUtils.testOpenAIKey(sanitizedKey)) {
-                    window.ChatUtils.saveApiKey('openai', sanitizedKey);
-                    updateKeyStatus();
-                } else {
-                    alert('Invalid API key. Please check your key and try again.');
-                }
-            } else {
-                alert('Invalid API key format. Please enter a valid OpenAI API key.');
-            }
+        try {
+            // Set the storage strategy based on the checkbox before prompting
+            const key = window.apiKeyManager.get('openai.chat');
+            const usePersistent = persistCheckbox.checked;
+            const strategy = usePersistent ? new window.LocalStorageStrategy() : new window.InMemoryStrategy();
+            key.switchStrategy(strategy);
+            await window.apiKeyManager.require('openai.chat');
+            updateKeyStatus();
+        } catch (error) {
+            console.error('Error adding API key:', error);
         }
     });
 
     // Clear Key button handler
     clearKeyBtn.addEventListener('click', () => {
-        window.ChatUtils.saveApiKey('openai', null);
+        window.apiKeyManager.clear('openai.chat');
         if (currentModel && currentModel.clearApiKey) {
             currentModel.clearApiKey();
         }
+        updateKeyStatus();
+    });
+
+    // Listen for key changes
+    window.apiKeyManager.on('keyChanged', () => {
+        updateKeyStatus();
+    });
+
+    window.apiKeyManager.on('keyCleared', () => {
+        updateKeyStatus();
+    });
+
+    window.apiKeyManager.on('strategyChanged', () => {
+        updateKeyStatus();
+    });
+
+    // Checkbox change updates storage mode display
+    persistCheckbox.addEventListener('change', () => {
         updateKeyStatus();
     });
 

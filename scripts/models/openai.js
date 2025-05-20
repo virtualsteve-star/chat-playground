@@ -43,8 +43,8 @@ class OpenAIModel {
 
     async initialize(systemPromptPath, apiKey = null) {
         try {
-            // Use provided key if available, otherwise get from localStorage
-            this.apiKey = apiKey || (window.ChatUtils.getApiKey ? window.ChatUtils.getApiKey('openai') : null);
+            // Require the key to be passed explicitly
+            this.apiKey = apiKey;
             if (!this.apiKey) {
                 this.initialized = false;
                 throw new Error('API key is required');
@@ -71,13 +71,10 @@ class OpenAIModel {
             console.error('[OpenAIModel] Not initialized');
             return "OpenAI model is not properly initialized. Please load a system prompt first.";
         }
-        // If the key is missing or invalid, try to get it from localStorage
+        // If the key is missing or invalid, throw an error
         if (!this.apiKey || typeof this.apiKey !== 'string' || !this.apiKey.trim()) {
-            this.apiKey = window.ChatUtils.getApiKey ? window.ChatUtils.getApiKey('openai') : null;
-            if (!this.apiKey) {
-                console.error('[OpenAIModel] API key is not set or is invalid');
-                return "OpenAI API key is not set or is invalid. Please provide your API key.";
-            }
+            console.error('[OpenAIModel] API key is not set or is invalid');
+            return "OpenAI API key is not set or is invalid. Please provide your API key.";
         }
 
         // Create a new AbortController for this request

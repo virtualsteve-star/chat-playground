@@ -95,16 +95,21 @@
         <tbody id="resultsBody"></tbody>
     </table>
 
+    <script src="../scripts/core/storage_strategy.js"></script>
+    <script src="../scripts/core/api_key.js"></script>
+    <script src="../scripts/core/api_key_manager.js"></script>
+    <script>
+    window.apiKeyManager.register({
+        id: 'openai.chat',
+        provider: 'openai',
+        label: 'OpenAI (Chat)'
+    });
+    </script>
     <script src="../scripts/utils.js"></script>
     <script src="../scripts/filters/api_filter.js"></script>
     <script src="../scripts/filters/openai_moderation.js"></script>
     <script src="../scripts/filters/blocklist.js"></script>
     <script src="test_runner.js"></script>
-    <script>
-    window.ensureOpenAIApiKey = async function() {
-        return window.ChatUtils && window.ChatUtils.getApiKey ? window.ChatUtils.getApiKey('openai') : null;
-    };
-    </script>
     <script>
     // Patch OpenAIModerationFilter to always call with checkViolence: true
     class ViolenceContentOpenAIFilter extends OpenAIModerationFilter {

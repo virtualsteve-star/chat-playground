@@ -20,7 +20,7 @@ The chat playground is live at: [https://virtualsteve-star.github.io/chat-playgr
 Try different personalities, guardrails and visual styles directly in your browser - no installation required! The playground offers two tiers of functionality:
 
 ### Local Experience (No API Key Required):
-- SimpleBot personalities (some with build-in vulns)
+- SimpleBot personalities (some with built-in vulnerabilities)
 - Basic rule-based guardrails
 - All visual styles and UI features
 - Perfect for understanding fundamental concepts
@@ -31,7 +31,13 @@ Try different personalities, guardrails and visual styles directly in your brows
 - All local features plus smarter responses
 - Great for exploring more sophisticated interactions
 
-For the full experience including OpenAI-powered personalities and advanced guardrails, you'll need to enter your API key.  It's only stored locally in your browser to invoke OpenAI API calls - not shared with this service.  In fact, the Playground has no backend services with which to share the key!  It all runs locally in your browser as HTML and JavaScript.
+For the full experience including OpenAI-powered personalities and advanced guardrails, you'll need to enter your API key. The playground uses a flexible, secure API key management system that:
+- Stores keys only in your browser (never sent to any server except the intended API)
+- Supports both persistent and session-only storage
+- Provides a clean interface for managing keys in the Preferences panel
+- Automatically handles key validation and error cases
+
+For more details on the API key management system, see [API Key Management](documentation/api_key_management.md).
 
 ## Features
 - Clean, intuitive chat interface
@@ -53,7 +59,7 @@ For the full experience including OpenAI-powered personalities and advanced guar
   - All filters are selectable in the Guardrails panel
   - Custom filters can be added (see EXTENSIBILITY.md)
 - Multiple personalities [Full list and details](documentation/personalities.md)
-  - Complete automated [test suite](documentation/tests.md)
+- Complete automated [test suite](documentation/tests.md)
 
 ## Getting Started
 
@@ -84,73 +90,31 @@ For the full experience including OpenAI-powered personalities and advanced guar
 
 ```
 steves-chat-playground/
-├── index.html              # Main HTML file
-├── README.md               # Main documentation
-├── EXTENSIBILITY.md        # Extensibility guide
-├── VERSION_HISTORY.md      # Version history and release notes
-├── LICENSE                 # License file
-├── documentation/          # Project documentation
-│   ├── models.md            # Model types and configuration
-│   ├── personalities.md     # Personality configuration and details
-│   ├── guardrails.md        # Guardrails/filter documentation
-│   ├── extensibility.md     # Guide for extending the playground
-│   ├── tests.md             # Overview of the test suite
-├── styles/                 # CSS styles
-│   ├── vanilla.css         # Default minimalist style
-│   ├── green-screen.css    # Terminal-style interface
-│   ├── imessage.css        # Modern messaging UI
-│   └── imessage-dark.css   # Dark mode for iMessage UI
-├── scripts/                # JavaScript files
-│   ├── main.js             # Main application logic
-│   ├── terminal_ui.js      # Green Screen (terminal) UI logic
-│   ├── utils.js            # Utility functions
-│   ├── filters/            # Guardrails/filter logic
-│   │   ├── blocklist.js         # Blocklist filter implementation
-│   │   ├── code_output_filter.js # Heuristic code output filter (local)
-│   │   ├── prompt_injection_filter.js # Heuristic prompt injection filter (local)
-│   │   ├── input_length_filter.js # Input length filter (local)
-│   │   ├── rate_limit_filter.js # Rate limit filter (local)
-│   │   ├── openai_prompt_injection.js # OpenAI Nano prompt injection filter
-│   │   ├── api_filter.js        # API filter base class
-│   │   └── openai_moderation.js # OpenAI Moderation API filter
-│   └── models/             # Chat model implementations
-│       ├── simplebot.js    # SimpleBot local model
-│       └── openai.js       # OpenAI remote model
-├── config/                 # Configuration files
-│   ├── models.properties   # Model configurations
-│   ├── styles.properties   # Style configurations
-│   └── personalities.properties  # Personality configurations
-├── personalities/          # Personality resources
-│   ├── therapist_rules.txt       # SimpleBot psychotherapist script
-│   ├── tech_support_prompt.txt   # OpenAI tech support prompt
-│   ├── banker_prompt.txt         # SimpleBot banker script
-│   ├── researcher_prompt.txt     # OpenAI researcher prompt
-│   ├── vuln_doctor_rules.txt     # SimpleBot backdoored doctor script (Hopper)
-│   ├── vuln_rude_rules.txt       # SimpleBot jailbroken/rude script (Oscar)
-│   └── vuln_email_prompt.txt     # OpenAI vulnerable prompt
-├── filters/                # Blocklist files for guardrails
-│   ├── sex_blocklist.txt        # Sexual content blocklist
-│   └── violence_blocklist.txt   # Violence content blocklist
-├── assets/                 # Application assets
-│   └── graphics/           # Image assets including feedback icons
-├── tests/                  # Automated tests and test suites
-│   ├── openai.test.js              # Unit tests for OpenAI model integration
-│   ├── setup.js                    # Test setup and utilities
-│   ├── utils.test.js               # Unit tests for utility functions
-│   ├── eliza.test.js               # Unit tests for the Eliza (SimpleBot) model
-│   ├── main.test.js                # Main application logic tests
-│   ├── index.html                  # Test suite launcher and dashboard
-│   ├── PromptInjectionTest.html    # Prompt injection filter test suite
-│   ├── SexualContentTest.html      # Sexual content filter test suite
-│   ├── ViolenceContentTest.html    # Violence content filter test suite
-│   ├── CodeGenerationTest.html     # Code output filter test suite
-│   ├── test_runner.js              # Shared test runner logic for browser-based suites
-│   ├── code_generation_responses_test_set.csv   # Test data: code output filter
-│   ├── prompt_injection_test_set.csv            # Test data: prompt injection filter
-│   ├── sexual_content_test_set.csv              # Test data: sexual content filter
-│   └── violence_content_test_set.csv            # Test data: violence content filter
-└── .gitignore, .DS_Store, etc.   # Miscellaneous and git files
+├── index.html            # Main app page
+├── README.md             # Docs
+├── EXTENSIBILITY.md      # Extending guide
+├── VERSION_HISTORY.md    # Release notes
+├── LICENSE               # License
+├── favicon.ico           # Site icon
+├── assets/               # Images/assets
+├── config/               # Config files
+├── documentation/        # Docs
+├── historical/           # Legacy files
+├── personalities/        # Bot scripts/prompts
+├── scripts/              # JavaScript
+├── styles/               # CSS
+├── tests/                # Test suites/data
+└── .gitignore, .DS_Store, etc.   # Misc files
 ```
+
+## Data Flow: How Guardrails and Personalities Work Together
+
+<img src="documentation/DataFlow.svg" alt="Data Flow Diagram" style="max-width: 100%; height: auto; margin: 16px 0;">
+
+When a user submits a message, it first passes through a series of configurable **Input Filters** (guardrails) that can block or modify risky content. The filtered prompt is then passed to a selected **Personality**, which determines how the chatbot behaves (e.g., therapist, banker, jailbroken model). A Personality is defined as **Model + Instructions**. After generating a response, the output is then screened by **Output Filters** (guardrails) to catch policy violations before being displayed in the chat window.
+
+This layered design makes it easy to test how different filters and bot configurations affect system behavior—all without modifying backend code. Input and output filters are both types of guardrails, designed to help ensure the personality stays in alignment with your safety and policy requirements.
+
 ## Test Suite for Guardrails
 
 There is an included [automated test suite](documentation/tests.md) for guardrails and filters. This suite enables automated, bulk testing of all input and output filters (guardrails) in the playground. It includes hundreds of sample prompts and responses—100 RISKY and 100 BENIGN examples per category—generated by OpenAI's o3 model. The test suite covers:
