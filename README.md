@@ -90,21 +90,19 @@ For more details on the API key management system, see [API Key Management](docu
 
 ```
 steves-chat-playground/
-├── index.html            # Main app page
-├── README.md             # Docs
-├── EXTENSIBILITY.md      # Extending guide
+├── README.md             # Main project readme
 ├── VERSION_HISTORY.md    # Release notes
 ├── LICENSE               # License
 ├── favicon.ico           # Site icon
-├── assets/               # Images/assets
-├── config/               # Config files
-├── documentation/        # Docs
-├── historical/           # Legacy files
+├── index.html            # Main app page
+├── assets/               # Images and graphics
+├── config/               # Config files for models, personalities, styles
+├── documentation/        # All documentation (extensibility, models, etc.)
+├── historical/           # Legacy/archived files (API specs, etc.)
 ├── personalities/        # Bot scripts/prompts
-├── scripts/              # JavaScript
-├── styles/               # CSS
-├── tests/                # Test suites/data
-└── .gitignore, .DS_Store, etc.   # Misc files
+├── scripts/              # JavaScript source code
+├── styles/               # CSS stylesheets
+└── tests/                # Test suites and data
 ```
 
 ## Data Flow: How Guardrails and Personalities Work Together
