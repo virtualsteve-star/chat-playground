@@ -1,6 +1,10 @@
 # Version History
 
 ## 0.8.1 (2025-05-20)
+- Fixed path bug causing Blocklists to fail in deployment on GitHub pages.
+- Added social preview for Twitter/X
+
+## 0.8.1 (2025-05-20)
 
 ### API Key Management Overhaul
 - New extensible API key manager for all OpenAI access (future multi-provider support).
