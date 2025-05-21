@@ -53,8 +53,8 @@ For more details on the API key management system, see [API Key Management](docu
 - **Guardrails (Input & Output Filters):**
   - Local blocklist filters (e.g., Sex, Violence)
   - Heuristic/regex-based filters (e.g., Prompt Injection, Code)
-  - **Input Length filter (local, blocks messages over 256 characters)**
-  - **Rate Limit filter (local, max 10 prompts per minute)**
+  - Input Length filter (local, blocks messages over 256 characters)
+  - Rate Limit filter (local, max 10 prompts per minute)
   - AI-powered filters (OpenAI Moderation, OpenAI Nano Prompt Injection)
   - All filters are selectable in the Guardrails panel
   - Custom filters can be added (see EXTENSIBILITY.md)

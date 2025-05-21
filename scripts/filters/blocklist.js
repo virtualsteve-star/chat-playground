@@ -17,8 +17,10 @@ class BlocklistFilter {
         try {
             // Load blocklists with cache-busting
             const timestamp = new Date().getTime();
-            const sexResponse = await fetch(`/scripts/filters/sex_blocklist.txt?t=${timestamp}`);
-            const violenceResponse = await fetch(`/scripts/filters/violence_blocklist.txt?t=${timestamp}`);
+            // Dynamically resolve base path for both main app and /tests
+            const base = window.location.pathname.includes('/tests/') ? '../' : '';
+            const sexResponse = await fetch(base + 'scripts/filters/sex_blocklist.txt?t=' + timestamp);
+            const violenceResponse = await fetch(base + 'scripts/filters/violence_blocklist.txt?t=' + timestamp);
             
             const sexText = await sexResponse.text();
             const violenceText = await violenceResponse.text();
