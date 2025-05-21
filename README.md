@@ -2,7 +2,7 @@
 
 A companion project to [The Developer's Playbook for Large Language Model Security](https://www.amazon.com/Developers-Playbook-Large-Language-Security/dp/109816220X) and the [OWASP Top 10 for LLM Applications](https://genai.owasp.org), this open-source HTML/JavaScript application provides a hands-on environment for experimenting with various chat models, personalities, guardrails and user interfaces locally, quickly and with zero connectivity or cost.
 
-**▶️ [Watch the Demo Video](https://youtu.be/3lPvKyifFMI)**
+**▶️ [Watch the Demo Video](https://youtu.be/ZRcW4mnuoTM)**
 
 With the rapid evolution of LLM and Generative AI technology (new models, techniques, agents, etc.), it's become increasingly challenging for developers to find a practical starting point for hands-on experimentation. This playground addresses that need by offering:
 
