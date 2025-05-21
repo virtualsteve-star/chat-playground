@@ -216,34 +216,6 @@ const loadProperties = (filePath) => {
     }
 };
 
-// Centralized OpenAI API Key Logic
-function sanitizeOpenAIKey(key) {
-    if (!key) return '';
-    // Remove all whitespace, newlines, and trim
-    return key.replace(/\s+/g, '').trim();
-}
-
-function validateOpenAIKeyFormat(key) {
-    // Must start with sk- and be a reasonable length (48+ chars)
-    return typeof key === 'string' && key.startsWith('sk-') && key.length >= 48 && key.length < 200;
-}
-
-async function testOpenAIKey(key) {
-    try {
-        const response = await fetch('https://api.openai.com/v1/models', {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${key}`
-            }
-        });
-        if (response.status === 401) return false; // Unauthorized
-        if (!response.ok) return false;
-        return true;
-    } catch (e) {
-        return false;
-    }
-}
-
 // Export utility functions
 window.ChatUtils = {
     encrypt,
