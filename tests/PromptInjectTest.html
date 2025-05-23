@@ -4,74 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prompt Injection Filter Test Suite</title>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            background: #f5f5f5;
-        }
-        h1, h2 {
-            color: #333;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            background: white;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background: #f8f9fa;
-            font-weight: 600;
-        }
-        tr:hover {
-            background: #f8f9fa;
-        }
-        .correct {
-            color: #28a745;
-        }
-        .incorrect {
-            color: #dc3545;
-        }
-        .summary {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            margin: 20px 0;
-        }
-        .loading {
-            display: none;
-            margin: 20px 0;
-            padding: 20px;
-            background: #fff3cd;
-            border: 1px solid #ffeeba;
-            border-radius: 4px;
-        }
-        button {
-            background: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        button:hover {
-            background: #0056b3;
-        }
-        button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-    </style>
+    <link rel="stylesheet" href="test_styles.css">
 </head>
 <body>
     <h1>Prompt Injection Filter Test Suite</h1>
@@ -95,7 +28,7 @@
         </thead>
         <tbody id="resultsBody"></tbody>
     </table>
-
+    <!-- scripts -->
     <script src="../scripts/core/storage_strategy.js"></script>
     <script src="../scripts/core/api_key.js"></script>
     <script src="../scripts/core/api_key_manager.js"></script>
@@ -112,60 +45,35 @@
     <script src="../scripts/filters/openai_prompt_injection.js"></script>
     <script src="test_runner.js"></script>
     <script>
-        // Ensure OpenAIPromptInjectionFilter loads its prompt template from the correct path
-        OpenAIPromptInjectionFilter.prototype.loadPromptTemplate = async function() {
-            if (this.promptTemplate) return this.promptTemplate;
-            try {
-                const cacheBustedPath = '../scripts/filters/prompts/openai_prompt_injection.txt' + '?v=' + Date.now();
-                const response = await fetch(cacheBustedPath);
-                if (!response.ok) throw new Error('Failed to load prompt template');
-                this.promptTemplate = await response.text();
-                return this.promptTemplate;
-            } catch (error) {
-                console.error('Error loading prompt template:', error);
-                throw error;
-            }
-        };
-
-        // Monkey-patch PromptInjectionFilter to have a check() method for compatibility with the runner
-        if (typeof PromptInjectionFilter !== 'undefined' && !PromptInjectionFilter.prototype.check) {
-            PromptInjectionFilter.prototype.check = function(prompt) {
-                // Synchronous, so wrap in a Promise for consistency
-                return Promise.resolve(this.checkMessage(prompt));
-            };
+    // Patch OpenAIPromptInjectionFilter to load its prompt template from the correct path
+    OpenAIPromptInjectionFilter.prototype.loadPromptTemplate = async function() {
+        if (this.promptTemplate) return this.promptTemplate;
+        try {
+            const cacheBustedPath = '../scripts/filters/prompts/openai_prompt_injection.txt' + '?v=' + Date.now();
+            const response = await fetch(cacheBustedPath);
+            if (!response.ok) throw new Error('Failed to load prompt template');
+            this.promptTemplate = await response.text();
+            return this.promptTemplate;
+        } catch (error) {
+            console.error('Error loading prompt template:', error);
+            throw error;
         }
-
-        // Instantiate and use the shared PromptTestRunner
-        document.addEventListener('DOMContentLoaded', async () => {
-            const runner = new PromptTestRunner({
-                filters: [
-                    { name: 'Simple Filter', instance: new PromptInjectionFilter() },
-                    { name: 'AI Filter', instance: new OpenAIPromptInjectionFilter() }
-                ],
-                csvPath: 'prompt_test_set.csv',
-                tableBodyId: 'resultsBody',
-                summaryContentId: 'summaryContent',
-                loadingId: 'loading',
-                runBtnId: 'runTests',
-                stopBtnId: 'stopTests',
-                positiveLabel: 'RISKY',
-            });
-            try {
-                await runner.loadTests();
-                document.getElementById('runTests').addEventListener('click', () => {
-                    runner.runAllTests();
-                });
-                document.getElementById('stopTests').addEventListener('click', () => {
-                    runner.requestStop();
-                    document.getElementById('stopTests').disabled = true;
-                });
-            } catch (error) {
-                console.error('Error initializing tests:', error);
-                document.getElementById('summary').style.display = 'block';
-                document.getElementById('summaryContent').innerHTML = 
-                    `<p class="error">Error loading tests: ${error.message}</p>`;
-            }
-        });
+    };
+    // Monkey-patch PromptInjectionFilter to have a check() method for compatibility
+    if (typeof PromptInjectionFilter !== 'undefined' && !PromptInjectionFilter.prototype.check) {
+        PromptInjectionFilter.prototype.check = function(prompt) {
+            return Promise.resolve(this.checkMessage(prompt));
+        };
+    }
+    window.TEST_CONFIG = {
+        filters: [
+            { name: 'Simple Filter', instance: new PromptInjectionFilter() },
+            { name: 'AI Filter', instance: new OpenAIPromptInjectionFilter() }
+        ],
+        csvPath: 'prompt_test_set.csv',
+        positiveLabel: 'RISKY'
+    };
     </script>
+    <script src="shared_test_setup.js"></script>
 </body>
 </html> 

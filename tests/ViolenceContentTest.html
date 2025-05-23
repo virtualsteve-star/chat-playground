@@ -4,74 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Violence Content Filter Test Suite</title>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-            background: #f5f5f5;
-        }
-        h1, h2 {
-            color: #333;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            background: white;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background: #f8f9fa;
-            font-weight: 600;
-        }
-        tr:hover {
-            background: #f8f9fa;
-        }
-        .correct {
-            color: #28a745;
-        }
-        .incorrect {
-            color: #dc3545;
-        }
-        .summary {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            margin: 20px 0;
-        }
-        .loading {
-            display: none;
-            margin: 20px 0;
-            padding: 20px;
-            background: #fff3cd;
-            border: 1px solid #ffeeba;
-            border-radius: 4px;
-        }
-        button {
-            background: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        button:hover {
-            background: #0056b3;
-        }
-        button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
-    </style>
+    <link rel="stylesheet" href="test_styles.css">
 </head>
 <body>
     <h1>Violence Content Filter Test Suite</h1>
@@ -94,7 +27,7 @@
         </thead>
         <tbody id="resultsBody"></tbody>
     </table>
-
+    <!-- scripts -->
     <script src="../scripts/core/storage_strategy.js"></script>
     <script src="../scripts/core/api_key.js"></script>
     <script src="../scripts/core/api_key_manager.js"></script>
@@ -111,74 +44,27 @@
     <script src="../scripts/filters/blocklist.js"></script>
     <script src="test_runner.js"></script>
     <script>
-    // Patch OpenAIModerationFilter to always call with checkViolence: true
-    class ViolenceContentOpenAIFilter extends OpenAIModerationFilter {
-        async check(prompt) {
-            const apiKey = await window.ensureOpenAIApiKey();
-            if (!apiKey) {
-                return { blocked: true, reason: 'no_api_key' };
-            }
-            try {
-                const response = await fetch('https://api.openai.com/v1/moderations', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${apiKey}`
-                    },
-                    body: JSON.stringify({ input: prompt })
-                });
-                if (!response.ok) throw new Error('API error');
-                const data = await response.json();
-                const result = data.results && data.results[0] ? data.results[0] : {};
-                const violenceProb = result.category_scores ? result.category_scores.violence : undefined;
-                const violenceFlag = result.categories ? result.categories.violence : undefined;
-                const blocked = violenceFlag || (violenceProb > 0.3);
-                return blocked ? { blocked: true, reason: 'openai_violence', probability: violenceProb } : { blocked: false };
-            } catch (e) {
-                return { blocked: true, reason: 'api_error' };
-            }
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', async () => {
-        // Initialize BlocklistFilter
-        const blocklistFilter = new BlocklistFilter();
-        await blocklistFilter.initialize();
-        const runner = new PromptTestRunner({
-            filters: [
-                { name: 'Blocklist (Local)', instance: {
-                    async check(prompt) {
-                        // Only check the 'violence' blocklist
-                        const result = blocklistFilter.checkMessageWithSelection(prompt, ['violence']);
-                        return result.blocked ? { blocked: true, reason: 'blocklist', list: result.list, term: result.term } : { blocked: false };
-                    }
-                } },
-                { name: 'OpenAI Moderation', instance: new ViolenceContentOpenAIFilter() }
-            ],
-            csvPath: 'violence_content_test_set.csv',
-            tableBodyId: 'resultsBody',
-            summaryContentId: 'summaryContent',
-            loadingId: 'loading',
-            runBtnId: 'runTests',
-            stopBtnId: 'stopTests',
-            positiveLabel: 'RISKY',
-        });
-        try {
-            await runner.loadTests();
-            document.getElementById('runTests').addEventListener('click', () => {
-                runner.runAllTests();
-            });
-            document.getElementById('stopTests').addEventListener('click', () => {
-                runner.requestStop();
-                document.getElementById('stopTests').disabled = true;
-            });
-        } catch (error) {
-            console.error('Error initializing tests:', error);
-            document.getElementById('summary').style.display = 'block';
-            document.getElementById('summaryContent').innerHTML = 
-                `<p class="error">Error loading tests: ${error.message}</p>`;
-        }
-    });
+    window.TEST_CONFIG = {
+        filters: [
+            { name: 'Blocklist (Local)', instance: {
+                async check(prompt) {
+                    const blocklistFilter = new BlocklistFilter();
+                    await blocklistFilter.initialize();
+                    const result = blocklistFilter.checkMessageWithSelection(prompt, ['violence']);
+                    return result.blocked ? { blocked: true, reason: 'blocklist', list: result.list, term: result.term } : { blocked: false };
+                }
+            }},
+            { name: 'OpenAI Moderation', instance: {
+                async check(prompt) {
+                    const filter = new OpenAIModerationFilter();
+                    return await filter.check(prompt, { checkViolence: true });
+                }
+            }}
+        ],
+        csvPath: 'violence_content_test_set.csv',
+        positiveLabel: 'RISKY'
+    };
     </script>
+    <script src="shared_test_setup.js"></script>
 </body>
 </html> 
