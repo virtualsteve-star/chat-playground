@@ -1,11 +1,5 @@
 # Version History
 
-## 0.8.2 (2025-05-23)
-- Major test suite refactor:
-  - All test pages now use shared CSS (`test_styles.css`) and shared JS setup (`shared_test_setup.js`).
-  - Per-test configuration is parameterized via `window.TEST_CONFIG` for maintainability and extensibility.
-  - Old, duplicated test pages removed; new refactored versions now standard.
-
 ## 0.8.1 (2025-05-20)
 - Fixed path bug causing Blocklists to fail in deployment on GitHub pages.
 - Added social preview for Twitter/X
