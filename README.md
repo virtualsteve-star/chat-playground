@@ -50,7 +50,7 @@ For more details on the API key management system, see [API Key Management](docu
   - Perfect for UI/UX testing and prototyping
 - Remote model support (using OpenAI ChatGPT 4o-mini)
 - Thumbs up/down feedback for responses
-- **Guardrails (Input & Output Filters):**
+- Guardrails (Input & Output Filters):
   - Local blocklist filters (e.g., Sex, Violence)
   - Heuristic/regex-based filters (e.g., Prompt Injection, Code)
   - Input Length filter (local, blocks messages over 256 characters)
