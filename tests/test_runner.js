@@ -242,8 +242,8 @@ class PromptTestRunner {
             }
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td>${test.name}</td>
-                <td>${test.expected}</td>
+                <td>${escapeHTML(test.name)}</td>
+                <td>${escapeHTML(test.expected)}</td>
                 ${verdicts.map((v, idx) => {
                     if (skipped[idx] || v.skipped) {
                         return `<td style="color:#007bff;font-weight:bold;text-align:center;">–</td>`;
@@ -252,12 +252,12 @@ class PromptTestRunner {
                         (v.blocked && test.expected === this.positiveLabel) ||
                         (!v.blocked && test.expected === 'BENIGN')
                     ));
-                    return `<td class="${v.error ? 'incorrect' : isCorrect ? 'correct' : 'incorrect'}">${v.error ? '⚠️' : (isCorrect ? '✓' : '✗')}</td>`;
+                    return `<td class="${v.error ? 'incorrect' : isCorrect ? 'correct' : 'incorrect'}">${escapeHTML(v.error ? '⚠️' : (isCorrect ? '✓' : '✗'))}</td>`;
                 }).join('')}
-                ${verdicts.map((v, idx) => (skipped[idx] || v.skipped) ? `<td style="color:#007bff;text-align:center;">–</td>` : `<td>${v.time.toFixed(2)}</td>`).join('')}
+                ${verdicts.map((v, idx) => (skipped[idx] || v.skipped) ? `<td style="color:#007bff;text-align:center;">–</td>` : `<td>${escapeHTML(v.time.toFixed(2))}</td>`).join('')}
             `;
             if (verdicts.some(v => v.error)) {
-                row.title = verdicts.map(v => v.error).filter(Boolean).join('; ');
+                row.title = escapeHTML(verdicts.map(v => v.error).filter(Boolean).join('; '));
             }
             resultsBody.appendChild(row);
             verdicts.forEach((v, idx) => {
@@ -270,7 +270,7 @@ class PromptTestRunner {
         let summaryHtml = '';
         this.filters.forEach((filter, idx) => {
             if (skipped[idx]) {
-                summaryHtml += `<p style="color:#007bff;"><strong>${filter.name}:</strong> Not run due to missing API key</p>`;
+                summaryHtml += `<p style="color:#007bff;"><strong>${escapeHTML(filter.name)}:</strong> Not run due to missing API key</p>`;
                 return;
             }
             const accuracy = testsRun ? (correct[idx] / testsRun * 100).toFixed(1) : '0.0';
@@ -281,12 +281,12 @@ class PromptTestRunner {
                 : sorted[Math.floor(sorted.length/2)] || 0;
             const stddev = times[idx].length ? Math.sqrt(times[idx].reduce((sq, n) => sq + Math.pow(n - avg, 2), 0) / times[idx].length) : 0;
             summaryHtml += `
-                <p><strong>${filter.name}:</strong> ${accuracy}% accuracy (${correct[idx]}/${testsRun} correct)</p>
-                <p><strong>${filter.name} Times (ms):</strong></p>
+                <p><strong>${escapeHTML(filter.name)}:</strong> ${escapeHTML(accuracy)}% accuracy (${escapeHTML(correct[idx])}/${escapeHTML(testsRun)} correct)</p>
+                <p><strong>${escapeHTML(filter.name)} Times (ms):</strong></p>
                 <ul>
-                    <li>Average: ${avg.toFixed(2)}</li>
-                    <li>Median: ${median.toFixed(2)}</li>
-                    <li>Standard Deviation: ${stddev.toFixed(2)}</li>
+                    <li>Average: ${escapeHTML(avg.toFixed(2))}</li>
+                    <li>Median: ${escapeHTML(median.toFixed(2))}</li>
+                    <li>Standard Deviation: ${escapeHTML(stddev.toFixed(2))}</li>
                 </ul>
             `;
         });

@@ -31,7 +31,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         await runner.loadTests();
     } catch (error) {
         console.error('Error initializing tests:', error);
+        // Uses shared escapeHTML from escape_html.js (AppSec best practice, Snyk CWE-79)
         document.getElementById(config.summaryContentId || 'summaryContent').innerHTML = 
-            `<p class="error">Error loading tests: ${error.message}</p>`;
+            `<p class="error">Error loading tests: ${escapeHTML(error.message)}</p>`;
     }
 }); 
