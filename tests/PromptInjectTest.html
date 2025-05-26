@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Prompt Injection Filter Test Suite</title>
     <link rel="stylesheet" href="test_styles.css">
+    <script src="escape_html.js"></script>
 </head>
 <body>
     <h1>Prompt Injection Filter Test Suite</h1>
@@ -70,7 +71,7 @@
             { name: 'Simple Filter', instance: new PromptInjectionFilter() },
             { name: 'AI Filter', instance: new OpenAIPromptInjectionFilter() }
         ],
-        csvPath: 'prompt_test_set.csv',
+        csvPath: 'data/prompt_test_set.csv',
         positiveLabel: 'RISKY'
     };
     </script>

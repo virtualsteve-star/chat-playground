@@ -89,7 +89,7 @@ class PromptTestRunner {
         positiveLabel = 'RISKY',
     }) {
         this.filters = filters;
-        this.csvPath = csvPath;
+        this.csvPath = csvPath.replace(/^((?!data\/).)*([\w-]+\.csv)$/,'data/$2');
         this.tableBodyId = tableBodyId;
         this.summaryContentId = summaryContentId;
         this.loadingId = loadingId;

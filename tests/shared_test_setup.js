@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const runner = new PromptTestRunner({
         filters: config.filters,
-        csvPath: config.csvPath,
+        csvPath: config.csvPath.replace(/^((?!data\/).)*([\w-]+\.csv)$/,'data/$2'),
         tableBodyId: config.tableBodyId || 'resultsBody',
         summaryContentId: config.summaryContentId || 'summaryContent',
         loadingId: config.loadingId || 'loading',

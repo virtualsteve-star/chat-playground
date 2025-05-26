@@ -7,7 +7,7 @@ class ModelTestRunner {
 
     async loadPrompts() {
         try {
-            const response = await fetch('tests/testprompts.txt');
+            const response = await fetch('tests/data/testprompts.txt');
             const text = await response.text();
             this.prompts = text.split('\n').filter(line => line.trim());
             console.log(`Loaded ${this.prompts.length} test prompts`);

@@ -77,4 +77,12 @@
 - All data and keys stored locally in browser
 - Extensible architecture for adding new personalities, styles, and guardrails 
 
+## 0.9 (2025-05-24)
+- Added Local Smoke Test module:
+  - New automated test runner (modelTestRunner.js) for the main chat UI.
+  - Runs all prompts from testprompts.txt through the chat interface as a simulated user.
+  - Uses Oscar (Jailbroken, SimpleBot) and all local guardrails filters (except rate limit).
+  - Accessible from the Test Suites page with a direct link to launch the test in the main app.
+  - Designed for fast, end-to-end smoke testing of SimpleBot and local moderation filters.
+
 --- 
