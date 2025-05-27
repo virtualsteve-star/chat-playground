@@ -1,6 +1,0 @@
-0.8.5
-- Added smoke tests for quick validation
-- Improved test cleanup and error handling
-- Enhanced test runner stability
-- Added support for test categories
-- Improved HTML escaping for test results 
