@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smoke Tests - Content Filter Testing</title>
+    <link rel="stylesheet" href="test_styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Smoke Tests</h1>
+        <p class="description">Quick validation tests to ensure basic functionality of content filters.</p>
+        
+        <div class="controls">
+            <button id="runTests" class="primary-button">Run Smoke Tests</button>
+            <button id="stopTests" class="danger-button" style="display: none;">Stop Tests</button>
+            <div id="loading" class="loading" style="display: none;">Running tests...</div>
+        </div>
+
+        <div class="results-container">
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th>Test</th>
+                        <th>Expected</th>
+                        <th id="filterHeaders"></th>
+                    </tr>
+                </thead>
+                <tbody id="resultsBody"></tbody>
+            </table>
+        </div>
+
+        <div id="summary" class="summary" style="display: none;">
+            <h2>Test Summary</h2>
+            <div id="summaryContent"></div>
+        </div>
+    </div>
+
+    <script src="shared_test_setup.js"></script>
+    <script src="test_runner.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const filters = await loadFilters();
+            const runner = new PromptTestRunner({
+                filters,
+                csvPath: 'smoke_test_set.csv',
+                tableBodyId: 'resultsBody',
+                summaryContentId: 'summaryContent',
+                loadingId: 'loading',
+                runBtnId: 'runTests',
+                stopBtnId: 'stopTests'
+            });
+
+            document.getElementById('runTests').addEventListener('click', async () => {
+                try {
+                    await runner.loadTests();
+                    await runner.runAllTests();
+                } catch (e) {
+                    console.error('Error running tests:', e);
+                    alert('Error running tests: ' + e.message);
+                }
+            });
+
+            document.getElementById('stopTests').addEventListener('click', () => {
+                runner.requestStop();
+            });
+
+            // Add filter headers
+            const headerRow = document.getElementById('filterHeaders');
+            filters.forEach(filter => {
+                const th = document.createElement('th');
+                th.textContent = filter.name;
+                headerRow.appendChild(th);
+                const timeTh = document.createElement('th');
+                timeTh.textContent = 'Time (ms)';
+                headerRow.appendChild(timeTh);
+            });
+        });
+    </script>
+</body>
+</html> 

@@ -1,5 +1,12 @@
 # Version History
 
+## 0.8.5 (2025-05-25)
+- Added smoke tests for quick validation
+- Improved test cleanup and error handling
+- Enhanced test runner stability
+- Added support for test categories
+- Improved HTML escaping for test results
+
 ## 0.8.2 (2025-05-23)
 - Major test suite refactor:
   - All test pages now use shared CSS (`test_styles.css`) and shared JS setup (`shared_test_setup.js`).

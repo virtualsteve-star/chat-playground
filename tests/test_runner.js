@@ -1,3 +1,13 @@
+function escapeHTML(str) {
+    if (str == null) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
 // Robust CSV parser for quoted fields, commas, and newlines
 function parseCSV(text) {
     const rows = [];
@@ -99,6 +109,24 @@ class PromptTestRunner {
         this.results = [];
         this.stopRequested = false;
         this.positiveLabel = positiveLabel;
+        this.cleanupHandlers = new Set();
+    }
+
+    // Add cleanup handler
+    addCleanupHandler(handler) {
+        this.cleanupHandlers.add(handler);
+    }
+
+    // Run cleanup handlers
+    async cleanup() {
+        for (const handler of this.cleanupHandlers) {
+            try {
+                await handler();
+            } catch (e) {
+                console.error('Error in cleanup handler:', e);
+            }
+        }
+        this.cleanupHandlers.clear();
     }
 
     async loadTests() {
@@ -203,99 +231,106 @@ class PromptTestRunner {
         const resultsBody = document.getElementById(this.tableBodyId);
         const summaryContent = document.getElementById(this.summaryContentId);
 
-        loading.style.display = 'block';
-        runButton.disabled = true;
-        stopButton.style.display = 'inline-block';
-        stopButton.disabled = false;
-        resultsBody.innerHTML = '';
+        try {
+            loading.style.display = 'block';
+            runButton.disabled = true;
+            stopButton.style.display = 'inline-block';
+            stopButton.disabled = false;
+            resultsBody.innerHTML = '';
 
-        let correct = Array(this.filters.length).fill(0);
-        let times = Array(this.filters.length).fill(null).map(() => []);
-        let skipped = Array(this.filters.length).fill(false);
-        let testsRun = 0;
+            let correct = Array(this.filters.length).fill(0);
+            let times = Array(this.filters.length).fill(null).map(() => []);
+            let skipped = Array(this.filters.length).fill(false);
+            let testsRun = 0;
 
-        // Pre-check which filters will be skipped due to missing key
-        for (let idx = 0; idx < this.filters.length; idx++) {
-            const filter = this.filters[idx];
-            if (filter.name.toLowerCase().includes('openai') || filter.name.toLowerCase().includes('ai filter')) {
-                const keySet = await window.isOpenAIApiKeySet();
-                if (!keySet) {
-                    skipped[idx] = true;
+            // Pre-check which filters will be skipped due to missing key
+            for (let idx = 0; idx < this.filters.length; idx++) {
+                const filter = this.filters[idx];
+                if (filter.name.toLowerCase().includes('openai') || filter.name.toLowerCase().includes('ai filter')) {
+                    const keySet = await window.isOpenAIApiKeySet();
+                    if (!keySet) {
+                        skipped[idx] = true;
+                    }
                 }
             }
-        }
 
-        this.stopRequested = false;
-        for (let i = 0; i < this.tests.length; i++) {
-            const test = this.tests[i];
-            if (this.stopRequested) {
+            this.stopRequested = false;
+            for (let i = 0; i < this.tests.length; i++) {
+                const test = this.tests[i];
+                if (this.stopRequested) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `<td colspan="${3 + 2 * this.filters.length}" style="text-align:center;color:#dc3545;">Test stopped by user.</td>`;
+                    resultsBody.appendChild(row);
+                    break;
+                }
+                let verdicts;
+                try {
+                    verdicts = await this.runTest(test);
+                } catch (e) {
+                    verdicts = this.filters.map(f => ({ blocked: false, error: e.message || 'Error', time: 0 }));
+                }
                 const row = document.createElement('tr');
-                row.innerHTML = `<td colspan="${3 + 2 * this.filters.length}" style="text-align:center;color:#dc3545;">Test stopped by user.</td>`;
+                row.innerHTML = `
+                    <td>${escapeHTML(test.name)}</td>
+                    <td>${escapeHTML(test.expected)}</td>
+                    ${verdicts.map((v, idx) => {
+                        if (skipped[idx] || v.skipped) {
+                            return `<td style="color:#007bff;font-weight:bold;text-align:center;">–</td>`;
+                        }
+                        const isCorrect = (!v.error && (
+                            (v.blocked && test.expected === this.positiveLabel) ||
+                            (!v.blocked && test.expected === 'BENIGN')
+                        ));
+                        return `<td class="${v.error ? 'incorrect' : isCorrect ? 'correct' : 'incorrect'}">${escapeHTML(v.error ? '⚠️' : (isCorrect ? '✓' : '✗'))}</td>`;
+                    }).join('')}
+                    ${verdicts.map((v, idx) => (skipped[idx] || v.skipped) ? `<td style="color:#007bff;text-align:center;">–</td>` : `<td>${escapeHTML(v.time.toFixed(2))}</td>`).join('')}
+                `;
+                if (verdicts.some(v => v.error)) {
+                    row.title = escapeHTML(verdicts.map(v => v.error).filter(Boolean).join('; '));
+                }
                 resultsBody.appendChild(row);
-                break;
+                verdicts.forEach((v, idx) => {
+                    if (!skipped[idx] && !v.error && ((v.blocked && test.expected === this.positiveLabel) || (!v.blocked && test.expected === 'BENIGN'))) correct[idx]++;
+                    if (!skipped[idx]) times[idx].push(v.time);
+                });
+                testsRun++;
             }
-            let verdicts;
-            try {
-                verdicts = await this.runTest(test);
-            } catch (e) {
-                verdicts = this.filters.map(f => ({ blocked: false, error: e.message || 'Error', time: 0 }));
-            }
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${escapeHTML(test.name)}</td>
-                <td>${escapeHTML(test.expected)}</td>
-                ${verdicts.map((v, idx) => {
-                    if (skipped[idx] || v.skipped) {
-                        return `<td style="color:#007bff;font-weight:bold;text-align:center;">–</td>`;
-                    }
-                    const isCorrect = (!v.error && (
-                        (v.blocked && test.expected === this.positiveLabel) ||
-                        (!v.blocked && test.expected === 'BENIGN')
-                    ));
-                    return `<td class="${v.error ? 'incorrect' : isCorrect ? 'correct' : 'incorrect'}">${escapeHTML(v.error ? '⚠️' : (isCorrect ? '✓' : '✗'))}</td>`;
-                }).join('')}
-                ${verdicts.map((v, idx) => (skipped[idx] || v.skipped) ? `<td style="color:#007bff;text-align:center;">–</td>` : `<td>${escapeHTML(v.time.toFixed(2))}</td>`).join('')}
-            `;
-            if (verdicts.some(v => v.error)) {
-                row.title = escapeHTML(verdicts.map(v => v.error).filter(Boolean).join('; '));
-            }
-            resultsBody.appendChild(row);
-            verdicts.forEach((v, idx) => {
-                if (!skipped[idx] && !v.error && ((v.blocked && test.expected === this.positiveLabel) || (!v.blocked && test.expected === 'BENIGN'))) correct[idx]++;
-                if (!skipped[idx]) times[idx].push(v.time);
-            });
-            testsRun++;
-        }
-        // Summary
-        let summaryHtml = '';
-        this.filters.forEach((filter, idx) => {
-            if (skipped[idx]) {
-                summaryHtml += `<p style="color:#007bff;"><strong>${escapeHTML(filter.name)}:</strong> Not run due to missing API key</p>`;
-                return;
-            }
-            const accuracy = testsRun ? (correct[idx] / testsRun * 100).toFixed(1) : '0.0';
-            const avg = times[idx].length ? (times[idx].reduce((a, b) => a + b, 0) / times[idx].length) : 0;
-            const sorted = [...times[idx]].sort((a, b) => a - b);
-            const median = sorted.length % 2 === 0 && sorted.length > 0
-                ? (sorted[sorted.length/2 - 1] + sorted[sorted.length/2]) / 2
-                : sorted[Math.floor(sorted.length/2)] || 0;
-            const stddev = times[idx].length ? Math.sqrt(times[idx].reduce((sq, n) => sq + Math.pow(n - avg, 2), 0) / times[idx].length) : 0;
-            summaryHtml += `
-                <p><strong>${escapeHTML(filter.name)}:</strong> ${escapeHTML(accuracy)}% accuracy (${escapeHTML(correct[idx])}/${escapeHTML(testsRun)} correct)</p>
-                <p><strong>${escapeHTML(filter.name)} Times (ms):</strong></p>
-                <ul>
-                    <li>Average: ${escapeHTML(avg.toFixed(2))}</li>
-                    <li>Median: ${escapeHTML(median.toFixed(2))}</li>
-                    <li>Standard Deviation: ${escapeHTML(stddev.toFixed(2))}</li>
-                </ul>
-            `;
-        });
-        summaryContent.innerHTML = summaryHtml;
-        const summary = document.getElementById('summary');
-        if (summary) summary.style.display = 'block';
 
-        loading.style.display = 'none';
-        runButton.disabled = false;
-        stopButton.style.display = 'none';
+            // Summary
+            let summaryHtml = '';
+            this.filters.forEach((filter, idx) => {
+                if (skipped[idx]) {
+                    summaryHtml += `<p style="color:#007bff;"><strong>${escapeHTML(filter.name)}:</strong> Not run due to missing API key</p>`;
+                    return;
+                }
+                const accuracy = testsRun ? (correct[idx] / testsRun * 100).toFixed(1) : '0.0';
+                const avg = times[idx].length ? (times[idx].reduce((a, b) => a + b, 0) / times[idx].length) : 0;
+                const sorted = [...times[idx]].sort((a, b) => a - b);
+                const median = sorted.length % 2 === 0 && sorted.length > 0
+                    ? (sorted[sorted.length/2 - 1] + sorted[sorted.length/2]) / 2
+                    : sorted[Math.floor(sorted.length/2)] || 0;
+                const stddev = times[idx].length ? Math.sqrt(times[idx].reduce((sq, n) => sq + Math.pow(n - avg, 2), 0) / times[idx].length) : 0;
+                summaryHtml += `
+                    <p><strong>${escapeHTML(filter.name)}:</strong> ${escapeHTML(accuracy)}% accuracy (${escapeHTML(correct[idx])}/${escapeHTML(testsRun)} correct)</p>
+                    <p><strong>${escapeHTML(filter.name)} Times (ms):</strong></p>
+                    <ul>
+                        <li>Average: ${escapeHTML(avg.toFixed(2))}</li>
+                        <li>Median: ${escapeHTML(median.toFixed(2))}</li>
+                        <li>Standard Deviation: ${escapeHTML(stddev.toFixed(2))}</li>
+                    </ul>
+                `;
+            });
+            summaryContent.innerHTML = summaryHtml;
+            const summary = document.getElementById('summary');
+            if (summary) summary.style.display = 'block';
+        } catch (e) {
+            console.error('Error running tests:', e);
+            throw e;
+        } finally {
+            loading.style.display = 'none';
+            runButton.disabled = false;
+            stopButton.style.display = 'none';
+            await this.cleanup();
+        }
     }
 } 
