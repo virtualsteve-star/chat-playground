@@ -104,7 +104,7 @@
             font-family: inherit;
             transition: background 0.2s, border 0.2s;
             box-sizing: border-box;
-            margin-left: 8px;
+            margin-left: 2px;
         }
         #guardrails-btn:hover, #guardrails-btn:focus {
             background-color: #e0e0e0;
@@ -211,6 +211,54 @@
             right: 12px;
             z-index: 1;
         }
+        /* Make the preferences button emoji larger */
+        #preferences-btn {
+            font-size: 1.2em;
+            line-height: 1;
+            padding: 8px 12px;
+        }
+        /* Style the about button question mark */
+        #about-btn {
+            font-size: 1.4em;
+            font-weight: bold;
+            line-height: 1;
+            padding: 8px 12px;
+        }
+        /* Style the guardrails button emoji */
+        #guardrails-btn {
+            font-size: 1.2em;
+            line-height: 1;
+            padding: 8px 12px;
+        }
+        /* Common styles for toolbar buttons */
+        #guardrails-btn,
+        #preferences-btn,
+        #about-btn {
+            width: 36px;
+            height: 36px;
+            min-width: 36px;
+            min-height: 36px;
+            max-width: 36px;
+            max-height: 36px;
+            margin-left: 1px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            overflow: hidden;
+            padding: 0;
+        }
+        #guardrails-btn span,
+        #preferences-btn span,
+        #about-btn span {
+            font-size: 1.4em;
+            line-height: 1;
+            display: block;
+        }
+        /* Remove individual button styles since they're now combined above */
+        #preferences-btn { }
+        #about-btn { }
+        #guardrails-btn { }
     </style>
 </head>
 <body>
@@ -229,9 +277,9 @@
                     <option value="imessage-dark">iMessage (Dark)</option>
                     <option value="green-screen">Green Screen</option>
                 </select>
-                <button id="guardrails-btn" type="button" class="action-button">Guardrails</button>
-                <button id="preferences-btn" type="button" class="action-button">Prefs</button>
-                <button id="about-btn" type="button" class="action-button">About</button>
+                <button id="guardrails-btn" type="button" class="action-button"><span>🚧</span></button>
+                <button id="preferences-btn" type="button" class="action-button"><span>⚙️</span></button>
+                <button id="about-btn" type="button" class="action-button"><span>?</span></button>
             </div>
             <div id="guardrails-overlay" class="overlay"></div>
             <div id="guardrails-panel" class="side-panel">
