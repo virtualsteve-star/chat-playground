@@ -1,4 +1,4 @@
-class ModelTestRunner {
+class SimpleBotSmokeTest {
     constructor() {
         this.prompts = [];
         this.currentIndex = 0;
@@ -105,5 +105,5 @@ class ModelTestRunner {
     }
 }
 
-// Export the ModelTestRunner
-window.ModelTestRunner = ModelTestRunner; 
+// Export the SimpleBotSmokeTest
+window.SimpleBotSmokeTest = SimpleBotSmokeTest; 
