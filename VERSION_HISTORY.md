@@ -1,11 +1,12 @@
 # Version History
 
-## 0.8.5 (2025-05-25)
+## 0.8.5 (2025-05-26)
 - Added smoke tests for quick validation
 - Improved test cleanup and error handling
 - Enhanced test runner stability
 - Added support for test categories
-- Improved HTML escaping for test results
+- Clean up old API handling code and update usage
+- Improved HTML escaping for test results - Snyk suggestion
 
 ## 0.8.2 (2025-05-23)
 - Major test suite refactor:

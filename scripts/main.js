@@ -139,13 +139,13 @@ async function handlePersonalityChange(event) {
         // --- NEW: Check for OpenAI key immediately if GPT model selected ---
         const isGPT = (modelName === 'ChatGPT 4o-mini');
         if (isGPT) {
-            // Check if the key is set without prompting
-            const keyObj = window.apiKeyManager.get('openai.chat');
-            if (!keyObj.isSet()) {
+            // Use hasKey for clarity and consistency
+            if (!window.apiKeyManager.hasKey('openai.chat')) {
                 alert('A valid OpenAI API key is required to use this personality. Please add your API key in Preferences.');
                 return;
             }
             // Proceed with model initialization with the key
+            const keyObj = window.apiKeyManager.get('openai.chat');
             await doModelInit(keyObj.get());
         } else {
             // Proceed with model initialization for non-GPT models
@@ -632,6 +632,14 @@ function setupGuardrailsPanel() {
     checkboxes.forEach(cb => {
         cb.checked = false; // Default: none selected
         cb.addEventListener('change', () => {
+            // If enabling an OpenAI-powered filter, check for key
+            if (cb.checked && (cb.value.startsWith('openai') || cb.value === 'openai_prompt_injection')) {
+                if (!window.apiKeyManager.hasKey('openai.chat')) {
+                    alert('A valid OpenAI API key is required to use this filter. Please add your API key in Preferences.');
+                    cb.checked = false;
+                    return;
+                }
+            }
             selectedInputFilters = Array.from(checkboxes).filter(c => c.checked).map(c => c.value);
         });
     });
@@ -640,6 +648,14 @@ function setupGuardrailsPanel() {
     outputCheckboxes.forEach(cb => {
         cb.checked = false; // Default: none selected
         cb.addEventListener('change', () => {
+            // If enabling an OpenAI-powered output filter, check for key
+            if (cb.checked && cb.value.startsWith('openai')) {
+                if (!window.apiKeyManager.hasKey('openai.chat')) {
+                    alert('A valid OpenAI API key is required to use this filter. Please add your API key in Preferences.');
+                    cb.checked = false;
+                    return;
+                }
+            }
             selectedOutputFilters = Array.from(outputCheckboxes).filter(c => c.checked).map(c => c.value);
         });
     });

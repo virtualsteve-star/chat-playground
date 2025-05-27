@@ -132,6 +132,15 @@ class APIKeyManager {
             return false;
         }
     }
+
+    hasKey(id) {
+        try {
+            const key = this.get(id);
+            return key && key.isSet();
+        } catch (e) {
+            return false;
+        }
+    }
 }
 
 // Create and export the singleton instance

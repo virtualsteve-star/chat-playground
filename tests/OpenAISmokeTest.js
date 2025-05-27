@@ -10,6 +10,12 @@ class OpenAISmokeTest extends SimpleBotSmokeTest {
     async startTest() {
         if (this.isRunning) return;
         
+        // Check for OpenAI API key before running the test
+        if (!window.apiKeyManager || !window.apiKeyManager.hasKey('openai.chat')) {
+            alert('A valid OpenAI API key is required to run the OpenAI Smoke Test. Please add your API key in Preferences.');
+            return;
+        }
+        
         await this.loadPrompts();
         this.isRunning = true;
         this.currentIndex = 0;

@@ -2,46 +2,6 @@
  * Utility functions for Steve's Chat Playground
  */
 
-// Simple encryption/decryption for API keys
-const encrypt = (text) => {
-    // This is a very basic encryption for demonstration purposes
-    // In a production environment, use a more secure encryption method
-    return btoa(text);
-};
-
-const decrypt = (encryptedText) => {
-    // Decrypt the encrypted text
-    return atob(encryptedText);
-};
-
-// Save API key to localStorage
-const saveApiKey = (key, value) => {
-    try {
-        if (value === null) {
-            localStorage.removeItem(key);
-        } else {
-            const encryptedValue = encrypt(value);
-            localStorage.setItem(key, encryptedValue);
-        }
-        return true;
-    } catch (error) {
-        console.error('Error saving API key:', error);
-        return false;
-    }
-};
-
-// Get API key from localStorage
-const getApiKey = (key) => {
-    try {
-        const encryptedValue = localStorage.getItem(key);
-        if (!encryptedValue) return null;
-        return decrypt(encryptedValue);
-    } catch (error) {
-        console.error('Error getting API key:', error);
-        return null;
-    }
-};
-
 // Create message elements (bubble and optional feedback controls)
 function createMessageElement(text, isUser, isRejection = false) {
     const messageBubble = document.createElement('div');
@@ -218,49 +178,11 @@ const loadProperties = (filePath) => {
 
 // Export utility functions
 window.ChatUtils = {
-    encrypt,
-    decrypt,
-    saveApiKey,
-    getApiKey,
     createMessageElement,
     addMessageToChat,
     toggleWorkingIndicator,
     changeStyle,
     loadProperties
-};
-
-// Attach getValidOpenAIKey ONLY after window.ChatUtils is defined
-window.ChatUtils.getValidOpenAIKey = async function() {
-    // Check if we have a cached key
-    if (window.ChatUtils._openAICachedKey) {
-        return window.ChatUtils._openAICachedKey;
-    }
-
-    // Try to get the key from localStorage
-    const key = window.ChatUtils.getApiKey ? window.ChatUtils.getApiKey('openai') : null;
-    if (key) {
-        // Cache the key
-        window.ChatUtils._openAICachedKey = key;
-        return key;
-    }
-
-    // If no key found, prompt for one
-    const newKey = prompt('Please enter your OpenAI API key:');
-    if (newKey) {
-        // Sanitize and validate the key
-        const sanitizedKey = newKey.trim();
-        if (sanitizedKey.startsWith('sk-') && sanitizedKey.length > 20) {
-            // Store in localStorage
-            localStorage.setItem('openai', sanitizedKey);
-            // Cache the key
-            window.ChatUtils._openAICachedKey = sanitizedKey;
-            return sanitizedKey;
-        } else {
-            alert('Invalid API key format. Please enter a valid OpenAI API key.');
-            return null;
-        }
-    }
-    return null;
 };
 
 window.ChatUtils.addScanningBubble = function() {
