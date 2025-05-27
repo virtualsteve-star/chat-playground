@@ -6,12 +6,18 @@ All test data files (`.csv` and `.txt`) are now located in the `tests/data/` fol
 
 You can also run individual category tests (Prompt Injection, Sexual Content, Violence, Code Generation) using the corresponding HTML files in this folder (e.g., `PromptInjectTest.html`). These tests will automatically load their data from the `data/` subfolder.
 
-## Local Smoke Test
+## SimpleBot Smoke Test
 
-A new "Local Smoke Test" is available for end-to-end testing of SimpleBot and all local guardrails filters (except rate limit). This test runs all prompts from `tests/data/testprompts.txt` through the main chat UI.
+A new "SimpleBot Smoke Test" is available for end-to-end testing of SimpleBot and all local guardrails filters (except rate limit). This test runs all prompts from `tests/data/testprompts.txt` through the main chat UI.
 - Launch it from the Test Suites page, or
 - Open the main app with `?test-local` (e.g., `index.html?test-local`).
 
 No additional setup is required.
+
+## OpenAI Smoke Test
+
+The "OpenAI Smoke Test" runs all prompts through the main chat UI using the Bob (Tech Support, GPT) personality and all OpenAI-powered filters.
+
+**Note:** This test requires an OpenAI API key to be set in Preferences. If the key is missing, the test will not run.
 
 For more information about the test suite, see [../documentation/tests.md](../documentation/tests.md). 

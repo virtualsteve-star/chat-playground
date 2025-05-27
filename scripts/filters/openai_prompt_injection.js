@@ -29,7 +29,11 @@ class OpenAIPromptInjectionFilter extends APIFilter {
     }
 
     async check(message, options = {}) {
-        const apiKey = await ensureOpenAIApiKey();
+        let apiKey = null;
+        if (window.apiKeyManager && window.apiKeyManager.get) {
+            const keyObj = window.apiKeyManager.get('openai.chat');
+            apiKey = keyObj && keyObj.isSet() ? keyObj.get() : null;
+        }
         if (!apiKey) {
             return { blocked: true, reason: 'no_api_key' };
         }

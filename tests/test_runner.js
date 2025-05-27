@@ -60,13 +60,9 @@ function parseCSV(text) {
 
 // Centralized OpenAI API key access for all test pages
 window.ensureOpenAIApiKey = async function() {
-    if (window.apiKeyManager && window.apiKeyManager.require) {
-        const keyObj = await window.apiKeyManager.require('openai.chat');
-        return keyObj.get();
-    }
-    // Fallback: try legacy method if APIKeyManager is not loaded
-    if (window.ChatUtils && window.ChatUtils.getApiKey) {
-        return window.ChatUtils.getApiKey('openai');
+    if (window.apiKeyManager && window.apiKeyManager.get) {
+        const keyObj = window.apiKeyManager.get('openai.chat');
+        return keyObj && keyObj.isSet() ? keyObj.get() : null;
     }
     return null;
 };
@@ -81,9 +77,7 @@ window.isOpenAIApiKeySet = async function() {
             return false;
         }
     }
-    if (window.ChatUtils && window.ChatUtils.getApiKey) {
-        return !!window.ChatUtils.getApiKey('openai');
-    }
+    // No fallback to legacy ChatUtils.getApiKey
     return false;
 };
 
