@@ -3,6 +3,7 @@ class SimpleBotSmokeTest {
         this.prompts = [];
         this.currentIndex = 0;
         this.isRunning = false;
+        this.startTime = Date.now();
     }
 
     async loadPrompts() {
@@ -63,16 +64,18 @@ class SimpleBotSmokeTest {
     async processNextPrompt() {
         if (!this.isRunning || this.currentIndex >= this.prompts.length) {
             this.isRunning = false;
-            console.log('Test run completed');
+            // Calculate test duration and create summary
+            const duration = ((Date.now() - this.startTime) / 1000).toFixed(1);
+            const summary = `Testing complete - Processed ${this.prompts.length} prompts in ${duration} seconds`;
             // Add completion message to chat
             if (window.ChatUtils && window.ChatUtils.addMessageToChat) {
-                window.ChatUtils.addMessageToChat('Testing complete', false);
+                window.ChatUtils.addMessageToChat(summary, false);
             } else {
                 const chatWindow = document.getElementById('chat-window');
                 if (chatWindow) {
                     const completionMessage = document.createElement('div');
                     completionMessage.className = 'message bot-message';
-                    completionMessage.innerHTML = '<div class="message-content">Testing complete</div>';
+                    completionMessage.innerHTML = `<div class=\"message-content\">${summary}</div>`;
                     chatWindow.appendChild(completionMessage);
                     chatWindow.scrollTop = chatWindow.scrollHeight;
                 }
