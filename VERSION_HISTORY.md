@@ -1,5 +1,12 @@
 # Version History
 
+## 0.8.5 (2025-05-25)
+- Added smoke tests for quick validation
+- Improved test cleanup and error handling
+- Enhanced test runner stability
+- Added support for test categories
+- Improved HTML escaping for test results
+
 ## 0.8.2 (2025-05-23)
 - Major test suite refactor:
   - All test pages now use shared CSS (`test_styles.css`) and shared JS setup (`shared_test_setup.js`).
@@ -76,5 +83,13 @@
 - Guardrails panel for enabling/disabling filters
 - All data and keys stored locally in browser
 - Extensible architecture for adding new personalities, styles, and guardrails 
+
+## 0.9 (2025-05-24)
+- Added Local Smoke Test module:
+  - New automated test runner (modelTestRunner.js) for the main chat UI.
+  - Runs all prompts from testprompts.txt through the chat interface as a simulated user.
+  - Uses Oscar (Jailbroken, SimpleBot) and all local guardrails filters (except rate limit).
+  - Accessible from the Test Suites page with a direct link to launch the test in the main app.
+  - Designed for fast, end-to-end smoke testing of SimpleBot and local moderation filters.
 
 --- 
