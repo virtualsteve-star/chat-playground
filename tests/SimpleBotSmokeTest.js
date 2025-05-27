@@ -75,7 +75,8 @@ class SimpleBotSmokeTest {
                 if (chatWindow) {
                     const completionMessage = document.createElement('div');
                     completionMessage.className = 'message bot-message';
-                    completionMessage.innerHTML = `<div class=\"message-content\">${summary}</div>`;
+                    // Use escapeHTML to prevent XSS
+                    completionMessage.innerHTML = `<div class=\"message-content\">${escapeHTML(summary)}</div>`;
                     chatWindow.appendChild(completionMessage);
                     chatWindow.scrollTop = chatWindow.scrollHeight;
                 }
