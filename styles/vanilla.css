@@ -275,7 +275,7 @@ select:hover {
 }
 
 /* Control button styles */
-#guardrails-btn, #preferences-btn, #about-btn {
+#guardrails-btn, #preferences-btn, #about-btn, #style-switcher-btn {
     padding: 8px 12px;
     border: 1px solid #ddd;
     border-radius: 4px;
@@ -290,7 +290,8 @@ select:hover {
 
 #guardrails-btn:hover, #guardrails-btn:focus,
 #preferences-btn:hover, #preferences-btn:focus,
-#about-btn:hover, #about-btn:focus {
+#about-btn:hover, #about-btn:focus,
+#style-switcher-btn:hover, #style-switcher-btn:focus {
     background-color: #e0e0e0;
     border-color: #4a90e2;
     outline: none;
@@ -452,4 +453,61 @@ body.green-screen #preferences-btn:focus {
     max-width: 80%;
     align-self: flex-start;
     box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+#style-switcher-btn {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+    max-width: 36px;
+    max-height: 36px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1.4em;
+    cursor: pointer;
+    color: #333;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin-left: 1px;
+    box-sizing: border-box;
+}
+#style-switcher-btn:focus, #style-switcher-btn:hover {
+    background: #e0e0e0;
+    border-color: #4a90e2;
+    outline: none;
+}
+.style-switcher {
+    position: relative;
+    display: inline-block;
+}
+.style-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 140px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    z-index: 3000;
+    margin-top: 2px;
+    display: none;
+}
+.style-menu.open {
+    display: block;
+}
+.style-option {
+    padding: 8px 12px;
+    cursor: pointer;
+    color: #333;
+    font-size: 0.95em;
+    border-radius: 2px;
+    transition: background 0.15s;
+}
+.style-option:hover {
+    background: #f5f5f5;
 } 

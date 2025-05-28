@@ -6,6 +6,8 @@
 - No external package managers (npm, yarn, etc.) should be used
 - No build tools (webpack, rollup, etc.) should be added
 - No transpilation or compilation steps should be required
+- All application logic and interactivity must be kept in external JavaScript files (not in html) to maintain separation of concerns and best practices
+- Keep styling information in CSS and not in HTML
 
 # File Structure Rules
 - Keep all files in their current directories
