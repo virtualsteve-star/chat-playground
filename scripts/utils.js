@@ -6,7 +6,7 @@
 function createMessageElement(text, isUser, isRejection = false) {
     const messageBubble = document.createElement('div');
     messageBubble.className = isUser ? 'user-message' : (isRejection ? 'rejection-message' : 'bot-message');
-    
+
     // Process text to properly handle line breaks
     // First escape HTML to prevent XSS, then convert newlines to <br>
     const processedText = text
@@ -14,7 +14,7 @@ function createMessageElement(text, isUser, isRejection = false) {
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/\n/g, '<br>');
-    
+
     messageBubble.innerHTML = processedText;
 
     let feedbackContainer = null;
@@ -46,8 +46,31 @@ function createMessageElement(text, isUser, isRejection = false) {
         imgThumbsDown.className = 'feedback-icon thumbs-down-icon';
         btnThumbsDown.appendChild(imgThumbsDown); // Icon inside button
 
+        // Copy button
+        const btnCopy = document.createElement('button');
+        btnCopy.type = 'button'; // Good practice for buttons
+        btnCopy.className = 'feedback-button copy-button';
+        btnCopy.title = 'Copy Response';
+        const imgCopy = document.createElement('img');
+        imgCopy.src = 'assets/graphics/copy.png';
+        imgCopy.alt = 'Copy Response';
+        imgCopy.className = 'feedback-icon copy-icon';
+        btnCopy.appendChild(imgCopy); // Icon inside button
+
+        // Add copy-to-clipboard functionality
+        btnCopy.onclick = function () {
+            const text = feedbackContainer.parentElement.querySelector('.bot-message').innerText;
+            imgCopy.src = 'assets/graphics/reload.png'; // Change icon to indicate copying
+            navigator.clipboard.writeText(text).then(() => {
+                setTimeout(() => {
+                    imgCopy.src = 'assets/graphics/copy.png';
+                }, 300);
+            });
+        };
+
         feedbackContainer.appendChild(btnThumbsUp); // Add button to container
         feedbackContainer.appendChild(btnThumbsDown); // Add button to container
+        feedbackContainer.appendChild(btnCopy); // Add copy button to container
     }
 
     // Return an object containing the elements
@@ -154,7 +177,7 @@ const loadProperties = (filePath) => {
         const xhr = new XMLHttpRequest();
         xhr.open('GET', cacheBustedPath, false); // false makes the request synchronous
         xhr.send();
-        
+
         if (xhr.status !== 200) {
             throw new Error(`HTTP error! status: ${xhr.status}`);
         }
@@ -185,7 +208,7 @@ window.ChatUtils = {
     loadProperties
 };
 
-window.ChatUtils.addScanningBubble = function() {
+window.ChatUtils.addScanningBubble = function () {
     // Remove any existing scanning bubble first
     window.ChatUtils.removeScanningBubble();
     const chatWindow = document.getElementById('chat-window');
@@ -206,7 +229,7 @@ window.ChatUtils.addScanningBubble = function() {
     }, 400);
 };
 
-window.ChatUtils.removeScanningBubble = function() {
+window.ChatUtils.removeScanningBubble = function () {
     const chatWindow = document.getElementById('chat-window');
     if (!chatWindow) return;
     const bubble = chatWindow.querySelector('.scanning-bubble');
@@ -216,7 +239,7 @@ window.ChatUtils.removeScanningBubble = function() {
     }
 };
 
-window.ChatUtils.addWorkingBubble = function() {
+window.ChatUtils.addWorkingBubble = function () {
     window.ChatUtils.removeWorkingBubble();
     const chatWindow = document.getElementById('chat-window');
     if (!chatWindow) return;
@@ -235,7 +258,7 @@ window.ChatUtils.addWorkingBubble = function() {
     }, 400);
 };
 
-window.ChatUtils.removeWorkingBubble = function() {
+window.ChatUtils.removeWorkingBubble = function () {
     const chatWindow = document.getElementById('chat-window');
     if (!chatWindow) return;
     const bubble = chatWindow.querySelector('.working-bubble');
@@ -245,7 +268,7 @@ window.ChatUtils.removeWorkingBubble = function() {
     }
 };
 
-window.ChatUtils.addFilteringBubble = function() {
+window.ChatUtils.addFilteringBubble = function () {
     window.ChatUtils.removeFilteringBubble();
     const chatWindow = document.getElementById('chat-window');
     if (!chatWindow) return;
@@ -264,7 +287,7 @@ window.ChatUtils.addFilteringBubble = function() {
     }, 400);
 };
 
-window.ChatUtils.removeFilteringBubble = function() {
+window.ChatUtils.removeFilteringBubble = function () {
     const chatWindow = document.getElementById('chat-window');
     if (!chatWindow) return;
     const bubble = chatWindow.querySelector('.filtering-bubble');
