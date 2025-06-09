@@ -105,6 +105,15 @@ async function initializeApp() {
         // Setup Preferences panel
         setupPreferencesPanel();
 
+        // Initialize smoke tests if URL parameter is present
+        if (window.location.search.includes('test-local')) {
+            const smokeTest = new window.SimpleBotSmokeTest();
+            smokeTest.startTest();
+        } else if (window.location.search.includes('test-openai')) {
+            const smokeTest = new window.OpenAISmokeTest();
+            smokeTest.startTest();
+        }
+
         // --- About panel logic ---
         const aboutBtn = document.getElementById('about-btn');
         const aboutPanel = document.getElementById('about-panel');

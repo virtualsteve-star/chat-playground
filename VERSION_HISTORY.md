@@ -1,6 +1,7 @@
 # Version History
 
 ## 0.9 (Unreleased)
+- Added copy button to chat bubbles for easy response copying (PR #46 by @megahelio)
 - Updated toolbar styling for a more compact, space-efficient look:
   - Toolbar buttons (Guardrails, Preferences, About) are now square, emoji-based, and visually uniform.
   - Tighter spacing between controls and buttons for a true toolbar feel.
