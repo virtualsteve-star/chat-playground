@@ -46,6 +46,20 @@
 - No large external resources
 - No heavy client-side processing
 
+# Pre-Merge Contribution Review Process
+- All PRs must be reviewed for adherence to core principles
+- Review should verify:
+  - Zero-dependency compliance
+  - No build steps introduced
+  - Vanilla JS/standard web APIs only
+  - Consistent with existing patterns
+  - Proper error handling
+  - Accessibility considerations
+- Review comments should be clear and actionable
+- Improvements can be suggested as follow-up PRs if core functionality is solid
+- Review should be completed before merging to main branch
+- PR diffs can be accessed at: https://github.com/virtualsteve-star/chat-playground/pull/{PR_NUMBER}/files
+
 #
 # NOTE: When creating or modifying GitHub issues for this project (automatically or manually), always use Markdown formatting for the issue body:
 #   - Use real newlines (not \n) for paragraphs and bullet points
@@ -53,3 +67,10 @@
 #   - Use section headers (## or **) for clarity if needed
 #   - Avoid escaped newlines (\n) in the text
 # This ensures all issues render cleanly and are easy to read on GitHub. 
+
+## Contribution Documentation
+- All external contributions must be documented in VERSION_HISTORY.md
+- Credit the original contributor (not the committer) using their GitHub username
+- Find contributor information in the PR's "Conversation" tab, under the initial PR description
+- Format: "Feature description (PR #XX by @contributor)"
+- Example: "Added copy button to chat bubbles (PR #46 by @megahelio)" 
