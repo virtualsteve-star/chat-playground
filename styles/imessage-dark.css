@@ -53,7 +53,8 @@ body.dark-mode .controls > select:focus {
 }
 body.dark-mode #guardrails-btn,
 body.dark-mode #preferences-btn,
-body.dark-mode #about-btn {
+body.dark-mode #about-btn,
+body.dark-mode #style-switcher-btn {
     background: #232326;
     color: #fff;
     border: 1px solid #444;
@@ -63,7 +64,9 @@ body.dark-mode #guardrails-btn:focus,
 body.dark-mode #preferences-btn:hover,
 body.dark-mode #preferences-btn:focus,
 body.dark-mode #about-btn:hover,
-body.dark-mode #about-btn:focus {
+body.dark-mode #about-btn:focus,
+body.dark-mode #style-switcher-btn:hover,
+body.dark-mode #style-switcher-btn:focus {
     background: #333;
     color: #fff;
     border-color: #0A84FF;

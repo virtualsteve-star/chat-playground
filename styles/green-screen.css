@@ -236,7 +236,8 @@ select:focus {
 /* Guardrails button in green-screen mode */
 .green-screen #guardrails-btn,
 .green-screen #preferences-btn,
-.green-screen #about-btn {
+.green-screen #about-btn,
+.green-screen #style-switcher-btn {
     background: var(--terminal-bg, #000) !important;
     color: var(--terminal-green, #00FF00) !important;
     border: 1px solid var(--terminal-green, #00FF00) !important;
@@ -250,7 +251,9 @@ select:focus {
 .green-screen #preferences-btn:hover,
 .green-screen #preferences-btn:focus,
 .green-screen #about-btn:hover,
-.green-screen #about-btn:focus {
+.green-screen #about-btn:focus,
+.green-screen #style-switcher-btn:hover,
+.green-screen #style-switcher-btn:focus {
     background: var(--terminal-bg, #000) !important;
     color: var(--terminal-green, #00FF00) !important;
     border-color: var(--terminal-green, #00FF00) !important;

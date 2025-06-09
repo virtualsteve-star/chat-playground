@@ -1,10 +1,14 @@
 # Version History
 
+## 0.9 (Unreleased)
+- Updated toolbar styling for a more compact, space-efficient look:
+  - Toolbar buttons (Guardrails, Preferences, About) are now square, emoji-based, and visually uniform.
+  - Tighter spacing between controls and buttons for a true toolbar feel.
+  - Improved CSS for consistent sizing and alignment across all themes.
+
 ## 0.8.5 (2025-05-26)
 - Added smoke tests for quick validation
 - Improved test cleanup and error handling
-- Enhanced test runner stability
-- Added support for test categories
 - Clean up old API handling code and update usage
 - Improved HTML escaping for test results - Snyk suggestion
 

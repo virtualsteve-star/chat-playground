@@ -87,7 +87,6 @@ async function initializeApp() {
         
         // Set up event listeners
         document.getElementById('personality-selector').addEventListener('change', handlePersonalityChange);
-        document.getElementById('style-selector').addEventListener('change', handleStyleChange);
         document.getElementById('send-button').addEventListener('click', handleSendMessage);
         document.getElementById('user-input').addEventListener('keydown', handleKeyDown);
         
@@ -105,6 +104,103 @@ async function initializeApp() {
         
         // Setup Preferences panel
         setupPreferencesPanel();
+
+        // --- About panel logic ---
+        const aboutBtn = document.getElementById('about-btn');
+        const aboutPanel = document.getElementById('about-panel');
+        const aboutOverlay = document.getElementById('about-overlay');
+        const closeAboutBtn = document.getElementById('close-about-panel');
+        if (aboutBtn && aboutPanel && aboutOverlay && closeAboutBtn) {
+            aboutBtn.addEventListener('click', () => {
+                aboutPanel.classList.add('open');
+                aboutOverlay.classList.add('open');
+            });
+            closeAboutBtn.addEventListener('click', () => {
+                aboutPanel.classList.remove('open');
+                aboutOverlay.classList.remove('open');
+            });
+            aboutOverlay.addEventListener('click', () => {
+                aboutPanel.classList.remove('open');
+                aboutOverlay.classList.remove('open');
+            });
+        }
+
+        // --- Custom Style Switcher Dropdown Logic ---
+        const styleSwitcherBtn = document.getElementById('style-switcher-btn');
+        const styleMenu = document.getElementById('style-menu');
+        if (styleSwitcherBtn && styleMenu) {
+            const styleOptions = styleMenu.querySelectorAll('.style-option');
+            const styleSheet = document.getElementById('style-sheet');
+            const styleMap = {
+                'vanilla': 'Vanilla',
+                'imessage': 'iMessage',
+                'imessage-dark': 'iMessage (Dark)',
+                'green-screen': 'Green Screen'
+            };
+            function setStyle(style) {
+                // Use the original style switching logic for correct stacking and classes
+                window.ChatUtils.changeStyle(style);
+                // Button always shows the emoji
+                styleSwitcherBtn.textContent = '👀';
+                // Special handling for green-screen mode
+                const modernInterface = document.querySelector('.modern-interface');
+                const terminalInterface = document.querySelector('.terminal-interface');
+                if (style === 'green-screen') {
+                    if (modernInterface) modernInterface.style.display = 'none';
+                    if (typeof TerminalUI !== 'undefined') {
+                        TerminalUI.showTerminalUI();
+                        TerminalUI.initializeTerminalUI({
+                            getModel: () => currentModel,
+                            getMessageHistory: () => messageHistory
+                        });
+                        TerminalUI.redrawTerminalHistory();
+                    }
+                } else {
+                    if (modernInterface) modernInterface.style.display = '';
+                    if (typeof TerminalUI !== 'undefined') {
+                        TerminalUI.hideTerminalUI();
+                        TerminalUI.teardownTerminalUI();
+                    }
+                    // Redraw chat window
+                    const chatWindow = document.getElementById('chat-window');
+                    if (chatWindow) {
+                        chatWindow.innerHTML = '';
+                        messageHistory.forEach(msg => {
+                            window.ChatUtils.addMessageToChat(msg.content, msg.role === 'user');
+                        });
+                        setTimeout(() => {
+                            const userInput = document.getElementById('user-input');
+                            if (userInput) {
+                                userInput.focus();
+                                userInput.style.opacity = '1';
+                                userInput.style.pointerEvents = 'auto';
+                            }
+                        }, 100);
+                        setTimeout(() => chatWindow.scrollTop = chatWindow.scrollHeight, 0);
+                    }
+                }
+            }
+            styleSwitcherBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                styleMenu.classList.toggle('open');
+            });
+            styleOptions.forEach(option => {
+                option.addEventListener('click', (e) => {
+                    const style = option.getAttribute('data-style');
+                    setStyle(style);
+                    styleMenu.classList.remove('open');
+                });
+            });
+            document.addEventListener('click', (e) => {
+                if (styleMenu.classList.contains('open')) {
+                    styleMenu.classList.remove('open');
+                }
+            });
+            // Optionally, set initial style from current stylesheet
+            const initialHref = styleSheet.getAttribute('href');
+            const initialStyle = initialHref.match(/([\w-]+)\.css$/)?.[1] || 'vanilla';
+            setStyle(initialStyle);
+        }
     } catch (error) {
         console.error('Error initializing application:', error);
         alert('Failed to initialize the application. Please check the console for details.');
@@ -243,58 +339,6 @@ async function handlePersonalityChange(event) {
     } catch (error) {
         console.error('Error changing personality:', error);
         alert(`Failed to load personality "${personalityName}". Please check the console for details.`);
-    }
-}
-
-// Handle style change - REVERTED to preserve history and manage UI visibility
-function handleStyleChange(event) {
-    const styleName = event.target.value;
-    let oldStyle = 'vanilla';
-    if (document.body.classList.contains('green-screen')) {
-        oldStyle = 'green-screen';
-    } else if (document.body.classList.contains('dark-mode')) {
-        oldStyle = 'imessage-dark';
-    } else {
-        document.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
-            if (!link.disabled) {
-                if (link.href.includes('imessage-dark')) oldStyle = 'imessage-dark';
-                else if (link.href.includes('imessage')) oldStyle = 'imessage';
-                else if (link.href.includes('green-screen')) oldStyle = 'green-screen';
-                else if (link.href.includes('vanilla')) oldStyle = 'vanilla';
-            }
-        });
-    }
-    if (styleName === oldStyle) return;
-    window.ChatUtils.changeStyle(styleName);
-    const modernInterface = document.querySelector('.modern-interface');
-    const terminalInterface = document.querySelector('.terminal-interface');
-    if (styleName === 'green-screen') {
-        if (modernInterface) modernInterface.style.display = 'none';
-        TerminalUI.showTerminalUI();
-        TerminalUI.initializeTerminalUI({
-            getModel: () => currentModel,
-            getMessageHistory: () => messageHistory
-        });
-        TerminalUI.redrawTerminalHistory();
-    } else {
-        if (modernInterface) modernInterface.style.display = '';
-        TerminalUI.hideTerminalUI();
-        TerminalUI.teardownTerminalUI();
-        // Redraw chat window
-        const chatWindow = document.getElementById('chat-window');
-        chatWindow.innerHTML = '';
-        messageHistory.forEach(msg => {
-            window.ChatUtils.addMessageToChat(msg.content, msg.role === 'user');
-        });
-        setTimeout(() => {
-            const userInput = document.getElementById('user-input');
-            if (userInput) {
-                userInput.focus();
-                userInput.style.opacity = '1';
-                userInput.style.pointerEvents = 'auto';
-            }
-        }, 100);
-        setTimeout(() => chatWindow.scrollTop = chatWindow.scrollHeight, 0);
     }
 }
 
