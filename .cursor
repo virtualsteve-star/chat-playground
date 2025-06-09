@@ -44,4 +44,12 @@
 - Keep file sizes small
 - Minimize HTTP requests
 - No large external resources
-- No heavy client-side processing 
+- No heavy client-side processing
+
+#
+# NOTE: When creating or modifying GitHub issues for this project (automatically or manually), always use Markdown formatting for the issue body:
+#   - Use real newlines (not \n) for paragraphs and bullet points
+#   - Use - or * for bullet lists
+#   - Use section headers (## or **) for clarity if needed
+#   - Avoid escaped newlines (\n) in the text
+# This ensures all issues render cleanly and are easy to read on GitHub. 
