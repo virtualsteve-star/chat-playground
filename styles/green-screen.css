@@ -245,6 +245,19 @@ select:focus {
     border-radius: 2px !important;
     box-shadow: none !important;
     transition: box-shadow 0.2s, border-color 0.2s !important;
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    min-height: 36px !important;
+    max-width: 36px !important;
+    max-height: 36px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    margin-left: 1px !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
 }
 .green-screen #guardrails-btn:hover,
 .green-screen #guardrails-btn:focus,
@@ -361,4 +374,47 @@ select:focus {
 .green-screen .about-links a:visited {
     color: var(--terminal-green) !important;
     text-decoration: underline;
+}
+
+/* Style Switcher Dropdown for Green Screen */
+.green-screen .style-switcher {
+    position: relative !important;
+}
+
+.green-screen .style-menu {
+    min-width: 160px !important;
+    position: absolute !important;
+    top: 100% !important;
+    left: 0 !important;
+    z-index: 3000 !important;
+    display: none !important;
+    background: #000 !important;
+    border: 1px solid #33ff33 !important;
+    box-shadow: 0 2px 8px rgba(51,255,51,0.15) !important;
+}
+.green-screen .style-menu.open {
+    display: block !important;
+}
+
+.green-screen .style-option {
+    color: #33ff33 !important;
+    background: #000 !important;
+}
+
+.green-screen .style-option:hover,
+.green-screen .style-option:focus {
+    background: #111 !important;
+    color: #00ff00 !important;
+    outline: 1px solid #00ff00 !important;
+    box-shadow: 0 0 4px #00ff00 !important;
+    transition: background 0.15s, color 0.15s !important;
+}
+
+.green-screen .style-option:active {
+    background: #222 !important;
+    color: #00ff00 !important;
+}
+
+body.green-screen #style-switcher-btn {
+    font-size: 1.4em !important;
 } 
