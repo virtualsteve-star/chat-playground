@@ -3,6 +3,14 @@
  * Uses OpenAI's GPT-4.1-nano to detect prompt injection attempts via a compact JSON contract prompt.
  */
 
+// Node.js: require APIFilter at the very top
+let APIFilter;
+if (typeof module !== 'undefined' && module.exports) {
+    APIFilter = require('./api_filter.js').APIFilter;
+} else {
+    APIFilter = window.APIFilter;
+}
+
 class OpenAIPromptInjectionFilter extends APIFilter {
     constructor() {
         super('openai_prompt_injection');
@@ -103,4 +111,9 @@ class OpenAIPromptInjectionFilter extends APIFilter {
 }
 
 // Export the filter
-window.OpenAIPromptInjectionFilter = OpenAIPromptInjectionFilter; 
+window.OpenAIPromptInjectionFilter = OpenAIPromptInjectionFilter;
+
+// Node.js/CommonJS export
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { OpenAIPromptInjectionFilter };
+} 

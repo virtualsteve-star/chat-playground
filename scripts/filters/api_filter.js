@@ -14,4 +14,9 @@ class APIFilter {
 }
 
 // Export the filter
-window.APIFilter = APIFilter; 
+window.APIFilter = APIFilter;
+
+// Node.js/CommonJS export
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { APIFilter };
+} 

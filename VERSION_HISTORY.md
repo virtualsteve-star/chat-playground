@@ -1,10 +1,12 @@
 # Version History
 
 ## 0.9.5 (Unreleased)
-- Major CSS architecture refactor: Consolidated 4 CSS files into single variable-driven system
-- Eliminated all `!important` declarations for cleaner, more maintainable CSS
-- Added CSS Architecture Test Suite for ongoing validation
-- Improved theme extensibility: New themes now require only 3-5 lines vs 200+ previously
+- Major CSS architecture refactor:
+  - Consolidated 4 CSS files into single variable-driven system
+  - Eliminated all `!important` declarations for cleaner, more maintainable CSS
+  - Added CSS Architecture Test Suite for ongoing validation
+  - Improved theme extensibility: New themes now require only 3-5 lines vs 200+ previously
+- Added CLI-based test suites for sexual content, violence, code generation and prompt injection filters, providing parity with browser-based tests and including smoke mode for fast iteration
 
 ---
 
