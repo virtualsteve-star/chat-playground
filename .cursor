@@ -73,4 +73,33 @@
 - Credit the original contributor (not the committer) using their GitHub username
 - Find contributor information in the PR's "Conversation" tab, under the initial PR description
 - Format: "Feature description (PR #XX by @contributor)"
-- Example: "Added copy button to chat bubbles (PR #46 by @megahelio)" 
+- Example: "Added copy button to chat bubbles (PR #46 by @megahelio)"
+
+## Critical UI Architecture Rules (NEVER BREAK)
+
+### Toolbar Button Structure
+All toolbar buttons MUST follow this exact structure:
+```html
+<button id="your-btn" class="toolbar-button" title="Your Title">
+    <span class="button-icon">emoji</span>
+</button>
+```
+
+**JavaScript Guidelines:**
+- ✅ GOOD: `button.querySelector('.button-icon').textContent = 'newEmoji';`
+- ❌ NEVER: `button.textContent = 'newEmoji';` (destroys DOM structure)
+
+**Why this matters**: JavaScript that modifies button structure breaks CSS targeting, causing buttons to lose styling and become inconsistent. This has caused major debugging sessions.
+
+### CSS Architecture Rules
+- Use CSS custom properties (variables) for all theming in styles/main-optimized.css
+- NEVER use `!important` declarations (current count: 0, keep it that way)
+- New themes require only 3-5 lines of CSS variable overrides
+- All toolbar buttons inherit consistent sizing via `.toolbar-button` class
+- Run `node tests/CSSArchitectureTest.js` after any styling changes
+- Button structure validation is included in automated tests
+
+### Development Testing
+- Always test all 4 themes: Vanilla, iMessage, iMessage Dark, Green Screen
+- Verify button emoji sizing is consistent across all toolbar buttons
+- Check that guardrails panel spacing is tight (not excessive vertical padding) 

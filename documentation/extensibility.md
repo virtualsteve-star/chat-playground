@@ -47,28 +47,53 @@ This document explains how to extend the chat playground with new personalities,
 - Visual styles change the look and feel of the chat UI (e.g., Vanilla, Green Screen, iMessage).
 
 **How it works:**
-- Each style is a CSS file in the `styles/` directory.
-- Styles are listed in `config/styles.properties` and in the style selector in `index.html`.
+- The playground uses a consolidated CSS architecture with CSS custom properties
+- All styling is controlled by `styles/main-optimized.css` with theme-specific variable overrides
+- Themes are activated by adding body classes (`body.imessage`, `body.dark-mode`, `body.green-screen`)
 
 **How to add a new style:**
-1. **Create a CSS file:**
-   - Place it in `styles/` (e.g., `styles/my_theme.css`).
-2. **Register in config:**
-   - Add to `config/styles.properties`:
+1. **Define theme variables:**
+   - Add a new theme section to `styles/main-optimized.css`:
+     ```css
+     /* Ocean Theme */
+     body.ocean {
+         --primary-color: #0066cc;
+         --bg-color: #f0f8ff;
+         --text-color: #003d7a;
+         --bubble-radius: 12px;
+         /* Override any other variables as needed */
+     }
      ```
-     My Theme=styles/my_theme.css
-     ```
-3. **Add to selector:**
-   - Update the `<select id="style-selector">` in `index.html`:
+2. **Add to style switcher:**
+   - Update the style menu in `index.html`:
      ```html
-     <option value="my-theme">My Theme</option>
+     <div class="style-option" data-style="ocean">Ocean</div>
      ```
-4. **Test:**
-   - Switch to your new style in the app.
+3. **Test:**
+   - Your new theme should appear in the style switcher and work immediately.
 
 **Best practices:**
-- Use unique class names or CSS variables to avoid conflicts.
-- Test with all message types and UI panels.
+- Only override the CSS variables you need to change - the base system handles everything else
+- Test with all message types, panels, and interactions
+- Run `node tests/CSSArchitectureTest.js` after changes to validate the CSS structure
+
+### Toolbar Button Structure
+**Important**: All toolbar buttons must follow this exact structure to ensure consistent styling and prevent CSS/JS conflicts:
+
+```html
+<button id="your-btn" class="toolbar-button" title="Your Title">
+    <span class="button-icon">emoji</span>
+</button>
+```
+
+**JavaScript Guidelines:**
+- ✅ **GOOD**: Modify icon content only: `button.querySelector('.button-icon').textContent = 'newEmoji';`
+- ❌ **BAD**: Destroy structure: `button.textContent = 'newEmoji';` or `button.innerHTML = 'newEmoji';`
+
+**CSS Guidelines:**
+- Use `.toolbar-button` class for button styling
+- Use `.button-icon` class for emoji/icon styling
+- All toolbar buttons automatically get consistent sizing via these classes
 
 ---
 

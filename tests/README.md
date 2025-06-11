@@ -20,4 +20,28 @@ The "OpenAI Smoke Test" runs all prompts through the main chat UI using the Bob 
 
 **Note:** This test requires an OpenAI API key to be set in Preferences. If the key is missing, the test will not run.
 
+## CSS Architecture Test
+
+The **CSSArchitectureTest.js** validates the consolidated CSS system for structural integrity and performance:
+
+**What it tests:**
+- CSS structure (proper variable usage, no `!important` declarations)
+- Theme completeness (vanilla, iMessage, dark mode, green screen)
+- HTML integration (proper CSS references, no legacy dependencies)  
+- Performance metrics (file size, complexity)
+- JavaScript compatibility (required script dependencies)
+
+**Usage:**
+```bash
+# Run standalone validation
+node tests/CSSArchitectureTest.js
+
+# Import in other test files
+const CSSArchitectureTest = require('./CSSArchitectureTest');
+const test = new CSSArchitectureTest();
+test.runAllTests();
+```
+
+This test is essential for maintaining the health of the consolidated CSS architecture and should be run after any styling changes.
+
 For more information about the test suite, see [../documentation/tests.md](../documentation/tests.md). 

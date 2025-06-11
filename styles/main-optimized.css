@@ -1,0 +1,1119 @@
+/* Optimized Consolidated CSS - Steve's Chat Playground */
+/* Single source architecture with CSS Custom Properties */
+
+/* ========== CSS CUSTOM PROPERTIES (COMPLETE THEME SYSTEM) ========== */
+
+:root {
+    /* Base theme (vanilla) - foundation variables */
+    --primary-color: #4a90e2;
+    --bg-color: #fff;
+    --text-color: #333;
+    --secondary-color: #f5f5f5;
+    --border-color: #ddd;
+    --hover-color: #e0e0e0;
+    --accent-color: #4a90e2;
+    
+    /* Typography */
+    --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    --text-shadow: none;
+    
+    /* Layout & Spacing */
+    --chat-padding: 20px;
+    --bubble-max-width: 80%;
+    --bubble-margin: 15px;
+    
+    /* Header */
+    --header-bg: var(--primary-color);
+    --header-text: white;
+    --header-padding: 15px 20px;
+    
+    /* Chat Window */
+    --chat-bg: var(--secondary-color);
+    --chat-height: 400px;
+    
+    /* Message Bubbles */
+    --bubble-padding: 10px 15px;
+    --bubble-radius: 8px;
+    --user-bubble-bg: var(--primary-color);
+    --user-bubble-color: white;
+    --user-bubble-radius: var(--bubble-radius);
+    --bot-bubble-bg: white;
+    --bot-bubble-color: var(--text-color);
+    --bot-bubble-border: 1px solid var(--border-color);
+    --bot-bubble-radius: var(--bubble-radius);
+    
+    /* Input System */
+    --input-area-bg: white;
+    --input-area-border: 1px solid var(--border-color);
+    --input-area-padding: 15px;
+    --input-bg: white;
+    --input-color: var(--text-color);
+    --input-border: 1px solid var(--border-color);
+    --input-focus-border: var(--primary-color);
+    --input-radius: 4px;
+    --input-container-layout: flex;
+    --input-container-align: stretch;
+    --input-container-bg: transparent;
+    --input-container-border: none;
+    --input-container-radius: 0;
+    --input-container-shadow: none;
+    --input-container-padding: 0;
+    
+    /* Send Button */
+    --send-button-bg: var(--primary-color);
+    --send-button-color: white;
+    --send-button-hover: #3a7bc8;
+    --send-button-radius: 4px;
+    --send-button-padding: 8px 16px;
+    --send-button-size: auto;
+    
+    /* Control Buttons */
+    --control-button-bg: white;
+    --control-button-color: var(--text-color);
+    --control-button-border: 1px solid var(--border-color);
+    --control-button-hover-bg: var(--hover-color);
+    --control-button-hover-border: var(--primary-color);
+    
+    /* Feedback Buttons */
+    --feedback-button-bg: #f0f0f0;
+    --feedback-button-hover: #e0e0e0;
+    --feedback-button-radius: 6px;
+    
+    /* Side Panels */
+    --panel-bg: #fff;
+    --panel-text: #222;
+    --panel-border: none;
+    --panel-shadow: -2px 0 8px rgba(0,0,0,0.12);
+    
+    /* Effects */
+    --special-effects: none;
+    
+    /* Action Buttons */
+    --action-button-bg: #007bff;
+    --action-button-hover: #0056b3;
+    --action-button-active: #d0d0d0;
+    
+    /* UI Elements */
+    --close-button-color: #888;
+}
+
+/* ========== THEME VARIATIONS ========== */
+
+/* iMessage Theme */
+body.imessage {
+    --primary-color: #007AFF;
+    --secondary-color: #e9e9eb;
+    --header-bg: #e4e4e9;
+    --header-text: #222;
+    --chat-bg: #ffffff;
+    
+    /* iMessage bubble system */
+    --user-bubble-radius: 18px 18px 4px 18px;
+    --bot-bubble-radius: 18px 18px 18px 4px;
+    --bot-bubble-bg: #e9e9eb;
+    --bot-bubble-color: #222;
+    --bot-bubble-border: none;
+    
+    /* iMessage input system */
+    --input-bg: transparent;
+    --input-border: none;
+    --input-container-layout: flex;
+    --input-container-align: flex-end;
+    --input-container-bg: #fff;
+    --input-container-radius: 22px;
+    --input-container-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    --input-container-padding: 6px 8px 6px 16px;
+    --input-area-bg: #f7f7fa;
+    --input-area-border: 1px solid #e0e0e0;
+    
+    /* iMessage send button */
+    --send-button-size: 36px;
+    --send-button-radius: 50%;
+    --send-button-padding: 0;
+    --send-button-hover: #0056b3;
+    
+    /* iMessage control buttons */
+    --control-button-bg: #ffffff;
+    --control-button-border: 1px solid #d1d1d6;
+    --control-button-hover-bg: #f2f2f7;
+    --control-button-hover-border: #007AFF;
+    
+    /* iMessage feedback buttons */
+    --feedback-button-bg: #f2f2f7;
+    --feedback-button-hover: #e5e5ea;
+}
+
+/* Dark Mode Theme */
+body.dark-mode {
+    --bg-color: #18181a;
+    --text-color: #fff;
+    --secondary-color: #232326;
+    --border-color: #333;
+    --header-bg: #232326;
+    --header-text: #fff;
+    --chat-bg: #18181a;
+    --bot-bubble-bg: #232326;
+    --bot-bubble-color: #fff;
+    --bot-bubble-border: none;
+    --user-bubble-bg: #0A84FF;
+    --input-area-bg: #232326;
+    --input-area-border: 1px solid #333;
+    --input-container-bg: #18181a;
+    --input-color: #fff;
+    --send-button-bg: #0A84FF;
+    --send-button-hover: #0066CC;
+    --panel-bg: #232326;
+    --panel-text: #fff;
+    --control-button-bg: #232326;
+    --control-button-color: #fff;
+    --control-button-border: 1px solid #444;
+    --control-button-hover-bg: #333;
+    --control-button-hover-border: #0A84FF;
+    --feedback-button-bg: #48484a;
+    --feedback-button-hover: #5a5a5c;
+}
+
+/* Green Screen Theme */
+body.green-screen {
+    --primary-color: #33ff33;
+    --bg-color: #000000;
+    --text-color: #33ff33;
+    --secondary-color: #000000;
+    --border-color: #33ff33;
+    --header-bg: #000000;
+    --header-text: #33ff33;
+    --chat-bg: #000000;
+    --font-family: 'Courier', 'Courier New', monospace;
+    --text-shadow: 0 0 5px rgba(51, 255, 51, 0.4);
+    --user-bubble-bg: transparent;
+    --user-bubble-color: #33ff33;
+    --bot-bubble-bg: transparent;
+    --bot-bubble-color: #33ff33;
+    --bot-bubble-border: none;
+    --input-bg: transparent;
+    --input-border: none;
+    --input-color: #33ff33;
+    --send-button-bg: #000000;
+    --send-button-color: #33ff33;
+    --send-button-hover: #33ff33;
+    --panel-bg: #000;
+    --panel-text: #33ff33;
+    --panel-border: 1px solid #33ff33;
+    --control-button-bg: #000;
+    --control-button-color: #33ff33;
+    --control-button-border: 1px solid #33ff33;
+    --control-button-hover-bg: #000;
+    --control-button-hover-border: #33ff33;
+    --special-effects: enabled;
+}
+
+/* ========== BASE COMPONENT STYLES ========== */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-family);
+    line-height: 1.6;
+    color: var(--text-color);
+    background-color: var(--bg-color);
+    padding: var(--chat-padding);
+    text-shadow: var(--text-shadow);
+}
+
+.chat-container {
+    max-width: 800px;
+    margin: 0 auto;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* ========== HEADER ========== */
+
+header {
+    background-color: var(--header-bg);
+    color: var(--header-text);
+    padding: var(--header-padding);
+}
+
+body.green-screen header {
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--text-color);
+}
+
+h1 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+
+.controls {
+    display: flex;
+    gap: 2px;
+}
+
+select {
+    padding: 8px 12px;
+    border: var(--control-button-border);
+    border-radius: 4px;
+    background-color: var(--control-button-bg);
+    color: var(--control-button-color, var(--text-color));
+    font-size: 0.9rem;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.2s, border 0.2s;
+    box-sizing: border-box;
+}
+
+select:hover, select:focus {
+    background-color: var(--control-button-hover-bg);
+    border-color: var(--control-button-hover-border);
+    outline: none;
+}
+
+/* Header toolbar buttons */
+.toolbar-button {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    min-height: 36px;
+    max-width: 36px;
+    max-height: 36px;
+    margin-left: 1px;
+    padding: 0;
+    border: var(--control-button-border);
+    border-radius: 4px;
+    background-color: var(--control-button-bg);
+    color: var(--control-button-color, var(--text-color));
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.2s, border 0.2s;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.toolbar-button:hover, .toolbar-button:focus {
+    background-color: var(--control-button-hover-bg);
+    border-color: var(--control-button-hover-border);
+    outline: none;
+}
+
+body.green-screen select {
+    padding: 5px;
+}
+
+body.green-screen select:focus {
+    outline: none;
+    box-shadow: 0 0 5px rgba(51, 255, 51, 0.4);
+}
+
+.toolbar-button .button-icon {
+    font-size: 1.8em;
+    line-height: 1;
+    display: block;
+}
+
+/* ========== ADDITIONAL UI COMPONENTS ========== */
+
+/* Filter UI Components */
+.filter-list {
+    background: var(--control-button-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    min-width: 180px;
+    padding: 8px;
+    color: var(--text-color);
+    font-size: 0.9rem;
+    font-family: inherit;
+    margin-top: 2px;
+}
+
+/* Panel Overlays */
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.15);
+    z-index: 1999;
+}
+
+.overlay.open {
+    display: block;
+}
+
+/* Header Logo and Layout */
+.header-logo-title {
+    display: flex;
+    align-items: center;
+}
+
+.site-logo {
+    height: 48px;
+    width: auto;
+    margin-right: 16px;
+}
+
+/* Vanilla-only elements (hide in themed modes) */
+.vanilla-only { 
+    display: inline; 
+}
+
+body.green-screen .vanilla-only,
+body.imessage .vanilla-only,
+body.imessage-dark .vanilla-only { 
+    display: none;
+}
+
+/* About Panel Specific Styles */
+.about-logo {
+    display: block;
+    margin: 0 auto 4px auto;
+    height: 96px;
+    width: auto;
+}
+
+.about-title {
+    text-align: center;
+    margin: 8px 0 12px 0;
+    font-size: 1.5em;
+}
+
+.about-desc {
+    text-align: left;
+    margin-bottom: 18px;
+    line-height: 1.3;
+}
+
+.about-book {
+    text-align: left;
+    margin-bottom: 18px;
+}
+
+.about-book-cover {
+    display: block;
+    margin: 10px auto 0 auto;
+    max-width: 120px;
+    height: auto;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+}
+
+.about-links {
+    text-align: center;
+    margin-top: 10px;
+}
+
+#about-panel {
+    position: fixed;
+    top: 0; right: 0;
+    width: 350px;
+    height: 100%;
+    background: var(--panel-bg);
+    box-shadow: -2px 0 8px rgba(0,0,0,0.10);
+    z-index: 2000;
+    overflow-y: auto;
+    color: var(--panel-text);
+    transition: right 0.25s cubic-bezier(.4,0,.2,1);
+    right: -350px;
+}
+
+#about-panel.open {
+    right: 0;
+}
+
+.about-content {
+    background: none;
+    color: inherit;
+}
+
+#about-panel .panel-header {
+    display: block;
+    position: relative;
+    padding: 0;
+    min-height: 0;
+    height: auto;
+    text-align: center;
+    border-bottom: none;
+}
+
+#about-panel .close-button {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    z-index: 1;
+}
+
+/* Guardrails Panel Vanilla Mode */
+body:not(.green-screen):not(.dark-mode) .guardrails-tree .tree-section {
+    color: #222;
+    font-size: 1.08em;
+    font-weight: bold;
+}
+
+/* ========== CHAT WINDOW ========== */
+
+#chat-window {
+    height: var(--chat-height);
+    overflow-y: auto;
+    padding: var(--chat-padding);
+    background-color: var(--chat-bg);
+}
+
+/* ========== MESSAGE LAYOUT ========== */
+
+.message-entry {
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.user-message, .bot-message {
+    margin-bottom: var(--bubble-margin);
+    padding: var(--bubble-padding);
+    max-width: var(--bubble-max-width);
+    position: relative;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    word-break: normal;
+    line-height: 1.5;
+}
+
+.user-message {
+    background-color: var(--user-bubble-bg);
+    color: var(--user-bubble-color);
+    border-radius: var(--user-bubble-radius);
+    margin-left: auto;
+}
+
+.bot-message {
+    background-color: var(--bot-bubble-bg);
+    color: var(--bot-bubble-color);
+    border: var(--bot-bubble-border);
+    border-radius: var(--bot-bubble-radius);
+    margin-right: auto;
+}
+
+/* iMessage layout overrides */
+body.imessage .message-entry {
+    display: flex;
+    flex-direction: row;
+}
+
+body.imessage .bot-entry {
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+body.imessage .message-feedback {
+    margin-top: 4px;
+    margin-left: 8px;
+    align-self: flex-start;
+}
+
+/* ========== MESSAGE FEEDBACK ========== */
+
+.message-feedback {
+    display: none;
+    margin-top: 5px;
+    margin-left: 10px;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+}
+
+.message-feedback.visible {
+    display: flex;
+}
+
+.bot-entry:hover .message-feedback {
+    opacity: 1;
+}
+
+.feedback-icon {
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+}
+
+.bot-entry .message-feedback {
+    margin-left: 5px;
+    gap: 5px;
+}
+
+.feedback-button {
+    background-color: var(--feedback-button-bg);
+    border: none;
+    padding: 4px 6px;
+    border-radius: var(--feedback-button-radius);
+    cursor: pointer;
+    line-height: 0;
+    transition: background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.feedback-button:hover {
+    background-color: var(--feedback-button-hover);
+}
+
+.feedback-button:active {
+    background-color: var(--action-button-active);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+    transform: scale(0.98);
+}
+
+/* ========== INPUT AREA ========== */
+
+.input-area {
+    padding: var(--input-area-padding);
+    background-color: var(--input-area-bg);
+    border-top: var(--input-area-border);
+}
+
+.input-container {
+    display: var(--input-container-layout);
+    gap: 8px;
+    align-items: var(--input-container-align);
+    background: var(--input-container-bg);
+    border: var(--input-container-border);
+    border-radius: var(--input-container-radius);
+    box-shadow: var(--input-container-shadow);
+    padding: var(--input-container-padding);
+}
+
+#user-input {
+    width: 100%;
+    padding: 8px;
+    border: var(--input-border);
+    border-radius: var(--input-radius);
+    margin-right: 8px;
+    resize: none;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.4;
+    background: var(--input-bg);
+    color: var(--input-color, var(--text-color));
+}
+
+#user-input:focus {
+    outline: none;
+    border-color: var(--input-focus-border);
+}
+
+#user-input::placeholder {
+    color: #bbb;
+}
+
+body.dark-mode #user-input::placeholder {
+    color: #aaa;
+}
+
+/* ========== SEND BUTTON ========== */
+
+#send-button {
+    padding: var(--send-button-padding);
+    background-color: var(--send-button-bg);
+    color: var(--send-button-color);
+    border: none;
+    border-radius: var(--send-button-radius);
+    cursor: pointer;
+    font-size: 14px;
+    white-space: nowrap;
+    width: var(--send-button-size);
+    height: var(--send-button-size);
+    min-width: var(--send-button-size);
+    min-height: var(--send-button-size);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#send-button:hover {
+    background-color: var(--send-button-hover);
+}
+
+/* Send button content visibility */
+.vanilla-send { display: block; }
+.imessage-send, .green-screen-send { display: none; }
+
+body.imessage .vanilla-send, body.imessage .green-screen-send { display: none; }
+body.imessage .imessage-send {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    line-height: 1;
+    font-weight: bold;
+    width: 100%;
+    height: 100%;
+}
+
+body.imessage .imessage-send::before {
+    content: '';
+    display: block;
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-bottom: 14px solid #fff;
+    margin-bottom: 2px;
+}
+
+body.green-screen .vanilla-send, body.green-screen .imessage-send { display: none; }
+body.green-screen .green-screen-send { display: block; }
+
+/* ========== WORKING INDICATOR ========== */
+
+.working-indicator {
+    display: none;
+    margin: 10px 0;
+    color: #888;
+    font-style: italic;
+}
+
+.working-indicator.active {
+    display: block;
+}
+
+/* ========== SIDE PANELS ========== */
+
+.side-panel {
+    position: fixed;
+    top: 0;
+    right: -340px;
+    width: 320px;
+    height: 100%;
+    background: var(--panel-bg);
+    color: var(--panel-text);
+    border: var(--panel-border);
+    box-shadow: var(--panel-shadow);
+    z-index: 2000;
+    transition: right 0.3s cubic-bezier(.4,0,.2,1);
+    padding: 24px 20px 20px 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.side-panel.open {
+    right: 0;
+}
+
+.panel-header {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.panel-header h2 {
+    margin: 0;
+    font-size: 1.2em;
+    color: var(--panel-text);
+    font-weight: bold;
+}
+
+.close-button {
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    cursor: pointer;
+    padding: 0 5px;
+    color: var(--close-button-color);
+}
+
+.panel-content {
+    padding: 15px;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+/* ========== PREFERENCES ========== */
+
+.preferences-section {
+    margin-bottom: 20px;
+}
+
+.preferences-section h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.1em;
+    color: var(--panel-text);
+    font-weight: bold;
+}
+
+.action-button {
+    padding: 8px 15px;
+    background-color: var(--action-button-bg);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 0px;
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
+}
+
+.action-button:hover {
+    background-color: var(--action-button-hover);
+}
+
+#openai-key-status {
+    font-weight: bold;
+    color: var(--panel-text);
+    margin-left: 4px;
+}
+
+/* ========== GUARDRAILS & FILTER PANELS ========== */
+
+/* All filter/preference labels use consistent styling */
+.guardrails-tree label,
+.tree-children label,
+.preferences-section label {
+    display: block;
+    margin-bottom: 1px;
+    color: var(--panel-text);
+    cursor: pointer;
+    text-align: left;
+    font-size: 0.98em;
+    font-family: inherit;
+    font-weight: normal;
+    padding: 2px 0 2px 2px;
+    border-radius: 2px;
+    transition: background 0.15s;
+}
+
+.guardrails-tree label:hover,
+.tree-children label:hover,
+.preferences-section label:hover {
+    background: var(--hover-color, #f5f5f5);
+}
+
+.guardrails-tree input[type="checkbox"],
+.tree-children input[type="checkbox"],
+.preferences-section input[type="checkbox"] {
+    margin-right: 6px;
+}
+
+.tree-section {
+    font-weight: bold;
+    margin-bottom: 8px;
+    cursor: pointer;
+    user-select: none;
+    text-align: left;
+    color: var(--panel-text);
+    font-size: 1.08em;
+    padding: 4px 0 4px 0;
+}
+
+#openai-key-section p {
+    color: var(--panel-text);
+    font-size: 1em;
+    margin-bottom: 8px;
+}
+
+/* ========== REJECTION MESSAGES ========== */
+
+.rejection-message {
+    background-color: #ffebee;
+    color: #c62828;
+    border: 1px solid #ef9a9a;
+    padding: 10px 15px;
+    border-radius: 15px;
+    margin: 5px 0;
+    max-width: 80%;
+    align-self: flex-start;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+/* ========== STYLE SWITCHER ========== */
+
+.style-switcher {
+    position: relative;
+    display: inline-block;
+}
+
+.style-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 140px;
+    background: var(--control-button-bg, white);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    z-index: 3000;
+    margin-top: 2px;
+    display: none;
+}
+
+.style-menu.open {
+    display: block;
+}
+
+.style-option {
+    padding: 8px 12px;
+    cursor: pointer;
+    color: var(--text-color);
+    font-size: 0.95em;
+    border-radius: 2px;
+    transition: background 0.15s;
+}
+
+.style-option:hover {
+    background: var(--hover-color, #f5f5f5);
+}
+
+/* ========== TERMINAL INTERFACE (GREEN SCREEN) ========== */
+
+body.green-screen .modern-interface {
+    display: none;
+}
+
+body.green-screen .terminal-interface {
+    display: block;
+}
+
+.terminal-window {
+    font-family: var(--font-family);
+    padding: 10px;
+    white-space: pre-wrap;
+    min-height: calc(100vh - 150px);
+    overflow-y: auto;
+}
+
+.terminal-line {
+    margin: 0;
+    padding: 0;
+    min-height: 1.2em;
+    width: 100%;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.user-command, .system-response {
+    margin: 0;
+    padding: 0;
+    color: var(--text-color);
+    width: 100%;
+}
+
+.terminal-prompt {
+    display: block;
+    padding: 0;
+    font-family: var(--font-family);
+    width: 100%;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.prompt {
+    color: var(--text-color);
+}
+
+.input {
+    background: transparent;
+    color: var(--text-color);
+    border: none;
+    font-family: var(--font-family);
+    font-size: inherit;
+    padding: 0;
+    margin: 0;
+    outline: none;
+    min-width: 1ch;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+/* ========== GREEN SCREEN SPECIAL EFFECTS ========== */
+
+body.green-screen {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: var(--font-family);
+    margin: 0;
+    padding: 20px;
+    line-height: 1.2;
+    text-shadow: var(--text-shadow);
+}
+
+/* CRT scan line effect */
+body.green-screen::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.15),
+        rgba(0, 0, 0, 0.15) 1px,
+        transparent 1px,
+        transparent 2px
+    );
+    pointer-events: none;
+    z-index: 999;
+}
+
+/* Screen flicker animation */
+@keyframes flicker {
+    0% { opacity: 0.97; }
+    5% { opacity: 0.95; }
+    10% { opacity: 0.9; }
+    15% { opacity: 0.95; }
+    20% { opacity: 0.98; }
+    25% { opacity: 0.95; }
+    30% { opacity: 0.9; }
+    35% { opacity: 0.95; }
+    40% { opacity: 0.98; }
+    45% { opacity: 0.95; }
+    50% { opacity: 0.9; }
+    55% { opacity: 0.95; }
+    60% { opacity: 0.98; }
+    65% { opacity: 0.95; }
+    70% { opacity: 0.9; }
+    75% { opacity: 0.95; }
+    80% { opacity: 0.98; }
+    85% { opacity: 0.95; }
+    90% { opacity: 0.9; }
+    95% { opacity: 0.95; }
+    100% { opacity: 0.98; }
+}
+
+body.green-screen .chat-container {
+    animation: flicker 10s infinite;
+    background: none;
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    max-width: 100%;
+}
+
+/* Blinking cursor for green screen */
+@keyframes blink-caret {
+    from, to { border-right-color: transparent }
+    50% { border-right-color: var(--text-color); }
+}
+
+body.green-screen .input {
+    border-right: 0.5em solid var(--text-color);
+    animation: blink-caret 1s infinite;
+}
+
+body.green-screen .cursor {
+    display: none;
+}
+
+/* Hide graphical feedback buttons in terminal mode */
+body.green-screen .message-feedback {
+    display: none;
+}
+
+body.green-screen .feedback-icon {
+    display: none;
+}
+
+/* Scrollbar styling for green screen */
+body.green-screen ::-webkit-scrollbar {
+    width: 8px;
+    background: var(--bg-color);
+}
+
+body.green-screen ::-webkit-scrollbar-thumb {
+    background: var(--text-color);
+}
+
+/* Green screen enhanced styling */
+body.green-screen .side-panel {
+    background: var(--panel-bg);
+    color: var(--panel-text);
+    border: var(--panel-border);
+    box-shadow: 0 0 16px 2px rgba(51,255,51,0.15);
+    text-shadow: var(--text-shadow);
+}
+
+body.green-screen .side-panel .close-button {
+    color: var(--panel-text);
+}
+
+body.green-screen .side-panel .panel-content {
+    background: #0a0a0a;
+    border-radius: 6px;
+    padding: 10px;
+    margin: 4px 0 0 0;
+}
+
+body.green-screen .side-panel label,
+body.green-screen .side-panel .tree-children label {
+    color: var(--panel-text);
+    transition: background 0.15s, box-shadow 0.15s;
+}
+
+body.green-screen .side-panel label:hover,
+body.green-screen .side-panel .tree-children label:hover {
+    background: #111;
+    box-shadow: 0 0 8px 1px var(--text-color);
+}
+
+body.green-screen .side-panel input[type="checkbox"] {
+    accent-color: var(--text-color);
+    filter: drop-shadow(0 0 2px var(--text-color));
+}
+
+body.green-screen .side-panel .tree-section {
+    color: var(--panel-text);
+    text-shadow: 0 0 8px var(--text-color);
+    transition: background 0.15s, box-shadow 0.15s;
+}
+
+body.green-screen .side-panel .tree-section:hover {
+    background: #111;
+    box-shadow: 0 0 12px 2px var(--text-color);
+}
+
+body.green-screen .about-links a,
+body.green-screen .about-links a:visited {
+    color: var(--text-color);
+    text-decoration: underline;
+}
+
+body.green-screen .style-menu {
+    background: var(--panel-bg);
+    border: 1px solid var(--text-color);
+    box-shadow: 0 2px 8px rgba(51,255,51,0.15);
+}
+
+body.green-screen .style-option {
+    color: var(--text-color);
+    background: var(--panel-bg);
+}
+
+body.green-screen .style-option:hover,
+body.green-screen .style-option:focus {
+    background: #111;
+    color: #00ff00;
+    outline: 1px solid #00ff00;
+    box-shadow: 0 0 4px #00ff00;
+    transition: background 0.15s, color 0.15s;
+}
+
+body.green-screen .style-option:active {
+    background: #222;
+    color: #00ff00;
+}
+
+/* Make the ? button bold */
+#about-btn .button-icon {
+    font-weight: bold;
+}
+
+
+

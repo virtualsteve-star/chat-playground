@@ -21,245 +21,7 @@
     <meta name="twitter:creator" content="@virtualsteve" />
 
     <title>Steve's Chat Playground</title>
-    <link rel="stylesheet" href="styles/vanilla.css" id="style-sheet">
-    <link rel="stylesheet" href="styles/green-screen.css" disabled>
-    <link rel="stylesheet" href="styles/imessage.css" disabled>
-    <link rel="stylesheet" href="styles/imessage-dark.css">
-    <style>
-        /* Style the Input Filters button to look like a select */
-        #input-filters-button {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background-color: white;
-            font-size: 0.9rem;
-            cursor: pointer;
-            color: #333;
-            min-width: 120px;
-            font-family: inherit;
-            transition: background 0.2s, border 0.2s;
-            box-sizing: border-box;
-        }
-        #input-filters-button:hover, #input-filters-button:focus {
-            background-color: #e0e0e0;
-            border-color: #4a90e2;
-            outline: none;
-        }
-        #input-filters-list {
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            min-width: 180px;
-            padding: 8px;
-            color: #333;
-            font-size: 0.9rem;
-            font-family: inherit;
-            margin-top: 2px;
-        }
-        #input-filters-list label,
-        #input-filters-children label,
-        #output-filters-list label,
-        #output-filters-children label {
-            display: block;
-            margin-bottom: 1px;
-            color: #333;
-            cursor: pointer;
-            padding: 1px 0 1px 2px;
-            border-radius: 2px;
-            transition: background 0.15s;
-            font-size: 0.9rem;
-        }
-        #input-filters-list label:hover,
-        #input-filters-children label:hover,
-        #output-filters-list label:hover,
-        #output-filters-children label:hover {
-            background: #f5f5f5;
-        }
-        #input-filters-list input[type="checkbox"],
-        #input-filters-children input[type="checkbox"],
-        #output-filters-list input[type="checkbox"],
-        #output-filters-children input[type="checkbox"] {
-            margin-right: 6px;
-        }
-        #guardrails-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.15);
-            z-index: 1999;
-        }
-        #guardrails-overlay.open {
-            display: block;
-        }
-        #guardrails-btn {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background-color: white;
-            font-size: 0.9rem;
-            cursor: pointer;
-            color: #333;
-            min-width: 120px;
-            font-family: inherit;
-            transition: background 0.2s, border 0.2s;
-            box-sizing: border-box;
-            margin-left: 2px;
-        }
-        #guardrails-btn:hover, #guardrails-btn:focus {
-            background-color: #e0e0e0;
-            border-color: #4a90e2;
-            outline: none;
-        }
-        /* Guardrails panel section headers in vanilla mode */
-        body:not(.green-screen):not(.dark-mode) .guardrails-tree .tree-section {
-            color: #222;
-            font-size: 1.08em;
-            font-weight: bold;
-        }
-        .header-logo-title {
-            display: flex;
-            align-items: center;
-        }
-        .site-logo {
-            height: 48px;
-            width: auto;
-            margin-right: 16px;
-        }
-        /* Only show logo in vanilla mode */
-        .vanilla-only { display: inline; }
-        body.green-screen .vanilla-only,
-        body.imessage .vanilla-only,
-        body.imessage-dark .vanilla-only { display: none !important; }
-        .about-logo {
-            display: block;
-            margin: 0 auto 4px auto;
-            height: 96px;
-            width: auto;
-        }
-        .about-title {
-            text-align: center;
-            margin: 8px 0 12px 0;
-            font-size: 1.5em;
-        }
-        .about-desc {
-            text-align: left;
-            margin-bottom: 18px;
-            line-height: 1.3;
-        }
-        .about-book {
-            text-align: left;
-            margin-bottom: 18px;
-        }
-        .about-book-cover {
-            display: block;
-            margin: 10px auto 0 auto;
-            max-width: 120px;
-            height: auto;
-            border-radius: 6px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.10);
-        }
-        .about-links {
-            text-align: center;
-            margin-top: 10px;
-        }
-        /* About panel overlay and panel match other panels */
-        #about-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.15);
-            z-index: 1999;
-        }
-        #about-overlay.open {
-            display: block;
-        }
-        #about-panel {
-            position: fixed;
-            top: 0; right: 0;
-            width: 350px;
-            height: 100%;
-            background: #fff;
-            box-shadow: -2px 0 8px rgba(0,0,0,0.10);
-            z-index: 2000;
-            overflow-y: auto;
-            color: #222;
-            transition: right 0.25s cubic-bezier(.4,0,.2,1);
-            right: -350px;
-        }
-        #about-panel.open {
-            right: 0;
-        }
-        /* Remove redundant .about-content color if present */
-        .about-content {
-            background: none;
-            color: inherit;
-        }
-        /* Tighter logo spacing for About panel */
-        #about-panel .panel-header {
-            display: block;
-            position: relative;
-            padding: 0 !important;
-            min-height: 0;
-            height: auto;
-            text-align: center;
-            border-bottom: none;
-        }
-        #about-panel .close-button {
-            position: absolute;
-            top: 8px;
-            right: 12px;
-            z-index: 1;
-        }
-        /* Make the preferences button emoji larger */
-        #preferences-btn {
-            font-size: 1.2em;
-            line-height: 1;
-            padding: 8px 12px;
-        }
-        /* Style the about button question mark */
-        #about-btn {
-            font-size: 1.4em;
-            font-weight: bold;
-            line-height: 1;
-            padding: 8px 12px;
-        }
-        /* Style the guardrails button emoji */
-        #guardrails-btn {
-            font-size: 1.2em;
-            line-height: 1;
-            padding: 8px 12px;
-        }
-        /* Common styles for toolbar buttons */
-        #guardrails-btn,
-        #preferences-btn,
-        #about-btn {
-            width: 36px;
-            height: 36px;
-            min-width: 36px;
-            min-height: 36px;
-            max-width: 36px;
-            max-height: 36px;
-            margin-left: 1px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            box-sizing: border-box;
-            overflow: hidden;
-            padding: 0;
-        }
-        #guardrails-btn span,
-        #preferences-btn span,
-        #about-btn span {
-            font-size: 1.4em;
-            line-height: 1;
-            display: block;
-        }
-        /* Remove individual button styles since they're now combined above */
-        #preferences-btn { }
-        #about-btn { }
-        #guardrails-btn { }
-    </style>
+    <link rel="stylesheet" href="styles/main-optimized.css" id="style-sheet">
 </head>
 <body>
     <div class="chat-container">
@@ -271,9 +33,9 @@
                 <select id="personality-selector">
                     <!-- Will be populated dynamically -->
                 </select>
-                <button id="guardrails-btn" type="button" class="action-button" title="Guardrails"><span>🚧</span></button>
+                <button id="guardrails-btn" type="button" class="toolbar-button" title="Guardrails"><span class="button-icon">🚧</span></button>
                 <div class="style-switcher">
-                    <button id="style-switcher-btn" type="button" class="action-button" title="Change Style"><span>👀</span></button>
+                    <button id="style-switcher-btn" type="button" class="toolbar-button" title="Change Style"><span class="button-icon">👀</span></button>
                     <div id="style-menu" class="style-menu">
                         <div class="style-option" data-style="vanilla">Vanilla</div>
                         <div class="style-option" data-style="imessage">iMessage</div>
@@ -281,8 +43,8 @@
                         <div class="style-option" data-style="green-screen">Green Screen</div>
                     </div>
                 </div>
-                <button id="preferences-btn" type="button" class="action-button" title="Preferences"><span>⚙️</span></button>
-                <button id="about-btn" type="button" class="action-button" title="About"><span>?</span></button>
+                <button id="preferences-btn" type="button" class="toolbar-button" title="Preferences"><span class="button-icon">⚙️</span></button>
+                <button id="about-btn" type="button" class="toolbar-button" title="About"><span class="button-icon">?</span></button>
             </div>
             <div id="guardrails-overlay" class="overlay"></div>
             <div id="guardrails-panel" class="side-panel">
@@ -415,4 +177,4 @@
     <script src="tests/SimpleBotSmokeTest.js"></script>
     <script src="tests/OpenAISmokeTest.js"></script>
 </body>
-</html> 
+</html>
