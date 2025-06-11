@@ -44,22 +44,4 @@ test.runAllTests();
 
 This test is essential for maintaining the health of the consolidated CSS architecture and should be run after any styling changes.
 
-## CLI Content Filter Tests
-
-For instructions on running the CLI-based test suites for sexual content, violence, and prompt injection filters (including smoke test mode for fast iteration), see [cli-tests.md](./cli-tests.md).
-
-For more information about the test suite, see [../documentation/tests.md](../documentation/tests.md).
-
-### Code Generation Response Filter Test
-
-To run the code generation output filter test suite:
-```sh
-node tests/CodeGenerationTest.js
-```
-
-To run in smoke mode (first 10 cases only):
-```sh
-node tests/CodeGenerationTest.js --smoke
-```
-
-See [cli-tests.md](./cli-tests.md) for more details. 
+For more information about the test suite, see [../documentation/tests.md](../documentation/tests.md). 

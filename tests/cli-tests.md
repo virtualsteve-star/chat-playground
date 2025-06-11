@@ -1,86 +1,79 @@
-# CLI Test Suites for Content Filters
+# CLI Tests
 
-This project includes CLI-based test suites for evaluating the accuracy of content filters (sexual content, violence, and prompt injection) using both local blocklists and OpenAI's moderation API.
+This directory contains CLI-based tests that can be run from the command line.
 
-## Prerequisites
+## CSS Architecture Test
 
-- **Node.js** (v18 or higher recommended)
-- **OpenAI API Key**
+The CSS Architecture Test validates the structural integrity and configuration of our consolidated CSS system.
 
-You must set your OpenAI API key as an environment variable before running the tests:
+### Running the Test
 
-```sh
-export OPENAI_API_KEY=sk-...
-```
-
-Or, create a `.env` file in the project root with:
-
-```
-OPENAI_API_KEY=sk-...
-```
-
-## Running the Tests
-
-Navigate to the project root and run any of the following commands:
-
-### Sexual Content Filter Test
-```sh
-node tests/SexualContentTest.js
-```
-
-### Violence Content Filter Test
-```sh
-node tests/ViolenceContentTest.js
-```
-
-### Prompt Injection Filter Test
-```sh
-node tests/PromptInjectionTest.js
-```
-
-### Code Generation Response Filter Test
-```sh
-node tests/CodeGenerationTest.js
-```
-
-### CSS Architecture Test
-```sh
+```bash
 node tests/CSSArchitectureTest.js
 ```
 
-The CSS Architecture Test validates the consolidated CSS system for:
-- Core CSS file structure and variable count
-- Theme completeness (iMessage, Dark Mode, Green Screen)
-- HTML integration and proper CSS references
-- CSS structural integrity and balanced braces
-- JavaScript dependencies
-- Performance metrics (file size and line count)
-- Button structure integrity
+### What it Tests
 
-## Smoke Test Mode (Faster Iteration)
+1. **CSS File Structure**
+   - Verifies main-optimized.css exists
+   - Checks for sufficient CSS variables (100+)
+   - Ensures no !important declarations
 
-To run only the first 10 test cases (for quick iteration and lower token costs), add the `--smoke` flag to any test command:
+2. **Theme Completeness**
+   - Validates presence of required themes:
+     - iMessage theme
+     - Dark mode
+     - Green screen
 
-```sh
-node tests/SexualContentTest.js --smoke
-node tests/ViolenceContentTest.js --smoke
-node tests/PromptInjectionTest.js --smoke
-node tests/CodeGenerationTest.js --smoke
+3. **HTML Integration**
+   - Checks proper CSS file references
+   - Verifies no old CSS file references
+   - Tests theme switching capability
+
+4. **CSS Structural Integrity**
+   - Validates balanced braces
+   - Checks for critical CSS sections
+   - Verifies proper organization
+
+5. **JavaScript Dependencies**
+   - Ensures required script files exist
+   - Validates core dependencies
+
+6. **Performance Metrics**
+   - Checks CSS file size (< 50KB)
+   - Validates line count (< 1500 lines)
+
+7. **Button Structure**
+   - Verifies toolbar button classes
+   - Checks button icon structure
+   - Validates CSS class usage
+
+### Test Output
+
+The test provides detailed output for each check, including:
+- Pass/fail status for each test
+- Detailed failure information
+- Performance metrics
+- Architecture statistics
+
+### Example Output
+
 ```
+🧪 CSS Architecture Smoke Test
+==================================================
+✅ PASS: CSS File Exists
+✅ PASS: CSS Variables Count - 150 variables defined
+✅ PASS: No !important Usage - 0 !important declarations
+...
+==================================================
 
-Note: The CSS Architecture Test does not support smoke mode as it runs a fixed set of structural tests.
+📊 Test Summary: 7/7 test suites passed
+🎉 All tests passed! CSS architecture is healthy.
 
-## Output
-
-Each test suite will print a summary table showing the accuracy of both the blocklist and OpenAI filters, as well as per-case results and average response time.
-
-The CSS Architecture Test provides:
-- Individual test results with ✅/❌ indicators
-- Overall test summary (X/Y test suites passed)
-- Architecture metrics (CSS variables, selectors, lines of code, file size)
-- Failed test details if any tests fail
-
-## Notes
-- The test CSVs are located in `tests/data/`.
-- The CLI tests are designed to match the browser-based test logic for parity.
-- If you encounter errors about missing dependencies or API keys, ensure your environment is set up as described above. 
+📈 Architecture Metrics:
+   CSS Variables: 150
+   CSS Selectors: 300
+   Lines of Code: 1200
+   File Size: 45.2KB
+   Extensibility: ~3-5 lines for new themes
+``` 
