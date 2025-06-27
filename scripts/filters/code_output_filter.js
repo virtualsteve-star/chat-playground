@@ -96,8 +96,4 @@ class CodeOutputFilter {
     }
 }
 
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { CodeOutputFilter };
-}
-
 window.CodeOutputFilter = CodeOutputFilter; 

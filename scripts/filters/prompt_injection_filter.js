@@ -210,9 +210,4 @@ class PromptInjectionFilter {
 }
 
 // Export the filter
-window.PromptInjectionFilter = PromptInjectionFilter;
-
-// Node.js/CommonJS export
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { PromptInjectionFilter };
-} 
+window.PromptInjectionFilter = PromptInjectionFilter; 

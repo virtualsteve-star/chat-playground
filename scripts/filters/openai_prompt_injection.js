@@ -103,9 +103,4 @@ class OpenAIPromptInjectionFilter extends window.APIFilter {
 }
 
 // Export the filter
-window.OpenAIPromptInjectionFilter = OpenAIPromptInjectionFilter;
-
-// Node.js/CommonJS export
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { OpenAIPromptInjectionFilter };
-} 
+window.OpenAIPromptInjectionFilter = OpenAIPromptInjectionFilter; 
