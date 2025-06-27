@@ -15,38 +15,20 @@ class BlocklistFilter {
 
     async initialize() {
         try {
-            // Node.js or browser?
-            const isNode = typeof window === 'undefined' || typeof window.location === 'undefined';
-            if (isNode) {
-                // Node.js: use fs to load files
-                const fs = require('fs');
-                const path = require('path');
-                const base = path.join(__dirname, '../filters/');
-                const sexText = fs.readFileSync(path.join(base, 'sex_blocklist.txt'), 'utf8');
-                const violenceText = fs.readFileSync(path.join(base, 'violence_blocklist.txt'), 'utf8');
-                this.blocklists.sex = sexText.split('\n')
-                    .filter(line => line.trim() && !line.startsWith('#'))
-                    .map(term => term.toLowerCase().trim());
-                this.blocklists.violence = violenceText.split('\n')
-                    .filter(line => line.trim() && !line.startsWith('#'))
-                    .map(term => term.toLowerCase().trim());
-                this.initialized = true;
-            } else {
-                // Browser: use fetch
-                const timestamp = new Date().getTime();
-                const base = window.location.pathname.includes('/tests/') ? '../' : '';
-                const sexResponse = await fetch(base + 'scripts/filters/sex_blocklist.txt?t=' + timestamp);
-                const violenceResponse = await fetch(base + 'scripts/filters/violence_blocklist.txt?t=' + timestamp);
-                const sexText = await sexResponse.text();
-                const violenceText = await violenceResponse.text();
-                this.blocklists.sex = sexText.split('\n')
-                    .filter(line => line.trim() && !line.startsWith('#'))
-                    .map(term => term.toLowerCase().trim());
-                this.blocklists.violence = violenceText.split('\n')
-                    .filter(line => line.trim() && !line.startsWith('#'))
-                    .map(term => term.toLowerCase().trim());
-                this.initialized = true;
-            }
+            // Browser: use fetch
+            const timestamp = new Date().getTime();
+            const base = window.location.pathname.includes('/tests/') ? '../' : '';
+            const sexResponse = await fetch(base + 'scripts/filters/sex_blocklist.txt?t=' + timestamp);
+            const violenceResponse = await fetch(base + 'scripts/filters/violence_blocklist.txt?t=' + timestamp);
+            const sexText = await sexResponse.text();
+            const violenceText = await violenceResponse.text();
+            this.blocklists.sex = sexText.split('\n')
+                .filter(line => line.trim() && !line.startsWith('#'))
+                .map(term => term.toLowerCase().trim());
+            this.blocklists.violence = violenceText.split('\n')
+                .filter(line => line.trim() && !line.startsWith('#'))
+                .map(term => term.toLowerCase().trim());
+            this.initialized = true;
         } catch (error) {
             console.error('Error initializing blocklist filter:', error);
             throw error;
@@ -112,9 +94,4 @@ class BlocklistFilter {
 }
 
 // Export the filter
-window.BlocklistFilter = BlocklistFilter;
-
-// Node.js/CommonJS export
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { BlocklistFilter };
-} 
+window.BlocklistFilter = BlocklistFilter; 
