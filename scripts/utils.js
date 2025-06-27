@@ -138,35 +138,21 @@ const toggleWorkingIndicator = (show) => {
 
 // Change visual style
 const changeStyle = (styleName) => {
-    // Disable ALL linked stylesheets first
-    document.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
-        link.disabled = true;
-    });
-
-    // Remove dark mode and imessage class by default
-    document.body.classList.remove('dark-mode');
-    document.body.classList.remove('imessage');
-
-    // Always enable vanilla.css unless green-screen is selected
-    if (styleName !== 'green-screen') {
-        document.querySelector('link[href*="vanilla.css"]').disabled = false;
-    }
-
-    if (styleName === 'vanilla') {
-        // Only vanilla.css enabled
-    } else if (styleName === 'green-screen') {
-        document.querySelector('link[href*="green-screen.css"]').disabled = false;
-    } else if (styleName === 'imessage') {
-        // Enable vanilla.css (already enabled above) and imessage.css
-        document.querySelector('link[href*="imessage.css"]').disabled = false;
+    // Remove all theme classes
+    document.body.classList.remove('imessage', 'imessage-dark', 'dark-mode', 'green-screen');
+    
+    // Add appropriate theme class
+    if (styleName === 'imessage') {
         document.body.classList.add('imessage');
     } else if (styleName === 'imessage-dark') {
-        // Enable vanilla.css (already enabled above), imessage.css, and imessage-dark.css
-        document.querySelector('link[href*="imessage.css"]').disabled = false;
-        document.querySelector('link[href*="imessage-dark.css"]').disabled = false;
-        document.body.classList.add('dark-mode');
-        document.body.classList.add('imessage');
+        document.body.classList.add('imessage', 'dark-mode');
+    } else if (styleName === 'green-screen') {
+        document.body.classList.add('green-screen');
     }
+    // vanilla theme needs no additional classes
+    
+    // Store the current style in localStorage
+    localStorage.setItem('selectedStyle', styleName);
 };
 
 // Load properties from a file

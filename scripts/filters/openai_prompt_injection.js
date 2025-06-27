@@ -3,7 +3,7 @@
  * Uses OpenAI's GPT-4.1-nano to detect prompt injection attempts via a compact JSON contract prompt.
  */
 
-class OpenAIPromptInjectionFilter extends APIFilter {
+class OpenAIPromptInjectionFilter extends window.APIFilter {
     constructor() {
         super('openai_prompt_injection');
         this.model = 'gpt-4-1106-preview'; // Use the latest cost-effective nano model

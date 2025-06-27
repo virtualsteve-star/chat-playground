@@ -39,6 +39,24 @@ For the full experience including OpenAI-powered personalities and advanced guar
 
 For more details on the API key management system, see [API Key Management](documentation/api_key_management.md).
 
+## 🧪 Learn with the Lab Book!
+
+Want a structured learning experience? Check out the **[Chat Playground Lab Book](https://virtualsteve-star.github.io/chat-playground-lab-book/)** - a comprehensive, hands-on learning resource for LLM/Gen AI security concepts.
+
+The lab book provides:
+- **5 Progressive Labs** covering essential security concepts
+- **Hands-on Exercises** with varying skill levels (1-3)
+- **Guided Learning Path** through prompt injection, content filtering, and more
+- **Real-world Scenarios** to practice defensive techniques
+
+Perfect for:
+- **Beginners** wanting to understand LLM security fundamentals
+- **Developers** looking to implement robust guardrails
+- **Security Professionals** exploring AI-specific vulnerabilities
+- **Educators** teaching AI security concepts
+
+Start with [Lab 1: First Steps](https://virtualsteve-star.github.io/chat-playground-lab-book/lab1.html) or browse the [complete lab book](https://virtualsteve-star.github.io/chat-playground-lab-book/) to find exercises that match your skill level and interests.
+
 ## Features
 - Clean, intuitive chat interface
 - Support for streaming token responses

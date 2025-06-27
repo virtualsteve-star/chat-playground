@@ -15,25 +15,19 @@ class BlocklistFilter {
 
     async initialize() {
         try {
-            // Load blocklists with cache-busting
+            // Browser: use fetch
             const timestamp = new Date().getTime();
-            // Dynamically resolve base path for both main app and /tests
             const base = window.location.pathname.includes('/tests/') ? '../' : '';
             const sexResponse = await fetch(base + 'scripts/filters/sex_blocklist.txt?t=' + timestamp);
             const violenceResponse = await fetch(base + 'scripts/filters/violence_blocklist.txt?t=' + timestamp);
-            
             const sexText = await sexResponse.text();
             const violenceText = await violenceResponse.text();
-            
-            // Parse blocklists, skipping comments and empty lines
             this.blocklists.sex = sexText.split('\n')
                 .filter(line => line.trim() && !line.startsWith('#'))
                 .map(term => term.toLowerCase().trim());
-            
             this.blocklists.violence = violenceText.split('\n')
                 .filter(line => line.trim() && !line.startsWith('#'))
                 .map(term => term.toLowerCase().trim());
-            
             this.initialized = true;
         } catch (error) {
             console.error('Error initializing blocklist filter:', error);

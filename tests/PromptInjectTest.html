@@ -6,6 +6,56 @@
     <title>Prompt Injection Filter Test Suite</title>
     <link rel="stylesheet" href="test_styles.css">
     <script src="escape_html.js"></script>
+    <!-- Core scripts -->
+    <script src="../scripts/core/storage_strategy.js"></script>
+    <script src="../scripts/core/api_key.js"></script>
+    <script src="../scripts/core/api_key_manager.js"></script>
+    <script>
+    window.apiKeyManager.register({
+        id: 'openai.chat',
+        provider: 'openai',
+        label: 'OpenAI (Chat)'
+    });
+    </script>
+    <script src="../scripts/utils.js"></script>
+    <script src="../scripts/filters/api_filter.js"></script>
+    <script src="../scripts/filters/prompt_injection_filter.js"></script>
+    <script src="../scripts/filters/openai_prompt_injection.js"></script>
+    <script src="test_runner.js"></script>
+    <script>
+    // Configure test before DOMContentLoaded
+    window.TEST_CONFIG = {
+        filters: [
+            { name: 'Simple Filter', instance: new PromptInjectionFilter() },
+            { name: 'AI Filter', instance: new OpenAIPromptInjectionFilter() }
+        ],
+        csvPath: 'data/prompt_test_set.csv',
+        positiveLabel: 'RISKY'
+    };
+
+    // Patch OpenAIPromptInjectionFilter to load its prompt template from the correct path
+    OpenAIPromptInjectionFilter.prototype.loadPromptTemplate = async function() {
+        if (this.promptTemplate) return this.promptTemplate;
+        try {
+            const cacheBustedPath = '../scripts/filters/prompts/openai_prompt_injection.txt' + '?v=' + Date.now();
+            const response = await fetch(cacheBustedPath);
+            if (!response.ok) throw new Error('Failed to load prompt template');
+            this.promptTemplate = await response.text();
+            return this.promptTemplate;
+        } catch (error) {
+            console.error('Error loading prompt template:', error);
+            throw error;
+        }
+    };
+
+    // Monkey-patch PromptInjectionFilter to have a check() method for compatibility
+    if (typeof PromptInjectionFilter !== 'undefined' && !PromptInjectionFilter.prototype.check) {
+        PromptInjectionFilter.prototype.check = function(prompt) {
+            return Promise.resolve(this.checkMessage(prompt));
+        };
+    }
+    </script>
+    <script src="shared_test_setup.js"></script>
 </head>
 <body>
     <h1>Prompt Injection Filter Test Suite</h1>
@@ -29,52 +79,5 @@
         </thead>
         <tbody id="resultsBody"></tbody>
     </table>
-    <!-- scripts -->
-    <script src="../scripts/core/storage_strategy.js"></script>
-    <script src="../scripts/core/api_key.js"></script>
-    <script src="../scripts/core/api_key_manager.js"></script>
-    <script>
-    window.apiKeyManager.register({
-        id: 'openai.chat',
-        provider: 'openai',
-        label: 'OpenAI (Chat)'
-    });
-    </script>
-    <script src="../scripts/utils.js"></script>
-    <script src="../scripts/filters/api_filter.js"></script>
-    <script src="../scripts/filters/prompt_injection_filter.js"></script>
-    <script src="../scripts/filters/openai_prompt_injection.js"></script>
-    <script src="test_runner.js"></script>
-    <script>
-    // Patch OpenAIPromptInjectionFilter to load its prompt template from the correct path
-    OpenAIPromptInjectionFilter.prototype.loadPromptTemplate = async function() {
-        if (this.promptTemplate) return this.promptTemplate;
-        try {
-            const cacheBustedPath = '../scripts/filters/prompts/openai_prompt_injection.txt' + '?v=' + Date.now();
-            const response = await fetch(cacheBustedPath);
-            if (!response.ok) throw new Error('Failed to load prompt template');
-            this.promptTemplate = await response.text();
-            return this.promptTemplate;
-        } catch (error) {
-            console.error('Error loading prompt template:', error);
-            throw error;
-        }
-    };
-    // Monkey-patch PromptInjectionFilter to have a check() method for compatibility
-    if (typeof PromptInjectionFilter !== 'undefined' && !PromptInjectionFilter.prototype.check) {
-        PromptInjectionFilter.prototype.check = function(prompt) {
-            return Promise.resolve(this.checkMessage(prompt));
-        };
-    }
-    window.TEST_CONFIG = {
-        filters: [
-            { name: 'Simple Filter', instance: new PromptInjectionFilter() },
-            { name: 'AI Filter', instance: new OpenAIPromptInjectionFilter() }
-        ],
-        csvPath: 'data/prompt_test_set.csv',
-        positiveLabel: 'RISKY'
-    };
-    </script>
-    <script src="shared_test_setup.js"></script>
 </body>
 </html> 

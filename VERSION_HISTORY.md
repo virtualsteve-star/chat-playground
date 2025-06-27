@@ -1,5 +1,14 @@
 # Version History
 
+## 0.9.5 (Unreleased)
+- Major CSS architecture refactor:
+  - Consolidated 4 CSS files into single variable-driven system
+  - Eliminated all `!important` declarations for cleaner, more maintainable CSS
+  - Added CSS Architecture Test Suite for ongoing validation
+  - Improved theme extensibility: New themes now require only 3-5 lines vs 200+ previously
+
+---
+
 ## 0.9 (2025-06-09)
 - Added copy button to chat bubbles for easy response copying (PR #46 by @megahelio)
 - Updated toolbar styling for a more compact, space-efficient look:

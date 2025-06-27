@@ -149,8 +149,13 @@ async function initializeApp() {
             function setStyle(style) {
                 // Use the original style switching logic for correct stacking and classes
                 window.ChatUtils.changeStyle(style);
-                // Button always shows the emoji
-                styleSwitcherBtn.textContent = '👀';
+                // Button always shows the emoji - preserve span structure
+                const span = styleSwitcherBtn.querySelector('.button-icon');
+                if (span) {
+                    span.textContent = '👀';
+                } else {
+                    styleSwitcherBtn.innerHTML = '<span class="button-icon">👀</span>';
+                }
                 // Special handling for green-screen mode
                 const modernInterface = document.querySelector('.modern-interface');
                 const terminalInterface = document.querySelector('.terminal-interface');
