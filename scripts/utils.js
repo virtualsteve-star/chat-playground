@@ -30,7 +30,7 @@ function createMessageElement(text, isUser, isRejection = false) {
         btnThumbsUp.className = 'feedback-button thumbs-up-button';
         btnThumbsUp.title = 'Like Response';
         const imgThumbsUp = document.createElement('img');
-        imgThumbsUp.src = 'assets/graphics/thumbs-up.png';
+        imgThumbsUp.src = 'assets/graphics/thumbs-up.webp';
         imgThumbsUp.alt = 'Helpful';
         imgThumbsUp.className = 'feedback-icon thumbs-up-icon';
         btnThumbsUp.appendChild(imgThumbsUp); // Icon inside button
@@ -41,7 +41,7 @@ function createMessageElement(text, isUser, isRejection = false) {
         btnThumbsDown.className = 'feedback-button thumbs-down-button';
         btnThumbsDown.title = 'Dislike Response';
         const imgThumbsDown = document.createElement('img');
-        imgThumbsDown.src = 'assets/graphics/thumbs-down.png';
+        imgThumbsDown.src = 'assets/graphics/thumbs-down.webp';
         imgThumbsDown.alt = 'Not helpful';
         imgThumbsDown.className = 'feedback-icon thumbs-down-icon';
         btnThumbsDown.appendChild(imgThumbsDown); // Icon inside button
@@ -52,7 +52,7 @@ function createMessageElement(text, isUser, isRejection = false) {
         btnCopy.className = 'feedback-button copy-button';
         btnCopy.title = 'Copy Response';
         const imgCopy = document.createElement('img');
-        imgCopy.src = 'assets/graphics/copy.png';
+        imgCopy.src = 'assets/graphics/copy.webp';
         imgCopy.alt = 'Copy Response';
         imgCopy.className = 'feedback-icon copy-icon';
         btnCopy.appendChild(imgCopy); // Icon inside button
@@ -60,10 +60,10 @@ function createMessageElement(text, isUser, isRejection = false) {
         // Add copy-to-clipboard functionality
         btnCopy.onclick = function () {
             const text = feedbackContainer.parentElement.querySelector('.bot-message').innerText;
-            imgCopy.src = 'assets/graphics/reload.png'; // Change icon to indicate copying
+            imgCopy.src = 'assets/graphics/reload.webp'; // Change icon to indicate copying
             navigator.clipboard.writeText(text).then(() => {
                 setTimeout(() => {
-                    imgCopy.src = 'assets/graphics/copy.png';
+                    imgCopy.src = 'assets/graphics/copy.webp';
                 }, 300);
             });
         };

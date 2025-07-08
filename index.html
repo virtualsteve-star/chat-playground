@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
     <!-- Open Graph Meta Tags -->
     <meta property="og:title" content="Steve's Chat Playground" />
     <meta property="og:description" content="An open-source, hands-on environment for experimenting with LLM security concepts, vulnerable chat models, and guardrails. Try content moderation, prompt injection and output filters—all in your browser, with zero dependencies." />
@@ -20,9 +21,13 @@
     <meta name="twitter:site" content="@virtualsteve" />
     <meta name="twitter:creator" content="@virtualsteve" />
 
+    <meta name="description"
+        content="An open-source, hands-on environment for experimenting with LLM security concepts, vulnerable chat models, and guardrails. Try content moderation, prompt injection and output filters—all in your browser, with zero dependencies.">
+
     <title>Steve's Chat Playground</title>
     <link rel="stylesheet" href="styles/main-optimized.css" id="style-sheet">
 </head>
+
 <body>
     <div class="chat-container">
         <header>
@@ -30,27 +35,33 @@
                 <h1>Steve's Chat Playground</h1>
             </div>
             <div class="controls">
+                <label for="personality-selector">Choose a personality:</label>
                 <select id="personality-selector">
                     <!-- Will be populated dynamically -->
                 </select>
-                <button id="guardrails-btn" type="button" class="toolbar-button" title="Guardrails"><span class="button-icon">🚧</span></button>
+                <button id="guardrails-btn" aria-label="Toggle guardrails panel" type="button" class="toolbar-button"
+                    title="Guardrails"><span class="button-icon">🚧</span></button>
                 <div class="style-switcher">
-                    <button id="style-switcher-btn" type="button" class="toolbar-button" title="Change Style"><span class="button-icon">👀</span></button>
+                    <button id="style-switcher-btn" aria-label="Change style" type="button" class="toolbar-button"
+                        title="Change Style"><span class="button-icon">👀</span></button>
                     <div id="style-menu" class="style-menu">
-                        <div class="style-option" data-style="vanilla">Vanilla</div>
-                        <div class="style-option" data-style="imessage">iMessage</div>
-                        <div class="style-option" data-style="imessage-dark">iMessage (Dark)</div>
-                        <div class="style-option" data-style="green-screen">Green Screen</div>
+                        <div class="style-option" data-style="vanilla" tabindex="0" role="button" aria-label="Switch to Vanilla style">Vanilla</div>
+                        <div class="style-option" data-style="imessage" tabindex="0" role="button" aria-label="Switch to iMessage style">iMessage</div>
+                        <div class="style-option" data-style="imessage-dark" tabindex="0" role="button" aria-label="Switch to iMessage Dark style">iMessage (Dark)</div>
+                        <div class="style-option" data-style="green-screen" tabindex="0" role="button" aria-label="Switch to Green Screen style">Green Screen</div>
                     </div>
                 </div>
-                <button id="preferences-btn" type="button" class="toolbar-button" title="Preferences"><span class="button-icon">⚙️</span></button>
-                <button id="about-btn" type="button" class="toolbar-button" title="About"><span class="button-icon">?</span></button>
+                <button id="preferences-btn" aria-label="Preferences" type="button" class="toolbar-button"
+                    title="Preferences"><span class="button-icon">⚙️</span></button>
+                <button id="about-btn" aria-label="About" type="button" class="toolbar-button" title="About"><span
+                        class="button-icon">?</span></button>
             </div>
             <div id="guardrails-overlay" class="overlay"></div>
             <div id="guardrails-panel" class="side-panel">
                 <div class="panel-header">
                     <h2>Guardrails</h2>
-                    <button id="close-guardrails-panel" class="close-button">×</button>
+                    <button id="close-guardrails-panel" aria-label="Close guardrails panel"
+                        class="close-button">×</button>
                 </div>
                 <div class="panel-content">
                     <div id="input-filters-section" class="tree-section">▼ Input Filters</div>
@@ -83,7 +94,8 @@
             <div id="preferences-panel" class="side-panel">
                 <div class="panel-header">
                     <h2>Preferences</h2>
-                    <button id="close-preferences-panel" class="close-button">×</button>
+                    <button id="close-preferences-panel" aria-label="Close preferences panel"
+                        class="close-button">×</button>
                 </div>
                 <div class="panel-content">
                     <div class="preferences-section">
@@ -97,8 +109,10 @@
                                 </label>
                             </div>
                             <div id="openai-key-actions">
-                                <button id="add-openai-key" class="action-button">Add Key</button>
-                                <button id="clear-openai-key" class="action-button" style="display: none;">Clear Key</button>
+                                <button id="add-openai-key" aria-label="Add OpenAI Key" class="action-button">Add
+                                    Key</button>
+                                <button id="clear-openai-key" aria-label="Clear OpenAI Key" class="action-button"
+                                    style="display: none;">Clear Key</button>
                             </div>
                         </div>
                     </div>
@@ -108,15 +122,16 @@
             <div id="about-overlay" class="overlay"></div>
             <div id="about-panel" class="side-panel">
                 <div class="panel-content about-content">
-                    <img src="assets/graphics/logo.png" alt="Logo" class="about-logo" />
-                    <button id="close-about-panel" class="close-button">×</button>
+                    <img src="assets/graphics/logo.webp" alt="Logo" class="about-logo" />
+                    <button id="close-about-panel" aria-label="Close about panel" class="close-button">×</button>
                     <h1 class="about-title">Steve's Chat Playground</h1>
                     <p class="about-desc">
                         An open-source, hands-on environment for experimenting with LLM security concepts, vulnerable chat models, and guardrails. Try content moderation, prompt injection and output filters—all in your browser, with zero dependencies.
                     </p>
                     <div class="about-book">
-                        <a href="https://www.amazon.com/Developers-Playbook-Large-Language-Security/dp/109816220X" target="_blank">
-                            <img src="assets/graphics/book-cover.jpg" alt="Book Cover" class="about-book-cover" />
+                        <a href="https://www.amazon.com/Developers-Playbook-Large-Language-Security/dp/109816220X"
+                            target="_blank">
+                            <img src="assets/graphics/book-cover.webp" alt="Book Cover" class="about-book-cover" />
                         </a>
                     </div>
                     <div class="about-links">
@@ -129,32 +144,34 @@
                 </div>
             </div>
         </header>
-        
-        <!-- Modern chat interface -->
-        <div class="modern-interface">
-            <div class="chat-window" id="chat-window">
-                <!-- Chat messages will be displayed here -->
-            </div>
-            
-            <div class="input-area">
-                <div class="input-container">
-                    <textarea id="user-input" placeholder="Type your message here..." rows="1"></textarea>
-                    <button id="send-button">
-                        <span class="vanilla-send">Send</span>
-                        <span class="imessage-send"></span>
-                        <span class="green-screen-send">&gt;</span>
-                    </button>
+
+        <main>
+            <!-- Modern chat interface -->
+            <div class="modern-interface">
+                <div class="chat-window" id="chat-window">
+                    <!-- Chat messages will be displayed here -->
+                </div>
+
+                <div class="input-area">
+                    <div class="input-container">
+                        <textarea id="user-input" placeholder="Type your message here..." rows="1"></textarea>
+                        <button id="send-button" aria-label="Send message">
+                            <span class="vanilla-send">Send</span>
+                            <span class="imessage-send"></span>
+                            <span class="green-screen-send">&gt;</span>
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Terminal interface -->
-        <div class="terminal-interface" style="display: none;">
-            <div class="terminal-window" id="terminal-window">
-                <!-- Terminal output will be displayed here -->
+            <!-- Terminal interface -->
+            <div class="terminal-interface" style="display: none;">
+                <div class="terminal-window" id="terminal-window">
+                    <!-- Terminal output will be displayed here -->
+                </div>
+                <!-- Static prompt removed, JS adds it dynamically -->
             </div>
-            <!-- Static prompt removed, JS adds it dynamically -->
-        </div>
+        </main>
     </div>
 
     <!-- Scripts -->
@@ -177,4 +194,5 @@
     <script src="tests/SimpleBotSmokeTest.js"></script>
     <script src="tests/OpenAISmokeTest.js"></script>
 </body>
+
 </html>
