@@ -249,16 +249,17 @@ body.green-screen header {
 
 h1 {
     font-size: 1.5rem;
-    margin-bottom: 10px;
+    margin: 0 0 10px 0;
 }
 
 .controls {
     display: flex;
     gap: 2px;
+    align-items: center;
 }
 
 select {
-    padding: 8px 12px;
+    padding: 6px 10px;
     border: var(--control-button-border);
     border-radius: 4px;
     background-color: var(--control-button-bg);
@@ -268,6 +269,8 @@ select {
     font-family: inherit;
     transition: background 0.2s, border 0.2s;
     box-sizing: border-box;
+    height: 36px;
+    min-width: 250px;
 }
 
 select:hover, select:focus {
@@ -352,8 +355,7 @@ body.green-screen select:focus {
 
 /* Header Logo and Layout */
 .header-logo-title {
-    display: flex;
-    align-items: center;
+    /* Logo and title stacked by default */
 }
 
 .site-logo {
@@ -1115,46 +1117,25 @@ body.green-screen .style-option:active {
     font-weight: bold;
 }
 
-.controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: center;
-  padding: 12px;
-}
-
-.controls label {
-  font-size: 1rem;
-  flex: 1 1 100%;
-}
-
-.controls select,
-.controls button {
-  padding: 8px 12px;
-  font-size: 1rem;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  flex: 1 1 auto;
-  min-width: 150px;
-}
-
+/* Mobile responsive styles for controls */
 @media (max-width: 600px) {
   .controls {
-    flex-direction: column;
-    align-items: stretch;
+    flex-wrap: wrap;
   }
 
-  .controls select,
-  .controls button {
-    width: 100%;
+  .controls select {
+    max-width: 100%;
   }
 
   .style-switcher {
-    width: 100%;
+    position: relative;
   }
 
   .style-menu {
-    width: 100%;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 200px;
   }
 }
 
