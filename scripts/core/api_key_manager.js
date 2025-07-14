@@ -96,9 +96,16 @@ class APIKeyManager {
             const value = window.prompt(`Please enter your ${key.getLabel()} API key:`);
             if (value && value.trim()) {
                 try {
-                    // Validate the key if it's OpenAI
+                    // Validate the key if it's OpenAI or Gemini
                     if (key.getProvider() === 'openai') {
                         const isValid = await this.validateOpenAIKey(value.trim());
+                        if (!isValid) {
+                            alert('Invalid API key. Please check and try again.');
+                            reject(new Error('Invalid API key.'));
+                            return;
+                        }
+                    } else if (key.getProvider() === 'gemini') {
+                        const isValid = await this.validateGeminiKey(value.trim());
                         if (!isValid) {
                             alert('Invalid API key. Please check and try again.');
                             reject(new Error('Invalid API key.'));
@@ -129,6 +136,18 @@ class APIKeyManager {
             return response.status === 200;
         } catch (error) {
             console.error('Error validating OpenAI key:', error);
+            return false;
+        }
+    }
+
+    async validateGeminiKey(key) {
+        try {
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}`, {
+                method: 'GET',
+            });
+            return response.status === 200;
+        } catch (error) {
+            console.error('Error validating Gemini key:', error);
             return false;
         }
     }
