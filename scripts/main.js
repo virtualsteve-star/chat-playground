@@ -17,6 +17,12 @@ window.apiKeyManager.register({
     label: 'OpenAI (Chat)'
 });
 
+window.apiKeyManager.register({
+    id: 'gemini.chat',
+    provider: 'gemini',
+    label: 'Gemini (Chat)'
+});
+
 // Global variables
 let currentModel = null;
 let currentPersonality = null;
@@ -111,6 +117,9 @@ async function initializeApp() {
             smokeTest.startTest();
         } else if (window.location.search.includes('test-openai')) {
             const smokeTest = new window.OpenAISmokeTest();
+            smokeTest.startTest();
+        } else if (window.location.search.includes('test-gemini')) {
+            const smokeTest = new window.GeminiSmokeTest();
             smokeTest.startTest();
         }
 
@@ -246,27 +255,38 @@ async function handlePersonalityChange(event) {
         // Determine current mode BEFORE changing history
         const isTerminalMode = document.body.classList.contains('green-screen');
 
-        // --- NEW: Check for OpenAI key immediately if GPT model selected ---
-        const isGPT = (modelName === 'ChatGPT 4o-mini');
-        if (isGPT) {
-            // Use hasKey for clarity and consistency
+        // --- NEW: Check for API key immediately if model requires it ---
+        if (modelName === 'ChatGPT 4o-mini') {
             if (!window.apiKeyManager.hasKey('openai.chat')) {
                 alert('A valid OpenAI API key is required to use this personality. Please add your API key in Preferences.');
                 return;
             }
-            // Proceed with model initialization with the key
             const keyObj = window.apiKeyManager.get('openai.chat');
             await doModelInit(keyObj.get());
+        } else if (modelName === 'GeminiModel') {
+            if (!window.apiKeyManager.hasKey('gemini.chat')) {
+                alert('A valid Gemini API key is required to use this personality. Please add your API key in Preferences.');
+                return;
+            }
+            const keyObj = window.apiKeyManager.get('gemini.chat');
+            await doModelInit(keyObj.get());
         } else {
-            // Proceed with model initialization for non-GPT models
+            // Proceed with model initialization for non-API models
             await doModelInit();
         }
 
         // --- Model initialization logic extracted for reuse ---
         async function doModelInit(apiKey = null) {
-            if (modelName === 'SimpleBot' || modelName === 'ChatGPT 4o-mini') {
+            if (modelName === 'SimpleBot' || modelName === 'ChatGPT 4o-mini' || modelName === 'GeminiModel') {
                 // Create the appropriate model instance
-                currentModel = modelName === 'SimpleBot' ? new window.SimpleBotModel() : new window.OpenAIModel();
+                if (modelName === 'SimpleBot') {
+                    currentModel = new window.SimpleBotModel();
+                } else if (modelName === 'ChatGPT 4o-mini') {
+                    currentModel = new window.OpenAIModel();
+                } else if (modelName === 'GeminiModel') {
+                    currentModel = new window.GeminiModel();
+                }
+
                 currentModel.initialize(resourcePath, apiKey).then(async () => {
                     currentPersonality = personalityName;
 
@@ -276,8 +296,8 @@ async function handlePersonalityChange(event) {
                         greeting = (currentModel.script && currentModel.script.greetings && currentModel.script.greetings.length > 0)
                             ? currentModel.script.greetings[0]
                             : 'Hello!';
-                    } else if (modelName === 'ChatGPT 4o-mini') {
-                        // Prompt the GPT bot to introduce itself and stream the result
+                    } else if (modelName === 'ChatGPT 4o-mini' || modelName === 'GeminiModel') {
+                        // Prompt the bot to introduce itself and stream the result if available
                         greeting = '';
                         try {
                             let intro = await currentModel.generateResponse('Please introduce yourself');
@@ -726,22 +746,17 @@ function setupPreferencesPanel() {
     const prefsPanel = document.getElementById('preferences-panel');
     const prefsOverlay = document.getElementById('preferences-overlay');
     const closeBtn = document.getElementById('close-preferences-panel');
-    const addKeyBtn = document.getElementById('add-openai-key');
-    const clearKeyBtn = document.getElementById('clear-openai-key');
-    const keyStatus = document.getElementById('openai-key-status');
-    const persistCheckbox = document.getElementById('openai-key-persist');
 
-    // Default: unchecked (session-only)
-    persistCheckbox.checked = false;
-
-    // Update key status display and checkbox state
-    function updateKeyStatus() {
-        const key = window.apiKeyManager.get('openai.chat');
-        const keyStatus = document.getElementById('openai-key-status');
-        const clearKeyBtn = document.getElementById('clear-openai-key');
-        const addKeyBtn = document.getElementById('add-openai-key');
-        const persistCheckbox = document.getElementById('openai-key-persist');
+    // Helper function to update the status of a single key
+    function updateKeyStatus(keyId) {
+        const key = window.apiKeyManager.get(keyId);
+        const provider = key.getProvider(); // 'openai' or 'gemini'
         
+        const keyStatus = document.getElementById(`${provider}-key-status`);
+        const clearKeyBtn = document.getElementById(`clear-${provider}-key`);
+        const addKeyBtn = document.getElementById(`add-${provider}-key`);
+        const persistCheckbox = document.getElementById(`${provider}-key-persist`);
+
         if (key.isSet()) {
             keyStatus.textContent = 'Set';
             clearKeyBtn.style.display = 'inline-block';
@@ -760,7 +775,8 @@ function setupPreferencesPanel() {
     prefsBtn.addEventListener('click', () => {
         prefsPanel.classList.add('open');
         prefsOverlay.classList.add('open');
-        updateKeyStatus();
+        updateKeyStatus('openai.chat');
+        updateKeyStatus('gemini.chat');
     });
 
     // Close panel
@@ -774,50 +790,82 @@ function setupPreferencesPanel() {
         prefsOverlay.classList.remove('open');
     });
 
-    // Add Key button handler
-    addKeyBtn.addEventListener('click', async () => {
+    // --- Set up for OpenAI ---
+    const addOpenAIKeyBtn = document.getElementById('add-openai-key');
+    const clearOpenAIKeyBtn = document.getElementById('clear-openai-key');
+    const persistOpenAICheckbox = document.getElementById('openai-key-persist');
+    persistOpenAICheckbox.checked = false; // Default
+
+    addOpenAIKeyBtn.addEventListener('click', async () => {
         try {
-            // Set the storage strategy based on the checkbox before prompting
             const key = window.apiKeyManager.get('openai.chat');
-            const usePersistent = persistCheckbox.checked;
+            const usePersistent = persistOpenAICheckbox.checked;
             const strategy = usePersistent ? new window.LocalStorageStrategy() : new window.InMemoryStrategy();
             key.switchStrategy(strategy);
             await window.apiKeyManager.require('openai.chat');
-            updateKeyStatus();
+            updateKeyStatus('openai.chat');
         } catch (error) {
-            console.error('Error adding API key:', error);
+            console.error('Error adding OpenAI API key:', error);
         }
     });
 
-    // Clear Key button handler
-    clearKeyBtn.addEventListener('click', () => {
+    clearOpenAIKeyBtn.addEventListener('click', () => {
         window.apiKeyManager.clear('openai.chat');
         if (currentModel && currentModel.clearApiKey) {
             currentModel.clearApiKey();
         }
-        updateKeyStatus();
+        updateKeyStatus('openai.chat');
+    });
+    
+    persistOpenAICheckbox.addEventListener('change', () => {
+        updateKeyStatus('openai.chat');
     });
 
-    // Listen for key changes
-    window.apiKeyManager.on('keyChanged', () => {
-        updateKeyStatus();
+    // --- Set up for Gemini ---
+    const addGeminiKeyBtn = document.getElementById('add-gemini-key');
+    const clearGeminiKeyBtn = document.getElementById('clear-gemini-key');
+    const persistGeminiCheckbox = document.getElementById('gemini-key-persist');
+    persistGeminiCheckbox.checked = false; // Default
+
+    addGeminiKeyBtn.addEventListener('click', async () => {
+        try {
+            const key = window.apiKeyManager.get('gemini.chat');
+            const usePersistent = persistGeminiCheckbox.checked;
+            const strategy = usePersistent ? new window.LocalStorageStrategy() : new window.InMemoryStrategy();
+            key.switchStrategy(strategy);
+            await window.apiKeyManager.require('gemini.chat');
+            updateKeyStatus('gemini.chat');
+        } catch (error) {
+            console.error('Error adding Gemini API key:', error);
+        }
     });
 
-    window.apiKeyManager.on('keyCleared', () => {
-        updateKeyStatus();
+    clearGeminiKeyBtn.addEventListener('click', () => {
+        window.apiKeyManager.clear('gemini.chat');
+        // We don't have a gemini model yet, so no need to clear the key on the model
+        updateKeyStatus('gemini.chat');
     });
 
-    window.apiKeyManager.on('strategyChanged', () => {
-        updateKeyStatus();
+    persistGeminiCheckbox.addEventListener('change', () => {
+        updateKeyStatus('gemini.chat');
     });
 
-    // Checkbox change updates storage mode display
-    persistCheckbox.addEventListener('change', () => {
-        updateKeyStatus();
+    // Listen for key changes from the manager
+    window.apiKeyManager.on('keyChanged', (keyId) => {
+        if (keyId === 'openai.chat' || keyId === 'gemini.chat') {
+            updateKeyStatus(keyId);
+        }
+    });
+
+    window.apiKeyManager.on('keyCleared', (keyId) => {
+        if (keyId === 'openai.chat' || keyId === 'gemini.chat') {
+            updateKeyStatus(keyId);
+        }
     });
 
     // Initial status update
-    updateKeyStatus();
+    updateKeyStatus('openai.chat');
+    updateKeyStatus('gemini.chat');
 }
 
 // Initialize the application when the DOM is loaded
