@@ -23,6 +23,16 @@ In Steve's Chat Playground, a **model** is the underlying engine that generates 
   - The model integrates with the playground's API key management system for secure key handling and validation.
   - **Limitations:** Subject to OpenAI's usage policies, rate limits, and potential costs. Responses may vary based on OpenAI's model updates.
 
+### Google Gemini (2.5 Flash)
+- **Type:** Remote, API-based (Google)
+- **File:** `scripts/models/gemini.js`
+- **Description:**
+  - This model connects to Google's Gemini 2.5 Flash via API, providing advanced natural language understanding and generation capabilities.
+  - It offers fast, efficient responses with strong reasoning capabilities and multilingual support.
+  - Requires a Google Gemini API key and internet connectivity.
+  - The model integrates with the playground's API key management system for secure key handling and validation.
+  - **Limitations:** Subject to Google's usage policies, rate limits, and potential costs. Responses may vary based on Google's model updates.
+
 ## How Models Are Configured
 
 Models are defined in `config/models.properties`:
@@ -30,6 +40,7 @@ Models are defined in `config/models.properties`:
 ```
 SimpleBot=scripts/models/simplebot.js
 ChatGPT 4o-mini=scripts/models/openai.js
+GeminiModel=scripts/models/gemini.js
 ```
 
 Each entry maps a model name to its implementation file. Personalities reference these model names to determine which engine powers their responses.

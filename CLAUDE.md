@@ -7,16 +7,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## High Level Overview
 This is an educational web application for experimenting with LLM security, guardrails, and chatbot personalities. It's meant to be a companion to "The Developer's Playbook for Large Language Model Security" and the OWASP Top 10 for LLM Applications. 
 
-The app has two main modes:
+The app has three main modes:
 1. SimpleBot (local pattern-matching, no API required) - for basic testing and prototyping
-2. OpenAI-powered personalities (requires API key) - for more sophisticated interactions
+2. OpenAI-powered personalities (requires API key) - for sophisticated GPT interactions
+3. Gemini-powered personalities (requires API key) - for Google's AI model interactions
 
 The purpose is educational and experimentation - it intentionally includes vulnerable personalities and backdoors for security research.
 
 ## Tech Stack
 - Vanilla HTML/CSS/JavaScript (no frameworks)
 - Zero external dependencies for local functionality
-- Optional OpenAI API integration for advanced features
+- Optional API integrations for advanced features (OpenAI, Google Gemini)
 - All code runs in the browser
 
 ## Key Architecture Principles
@@ -30,7 +31,7 @@ The purpose is educational and experimentation - it intentionally includes vulne
 - Keep it simple - this is meant to be easily understood
 - Preserve the educational nature - don't over-engineer
 - Maintain backward compatibility 
-- Test both SimpleBot and OpenAI modes when making changes
+- Test SimpleBot, OpenAI, and Gemini modes when making changes
 - Document any new personalities or guardrails clearly
 
 ## Development Commands
@@ -146,7 +147,7 @@ All toolbar buttons MUST follow this exact structure:
 ### New Personality
 1. Add entry to `config/personalities.properties`
 2. Create prompt file in `personalities/` directory
-3. Test with both SimpleBot and OpenAI models
+3. Test with SimpleBot, OpenAI, and Gemini models as appropriate
 
 ### New Filter/Guardrail
 1. Create new class extending `BaseFilter` in `scripts/filters/`
@@ -160,7 +161,7 @@ All toolbar buttons MUST follow this exact structure:
 3. Test across different screen sizes and personalities
 
 ## Testing Guidelines
-- Always test new features with both SimpleBot and OpenAI models
+- Always test new features with SimpleBot, OpenAI, and Gemini models
 - Add test cases for new personalities or filters
 - Verify mobile responsiveness for UI changes
 - Check that intentional vulnerabilities remain functional (for educational purposes)

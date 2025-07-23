@@ -1,6 +1,18 @@
 # Version History
 
-## 0.9.5 (Unreleased)
+## 0.9.6 (2025-07-22)
+- Added Google Gemini model support (PR #59 by @tsantos)
+  - New Gemini 2.5 Flash model integration
+  - Added Gemini API key management in preferences
+  - Created Gemini smoke test for automated testing
+- Fixed critical XSS vulnerability in message rendering (by @tsantos)
+  - Replaced innerHTML with safe DOM manipulation
+  - Prevents script injection while preserving formatting
+- Updated documentation to reflect multi-provider support
+
+---
+
+## 0.9.5 (2025-06-10)
 - Major CSS architecture refactor:
   - Consolidated 4 CSS files into single variable-driven system
   - Eliminated all `!important` declarations for cleaner, more maintainable CSS
