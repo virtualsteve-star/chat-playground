@@ -7,15 +7,15 @@ function createMessageElement(text, isUser, isRejection = false) {
     const messageBubble = document.createElement('div');
     messageBubble.className = isUser ? 'user-message' : (isRejection ? 'rejection-message' : 'bot-message');
 
-    // Process text to properly handle line breaks
-    // First escape HTML to prevent XSS, then convert newlines to <br>
-    const processedText = text
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/\n/g, '<br>');
-
-    messageBubble.innerHTML = processedText;
+    // To prevent XSS, we'll build the content using DOM methods instead of innerHTML
+    messageBubble.innerHTML = ''; // Clear any existing content
+    const lines = text.split('\n');
+    lines.forEach((line, index) => {
+        messageBubble.appendChild(document.createTextNode(line));
+        if (index < lines.length - 1) {
+            messageBubble.appendChild(document.createElement('br'));
+        }
+    });
 
     let feedbackContainer = null;
 
