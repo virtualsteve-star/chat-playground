@@ -6,7 +6,7 @@ A companion project to [The Developer's Playbook for Large Language Model Securi
 
 With the rapid evolution of LLM and Generative AI technology (new models, techniques, agents, etc.), it's become increasingly challenging for developers to find a practical starting point for hands-on experimentation. This playground addresses that need by offering:
 
-- **Multiple Models:** From simple local pattern-matching to OpenAI's powerful models.  Some models have vulnerabilities and back doors for testing and experimentation ([see models](documentation/models.md))
+- **Multiple Models:** From simple local pattern-matching to powerful API models (OpenAI and Google Gemini).  Some models have vulnerabilities and back doors for testing and experimentation ([see models](documentation/models.md))
 - **Different Views:** Various UI styles to understand how different interfaces affect user experience
 - **Guardrails:** Both simple local filters and advanced AI-powered content moderation ([see guardrails](documentation/guardrails.md), [see extensibility](documentation/extensibility.md))
 - **Zero Dependencies:** Everything runs in the browser, making it easy to get started
@@ -26,13 +26,14 @@ Try different personalities, guardrails and visual styles directly in your brows
 - Perfect for understanding fundamental concepts
 
 ### Full Experience (API Key Required):
-- API-powered bot personalities using real OpenAI models
+- API-powered bot personalities using real AI models (OpenAI GPT-4o-mini, Google Gemini)
 - Advanced AI-powered content moderation and guardrails
 - All local features plus smarter responses
 - Great for exploring more sophisticated interactions
 
-For the full experience including OpenAI-powered personalities and advanced guardrails, you'll need to enter your API key. The playground uses a flexible, secure API key management system that:
+For the full experience including API-powered personalities and advanced guardrails, you'll need to enter your API key(s). The playground uses a flexible, secure API key management system that:
 - Stores keys only in your browser (never sent to any server except the intended API)
+- Supports multiple providers (OpenAI, Google Gemini)
 - Supports both persistent and session-only storage
 - Provides a clean interface for managing keys in the Preferences panel
 - Automatically handles key validation and error cases
@@ -66,7 +67,7 @@ Start with [Lab 1: First Steps](https://virtualsteve-star.github.io/chat-playgro
   - Instant response times
   - Easily create new personalities with simple text files
   - Perfect for UI/UX testing and prototyping
-- Remote model support (using OpenAI ChatGPT 4o-mini)
+- Remote model support (using OpenAI ChatGPT 4o-mini and Google Gemini 2.5 Flash)
 - Thumbs up/down feedback for responses
 - Guardrails (Input & Output Filters):
   - Local blocklist filters (e.g., Sex, Violence)
@@ -83,7 +84,9 @@ Start with [Lab 1: First Steps](https://virtualsteve-star.github.io/chat-playgro
 
 ### Prerequisites
 - A modern web browser (Chrome, Firefox, Safari, Edge)
-- An OpenAI API key (for advanced features)
+- API keys for advanced features:
+  - OpenAI API key (for GPT-powered personalities)
+  - Google Gemini API key (for Gemini-powered personalities)
 
 ### Installation
 1. Clone the repository:
@@ -96,7 +99,7 @@ Start with [Lab 1: First Steps](https://virtualsteve-star.github.io/chat-playgro
    python3 -m http.server
    ```
    Then visit http://localhost:8000 in your browser.
-3. For API-powered, advanced features, you'll be prompted to enter your API key when you first select a feature that uses the the OpenAI API set.
+3. For API-powered, advanced features, you'll be prompted to enter your API key when you first select a feature that requires it. The playground supports both OpenAI and Google Gemini APIs.
 
 ## Usage
 1. Select a personality from the dropdown menu.

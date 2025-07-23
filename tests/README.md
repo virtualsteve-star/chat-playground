@@ -20,6 +20,12 @@ The "OpenAI Smoke Test" runs all prompts through the main chat UI using the Bob 
 
 **Note:** This test requires an OpenAI API key to be set in Preferences. If the key is missing, the test will not run.
 
+## Gemini Smoke Test
+
+The "Gemini Smoke Test" runs all prompts through the main chat UI using the Gemini (AI Assistant) personality. This test is designed to verify that Google Gemini integration and local guardrails filters are working as expected.
+
+**Note:** This test requires a Google Gemini API key to be set in Preferences. If the key is missing, the test will not run.
+
 ## CSS Architecture Test
 
 The **CSSArchitectureTest.js** validates the consolidated CSS system for structural integrity and performance:
