@@ -4,7 +4,7 @@ Guardrails are filters that help protect chatbots from unsafe, inappropriate, or
 
 Guardrails can be:
 - **Local:** Run entirely in the browser, with no external dependencies. These are fast, private, and cost-free, but may be less sophisticated.
-- **API-based:** Use external services (like OpenAI Moderation) for smarter, context-aware filtering. These may be more accurate but require an internet connection and sometimes an API key.
+- **API-based:** Use external LLM services for smarter, context-aware filtering. These may be more accurate but require an internet connection and an API key.
 
 Guardrails are divided into **Input Filters** (which check user messages before they reach the model) and **Output Filters** (which check the model's responses before they are shown to the user).
 
@@ -40,13 +40,13 @@ Listed in the order they appear in the Guardrails panel:
 - **Vulnerabilities addressed:** Prompt injection, jailbreaks, system prompt leaks.
 
 ### 6. Sex (AI)
-- **Type:** API (OpenAI Moderation)
-- **Description:** Uses OpenAI's Moderation API to detect sexual content. More context-aware than local blocklists.
+- **Type:** API (OpenAI GPT-4.1-nano via Chat Completions)
+- **Description:** Uses an OpenAI LLM to detect sexual content. More context-aware than local blocklists.
 - **Vulnerabilities addressed:** Inappropriate content, policy violations.
 
 ### 7. Violence (AI)
-- **Type:** API (OpenAI Moderation)
-- **Description:** Uses OpenAI's Moderation API to detect violent content. More context-aware than local blocklists.
+- **Type:** API (OpenAI GPT-4.1-nano via Chat Completions)
+- **Description:** Uses an OpenAI LLM to detect violent content. More context-aware than local blocklists.
 - **Vulnerabilities addressed:** Inappropriate content, policy violations.
 
 ### 8. Prompt Injection (AI)
@@ -74,13 +74,13 @@ Listed in the order they appear in the Guardrails panel:
 - **Vulnerabilities addressed:** Data leakage, code execution, policy violations.
 
 ### 4. Sex (AI)
-- **Type:** API (OpenAI Moderation)
-- **Description:** Uses OpenAI's Moderation API to detect sexual content in model output.
+- **Type:** API (OpenAI GPT-4.1-nano via Chat Completions)
+- **Description:** Uses an OpenAI LLM to detect sexual content in model output.
 - **Vulnerabilities addressed:** Inappropriate output, policy violations.
 
 ### 5. Violence (AI)
-- **Type:** API (OpenAI Moderation)
-- **Description:** Uses OpenAI's Moderation API to detect violent content in model output.
+- **Type:** API (OpenAI GPT-4.1-nano via Chat Completions)
+- **Description:** Uses an OpenAI LLM to detect violent content in model output.
 - **Vulnerabilities addressed:** Inappropriate output, policy violations.
 
 ---

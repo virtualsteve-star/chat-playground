@@ -22,8 +22,9 @@
                 <th>Test Name</th>
                 <th>Expected</th>
                 <th>Blocklist (Local)</th>
-                <th>OpenAI Moderation</th>
-                <th>Response Time (ms)</th>
+                <th>LLM Moderation</th>
+                <th>Blocklist Time (ms)</th>
+                <th>LLM Time (ms)</th>
             </tr>
         </thead>
         <tbody id="resultsBody"></tbody>
@@ -55,7 +56,7 @@
                     return result.blocked ? { blocked: true, reason: 'blocklist', list: result.list, term: result.term } : { blocked: false };
                 }
             }},
-            { name: 'OpenAI Moderation', instance: {
+            { name: 'LLM Moderation', instance: {
                 async check(prompt) {
                     const filter = new OpenAIModerationFilter();
                     return await filter.check(prompt, { checkSex: true });

@@ -119,14 +119,14 @@ This document explains how to extend the chat playground with new personalities,
 3. **Test:**
    - Enable your filter in the Guardrails panel and try sending a blocked term.
 
-### B. API-Based Filters (e.g., OpenAI Moderation)
+### B. API-Based Filters (e.g., LLM Moderation)
 
 **What are they?**
-- Filters that use an external API to check for inappropriate content (e.g., OpenAI Moderation API).
+- Filters that use an external LLM API to check for inappropriate content or injection attempts.
 
 **How it works:**
 - API filters extend the `APIFilter` class (`scripts/filters/api_filter.js`).
-- Example: `OpenAIModerationFilter` in `scripts/filters/openai_moderation.js`.
+- Example: `OpenAIModerationFilter` in `scripts/filters/openai_moderation.js` — uses GPT-4.1-nano via chat completions to classify sexual/violent content.
 - Registered in the Guardrails panel as input/output filters.
 
 **How to add a new API-based filter:**

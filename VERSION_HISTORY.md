@@ -1,5 +1,16 @@
 # Version History
 
+## 0.9.7 (2026-05-29)
+- Fixed deprecated OpenAI integrations:
+  - Moderation filter: replaced deprecated `/v1/moderations` endpoint (which no longer supports CORS from browser origins) with GPT-4.1-nano via `/v1/chat/completions`
+  - Prompt injection filter: updated model from deprecated `gpt-4-1106-preview` to `gpt-4.1-nano`
+  - Inlined prompt templates in both filters (eliminates path resolution failures when running from `/tests/`)
+- Updated test suite column headers from "OpenAI Moderation" to "LLM Moderation"
+- Fixed missing time column headers in Violence and Sexual content test pages
+- Updated documentation to reflect LLM-based moderation approach
+
+---
+
 ## 0.9.6 (2025-07-22)
 - Added Google Gemini model support (PR #59 by @tsantos)
   - New Gemini 2.5 Flash model integration

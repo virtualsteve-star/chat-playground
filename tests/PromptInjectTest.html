@@ -33,20 +33,7 @@
         positiveLabel: 'RISKY'
     };
 
-    // Patch OpenAIPromptInjectionFilter to load its prompt template from the correct path
-    OpenAIPromptInjectionFilter.prototype.loadPromptTemplate = async function() {
-        if (this.promptTemplate) return this.promptTemplate;
-        try {
-            const cacheBustedPath = '../scripts/filters/prompts/openai_prompt_injection.txt' + '?v=' + Date.now();
-            const response = await fetch(cacheBustedPath);
-            if (!response.ok) throw new Error('Failed to load prompt template');
-            this.promptTemplate = await response.text();
-            return this.promptTemplate;
-        } catch (error) {
-            console.error('Error loading prompt template:', error);
-            throw error;
-        }
-    };
+
 
     // Monkey-patch PromptInjectionFilter to have a check() method for compatibility
     if (typeof PromptInjectionFilter !== 'undefined' && !PromptInjectionFilter.prototype.check) {
