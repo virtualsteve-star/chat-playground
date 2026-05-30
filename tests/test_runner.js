@@ -180,7 +180,7 @@ class PromptTestRunner {
             let skippedDueToKey = false;
             try {
                 // If this filter is an OpenAI filter and key is missing, skip
-                if (filter.name.toLowerCase().includes('openai') || filter.name.toLowerCase().includes('ai filter')) {
+                if (filter.name.toLowerCase().includes('openai') || filter.name.toLowerCase().includes('ai filter') || filter.name.toLowerCase().includes('llm')) {
                     const keySet = await window.isOpenAIApiKeySet();
                     if (!keySet) {
                         skippedDueToKey = true;
@@ -240,7 +240,7 @@ class PromptTestRunner {
             // Pre-check which filters will be skipped due to missing key
             for (let idx = 0; idx < this.filters.length; idx++) {
                 const filter = this.filters[idx];
-                if (filter.name.toLowerCase().includes('openai') || filter.name.toLowerCase().includes('ai filter')) {
+                if (filter.name.toLowerCase().includes('openai') || filter.name.toLowerCase().includes('ai filter') || filter.name.toLowerCase().includes('llm')) {
                     const keySet = await window.isOpenAIApiKeySet();
                     if (!keySet) {
                         skipped[idx] = true;
