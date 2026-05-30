@@ -1118,24 +1118,60 @@ body.green-screen .style-option:active {
 }
 
 /* Mobile responsive styles for controls */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
+  body {
+    padding: 0;
+  }
+
+  .chat-container {
+    height: 100vh;
+    max-width: 100%;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    display: flex;
+    flex-direction: column;
+  }
+
+  header {
+    flex-shrink: 0;
+  }
+  
+  main {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  
+  .modern-interface {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  #chat-window {
+    height: 100%;
+    flex-grow: 1;
+  }
+
   .controls {
     flex-wrap: wrap;
+    gap: 8px;
   }
 
   .controls select {
-    max-width: 100%;
+    width: 100%;
+    min-width: 0;
   }
 
-  .style-switcher {
-    position: relative;
+  .side-panel, #about-panel {
+    width: 90vw;
+    right: -100vw;
   }
 
-  .style-menu {
-    position: absolute;
-    top: 100%;
+  .side-panel.open, #about-panel.open {
     right: 0;
-    width: 200px;
   }
 }
 
